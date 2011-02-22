@@ -10,10 +10,15 @@ namespace GEM
     /// </summary>
     public class Individual
     {
+        #region methods & properties
+
         /// <summary>
-        /// The genes of the individual
+        /// The gene set of the individual
         /// </summary>
-        private GeneSet Genes
+        /// <value>
+        /// The genes
+        /// </value>
+        public GeneSet Genes
         {
             get
             {
@@ -21,13 +26,17 @@ namespace GEM
             }
             set
             {
+                throw new System.NotImplementedException();
             }
         }
 
         /// <summary>
         /// The dataset that the individual represents
         /// </summary>
-        private DataSet DataSet
+        /// <value>
+        /// The dataset
+        /// </value>
+        public DataSet DataSet
         {
             get
             {
@@ -35,7 +44,28 @@ namespace GEM
             }
             set
             {
+                throw new System.NotImplementedException();
             }
         }
+
+        /// <summary>
+        /// Fitness value of the individual
+        /// </summary>
+        /// <value>
+        /// The fitness
+        /// </value>
+        public double Fitness
+        {
+            get
+            {
+                return this.DataSet.Fitness;
+            }
+            set
+            {
+                this.DataSet.Fitness = value;
+            }
+        }
+
+        #endregion
     }
 }

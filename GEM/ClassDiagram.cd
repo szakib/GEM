@@ -10,13 +10,14 @@
   <Class Name="GEM.MainForm">
     <Position X="2.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAAAAAAACAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AABAAAAAACAAAAAAAACAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MainForm.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneticAlgo">
     <Position X="5.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAIAEAAAAAAABAAAIAAAAAA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -28,16 +29,16 @@
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.DataSet">
-    <Position X="8.5" Y="3.25" Width="1.5" />
+    <Position X="8.5" Y="3.25" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Individual">
     <Position X="3.75" Y="3" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAA=</HashCode>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAA=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
   </Class>
