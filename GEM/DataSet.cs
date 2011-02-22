@@ -10,7 +10,7 @@ namespace GEM
     /// </summary>
     public class DataSet
     {
-        #region methods & properties
+        #region fields & properties
 
         /// <summary>
         /// Gets or sets the fitness
@@ -32,6 +32,8 @@ namespace GEM
 
         #endregion
 
+        #region methods
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataSet"/> class
         /// </summary>
@@ -47,7 +49,9 @@ namespace GEM
         /// <param name="geneSet">The gene set.</param>
         public DataSet(GeneSet geneSet)
         {
+            throw new System.NotImplementedException();
         }
 
+        #endregion
     }
 }

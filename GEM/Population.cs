@@ -10,11 +10,7 @@ namespace GEM
     /// </summary>
     public class Population
     {
-        #region methods & properties
-
-
-
-        #endregion
+        #region fields & properties
 
         public List<Individual> Individuals
         {
@@ -37,5 +33,12 @@ namespace GEM
             {
             }
         }
+
+        #endregion
+
+        #region methods
+
+
+        #endregion
     }
 }

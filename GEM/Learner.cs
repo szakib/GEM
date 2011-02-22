@@ -10,8 +10,13 @@ namespace GEM
     /// </summary>
     public class Learner
     {
-        #region methods & properties
+        #region fields & properties
 
+
+
+        #endregion
+
+        #region methods
 
 
         #endregion

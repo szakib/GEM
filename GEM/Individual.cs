@@ -10,7 +10,7 @@ namespace GEM
     /// </summary>
     public class Individual
     {
-        #region methods & properties
+        #region fields & properties
 
         /// <summary>
         /// The gene set of the individual
@@ -65,6 +65,11 @@ namespace GEM
                 this.DataSet.Fitness = value;
             }
         }
+
+        #endregion
+
+        #region methods
+
 
         #endregion
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Configuration;
 
 namespace GEM
 {
@@ -10,7 +11,15 @@ namespace GEM
     /// </summary>
     public class GeneticAlgo
     {
-        #region methods & properties
+        #region fields & properties
+
+        private int                     populationSize;
+
+        //fields for properties below
+        private Learner                 targetLearner;
+        private List<Learner>           controlGroup;
+        private List<Individual>        goodPopulation;
+        private List<Individual>        badPopulation;
         
         /// <summary>
         /// Gets or sets the target learner
@@ -22,14 +31,14 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                return targetLearner;
             }
             set
             {
-                throw new System.NotImplementedException();
+                targetLearner = value;
             }
         }
-
+        
         /// <summary>
         /// Gets or sets the control group of learners.
         /// The target learner is compared against these.
@@ -41,11 +50,11 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                return controlGroup;
             }
             set
             {
-                throw new System.NotImplementedException();
+                controlGroup = value;
             }
         }
 
@@ -61,11 +70,11 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                return goodPopulation;
             }
             set
             {
-                throw new System.NotImplementedException();
+                goodPopulation = value;
             }
         }
 
@@ -81,11 +90,11 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                return badPopulation;
             }
             set
             {
-                throw new System.NotImplementedException();
+                badPopulation = value;
             }
         }
 
@@ -98,6 +107,11 @@ namespace GEM
         /// </summary>
         public GeneticAlgo()
         {
+            ReadConfig();
+            //TODO init:
+            //targetLearner
+            //controlGroup
+            //populations
         }
 
         /// <summary>
@@ -107,7 +121,7 @@ namespace GEM
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
         public void Start_Click(object sender, EventArgs e)
         {
-
+            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -117,7 +131,31 @@ namespace GEM
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
         public void Stop_Click(object sender, EventArgs e)
         {
+            throw new System.NotImplementedException();
+        }
 
+        /// <summary>
+        /// Reads the settings from the config file
+        /// </summary>
+        private void ReadConfig()
+        {
+            //population size
+            try
+            {
+                populationSize = Convert.ToInt32(ConfigurationManager.AppSettings["PopulationSize"]);
+            }
+            catch (FormatException)
+            {
+                throw new Exception("Population Size specified in the config file is not a sequence of digits.");
+            }
+            catch (OverflowException)
+            {
+                throw new Exception("Population Size specified in the config file cannot fit in an Int32.");
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Unknown error while reading Population Size from config file. Exception text:" + e.Message);
+            }
         }
 
         #endregion
