@@ -82,6 +82,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigSettings.cs" />
     <Compile Include="DataSet.cs" />
     <Compile Include="GeneSet.cs" />
     <Compile Include="GeneticAlgo.cs" />

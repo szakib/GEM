@@ -14,6 +14,7 @@ namespace GEM
         #region fields & properties
 
         private int                     populationSize;
+        private bool                    resume;
 
         //fields for properties below
         private Learner                 targetLearner;
@@ -139,23 +140,8 @@ namespace GEM
         /// </summary>
         private void ReadConfig()
         {
-            //population size
-            try
-            {
-                populationSize = Convert.ToInt32(ConfigurationManager.AppSettings["PopulationSize"]);
-            }
-            catch (FormatException)
-            {
-                throw new Exception("Population Size specified in the config file is not a sequence of digits.");
-            }
-            catch (OverflowException)
-            {
-                throw new Exception("Population Size specified in the config file cannot fit in an Int32.");
-            }
-            catch(Exception e)
-            {
-                throw new Exception("Unknown error while reading Population Size from config file. Exception text:" + e.Message);
-            }
+            populationSize = ConfigSettings.ReadInt("PopulationSize");
+            resume = ConfigSettings.ReadBool("Resume");
         }
 
         #endregion
