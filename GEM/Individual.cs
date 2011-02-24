@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace GEM
 {
+    [Serializable()]
     /// <summary>
     /// An individual in the population of the genetic algorithm
     /// </summary>
@@ -12,6 +14,9 @@ namespace GEM
     {
         #region fields & properties
 
+        private GeneSet genes;
+        private DataSet dataSet;
+        
         /// <summary>
         /// The gene set of the individual
         /// </summary>
@@ -22,11 +27,11 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                return genes;
             }
             set
             {
-                throw new System.NotImplementedException();
+                genes = value;
             }
         }
 
@@ -40,16 +45,17 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                return dataSet;
             }
             set
             {
-                throw new System.NotImplementedException();
+                dataSet = value;
             }
         }
 
         /// <summary>
-        /// Fitness value of the individual
+        /// Fitness value of the individual.
+        /// Same as fitness of its dataset.
         /// </summary>
         /// <value>
         /// The fitness
@@ -70,6 +76,14 @@ namespace GEM
 
         #region methods
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Individual"/> class
+        /// </summary>
+        public Individual()
+        {
+            genes = new GeneSet();
+            dataSet = new DataSet();
+        }
 
         #endregion
     }

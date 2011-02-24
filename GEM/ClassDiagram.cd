@@ -10,14 +10,14 @@
   <Class Name="GEM.MainForm">
     <Position X="2.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AABAgAAAACAAAAAAgACAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AABAgAAAACAAQAAggACAEAACAAAAAAAAAAAAAAAAABA=</HashCode>
       <FileName>MainForm.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneticAlgo">
     <Position X="4.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CCAAAAQAAAAAQAACAgAAAAIAEAAAAAAgBAAAIAAAEDA=</HashCode>
+      <HashCode>CDCAAAQAACAAAAACAgIAgAIgEAAgAAAwJAQAIAAAECA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -38,7 +38,7 @@
   <Class Name="GEM.Individual">
     <Position X="6.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAA=</HashCode>
+      <HashCode>QAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
   </Class>

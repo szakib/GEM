@@ -127,10 +127,6 @@ namespace GEM
         {
             mainForm = main;
             ReadConfig();
-            //TODO init:
-            //targetLearner
-            //controlGroup
-            //populations
         }
 
         /// <summary>
@@ -140,7 +136,17 @@ namespace GEM
         {
             populationSize = ConfigSettings.ReadInt("PopulationSize");
             resume = ConfigSettings.ReadBool("Resume");
-            //TODO invent and read more params
+            //TODO target learner, control group
+        }
+
+        /// <summary>
+        /// Saves the settings to the config file
+        /// </summary>
+        private void SaveConfig()
+        {
+            ConfigSettings.WriteSetting("PopulationSize", populationSize.ToString());
+            ConfigSettings.WriteSetting("Resume", resume.ToString());
+            //TODO target learner, control group
         }
 
         /// <summary>
@@ -153,10 +159,45 @@ namespace GEM
             mainForm.StateLabel.ForeColor = Color.Green;
 
             //if this is the first run, the populations need init
-            if (!resume)
+            if (resume)
+                LoadPopulations();
+            else
                 InitPopulations();
 
             NextGeneration();
+        }
+
+        /// <summary>
+        /// Initialises the populations
+        /// </summary>
+        private void InitPopulations()
+        {
+            goodPopulation = new List<Individual>();
+            badPopulation = new List<Individual>();
+
+            for (int i = 0; i < populationSize; i++)
+            {
+                //the 2 initial populations will not be the same, this is by design
+                goodPopulation.Add(new Individual());
+                badPopulation.Add(new Individual());
+            }
+        }
+
+        /// <summary>
+        /// Loads current populations from save file
+        /// </summary>
+        private void LoadPopulations()
+        {
+            //TODO remove :)
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Saves current populations to save file
+        /// </summary>
+        private void SavePopulations()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -202,14 +243,11 @@ namespace GEM
             {
                 mainForm.StateLabel.Text = "Stopped, safe to exit.";
                 mainForm.StateLabel.ForeColor = Color.Green;
+                SavePopulations();
+                SaveConfig();
             }
             else
                 NextGeneration();
-        }
-
-        private void InitPopulations()
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
