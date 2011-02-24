@@ -17,43 +17,57 @@
   <Class Name="GEM.GeneticAlgo">
     <Position X="4.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAQAAAAAAAAAIAEAAAAAAABAAAIAAAABA=</HashCode>
+      <HashCode>CCAAAAQAAAAAQAACAgAAAAIAEAAAAAAgBAAAIAAAEDA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Population">
-    <Position X="6.75" Y="0.5" Width="1.5" />
+    <Position X="6.75" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAEAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Population.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.DataSet">
-    <Position X="8.5" Y="3.25" Width="1.75" />
+    <Position X="8.75" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Individual">
-    <Position X="3.75" Y="3" Width="1.5" />
+    <Position X="6.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAA=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Learner">
-    <Position X="10.5" Y="1.25" Width="1.5" />
+    <Position X="8.75" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Learner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneSet">
-    <Position X="6" Y="3" Width="1.5" />
+    <Position X="8.75" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>GeneSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GEM.Logger">
+    <Position X="6.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Logger.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GEM.ConfigSettings">
+    <Position X="0.5" Y="1.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAQCAAAAAAAAAAAQAAgAAAAAAQAEAAAAAABAAAA=</HashCode>
+      <FileName>ConfigSettings.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Tahoma" Size="8.25" />

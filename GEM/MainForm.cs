@@ -16,7 +16,15 @@ namespace GEM
     {
         #region fields & properties
 
-        private GeneticAlgo ga = new GeneticAlgo();
+        private GeneticAlgo ga;
+
+        public Label StateLabel
+        {
+            get
+            {
+                return stateLabel;
+            }
+        }
 
         #endregion
 
@@ -27,13 +35,42 @@ namespace GEM
         /// </summary>
         public MainForm()
         {
-            //Generated, do not remove
+            //Generated, do not remove, has to be 1st
             InitializeComponent();
 
-            this.startButton.Click += new System.EventHandler(this.ga.Start_Click);
-            this.stopButton.Click += new System.EventHandler(this.ga.Stop_Click);
+            //event handlers
+            this.startButton.Click += new System.EventHandler(this.Start_Click);
+            this.stopButton.Click += new System.EventHandler(this.Stop_Click);
+
+            ga = new GeneticAlgo(this);
+        }
+
+        /// <summary>
+        /// Handles the Click event of the start button
+        /// </summary>
+        /// <param name="sender">The source of the event</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
+        public void Start_Click(object sender, EventArgs e)
+        {
+            ga.Start();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the stop button
+        /// </summary>
+        /// <param name="sender">The source of the event</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
+        public void Stop_Click(object sender, EventArgs e)
+        {
+            ga.Stop();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
         }
 
         #endregion
+
     }
 }
