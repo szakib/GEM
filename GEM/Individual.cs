@@ -81,8 +81,9 @@ namespace GEM
         /// </summary>
         public Individual()
         {
-            genes = new GeneSet();
-            dataSet = new DataSet();
+            //fill genes with random values
+            genes = new GeneSet(true);
+            dataSet = new DataSet(genes);
         }
 
         #endregion

@@ -5,6 +5,8 @@ using System.Text;
 using System.Configuration;
 using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace GEM
 {
@@ -16,12 +18,28 @@ namespace GEM
         #region fields & properties
 
         private int                     populationSize;
-        //resume or start from scratch
+
+        /// <summary>
+        /// resume or start from scratch
+        /// </summary>
         private bool                    resume;
+
         private Logger                  logger              = new Logger();
-        //flag signalling that Stop has been pressed on the UI
+
+        /// <summary>
+        /// flag signalling that Stop has been pressed on the UI
+        /// </summary>
         private bool                    stop                = false;
+
         private MainForm                mainForm;
+        private string                  savePath;
+        private int                     experimentID;
+        private int                     currentGeneration;
+
+        /// <summary>
+        /// between 0 and 100; 100 means very many mutations
+        /// </summary>
+        private int                     mutationSeverity;
 
         //fields for properties below
         private Learner                 targetLearner;
@@ -136,6 +154,10 @@ namespace GEM
         {
             populationSize = ConfigSettings.ReadInt("PopulationSize");
             resume = ConfigSettings.ReadBool("Resume");
+            savePath = ConfigSettings.ReadString("SavePath");
+            experimentID = ConfigSettings.ReadInt("ExperimentID");
+            currentGeneration = ConfigSettings.ReadInt("CurrentGeneration");
+            mutationSeverity = ConfigSettings.ReadInt("MutationSeverity");
             //TODO target learner, control group
         }
 
@@ -146,6 +168,10 @@ namespace GEM
         {
             ConfigSettings.WriteSetting("PopulationSize", populationSize.ToString());
             ConfigSettings.WriteSetting("Resume", resume.ToString());
+            ConfigSettings.WriteSetting("SavePath", savePath);
+            ConfigSettings.WriteSetting("ExperimentID", experimentID.ToString());
+            ConfigSettings.WriteSetting("CurrentGeneration", currentGeneration.ToString());
+            ConfigSettings.WriteSetting("MutationSeverity", mutationSeverity.ToString());
             //TODO target learner, control group
         }
 
@@ -159,10 +185,15 @@ namespace GEM
             mainForm.StateLabel.ForeColor = Color.Green;
 
             //if this is the first run, the populations need init
+            //otherwise they get loaded
             if (resume)
-                LoadPopulations();
+                LoadPopulations(experimentID, currentGeneration);
             else
+            {
                 InitPopulations();
+                experimentID++;
+                currentGeneration = 0;
+            }
 
             NextGeneration();
         }
@@ -188,8 +219,34 @@ namespace GEM
         /// </summary>
         private void LoadPopulations()
         {
-            //TODO remove :)
-            throw new NotImplementedException();
+            LoadPopulations(experimentID, currentGeneration);
+        }
+
+        /// <summary>
+        /// Loads a certain set of populations from save file
+        /// </summary>
+        /// <param name="expID">The experiment ID</param>
+        /// <param name="generation">The generation</param>
+        private void LoadPopulations(int expID, int generation)
+        {
+            string filename = "GEM_"
+                                + expID.ToString()
+                                + "_"
+                                + generation.ToString()
+                                + ".save";
+            BinaryFormatter bFormatter = new BinaryFormatter();
+
+            //Load good population
+            string path = Path.Combine(savePath, filename + "_good");
+            Stream stream = File.Open(path, FileMode.Open);
+            goodPopulation = (List<Individual>)bFormatter.Deserialize(stream);
+            stream.Close();
+
+            //Load bad population
+            path = Path.Combine(savePath, filename + "_bad");
+            stream = File.Open(path, FileMode.Open);
+            badPopulation = (List<Individual>)bFormatter.Deserialize(stream);
+            stream.Close();
         }
 
         /// <summary>
@@ -197,7 +254,25 @@ namespace GEM
         /// </summary>
         private void SavePopulations()
         {
-            throw new NotImplementedException();
+            string filename =   "GEM_"
+                                + experimentID.ToString()
+                                + "_"
+                                + currentGeneration.ToString()
+                                + ".save";
+            BinaryFormatter bFormatter = new BinaryFormatter();
+            
+            //Save good population
+            string path = Path.Combine(savePath, filename + "_good");
+            Stream stream = File.Open(path, FileMode.Create);
+            bFormatter.Serialize(stream, goodPopulation);
+            stream.Close();
+
+            //Save bad population
+            path = Path.Combine(savePath, filename + "_bad");
+            stream = File.Open(path, FileMode.Create);
+            bFormatter.Serialize(stream, badPopulation);
+            stream.Close();
+            resume = true;
         }
 
         /// <summary>
@@ -217,6 +292,10 @@ namespace GEM
         private void NextGeneration()
         {
             //start new generation by calling ProcessGeneration asynchronously
+            AsynchProcessGen caller = new AsynchProcessGen(this.ProcessGeneration);
+
+            caller.BeginInvoke(new AsyncCallback(NextGenCallBack), ""); 
+
             //some combo of ProcessGeneration() and NextGenCallBack() here
 
             //TODO remove :)
@@ -224,27 +303,40 @@ namespace GEM
         }
 
         /// <summary>
+        /// Delegate for calling ProcessGeneration asynchronously
+        /// </summary>
+        private delegate void AsynchProcessGen();
+
+        /// <summary>
         /// Processes one generation.
         /// This method should only be called asynchronously!
         /// </summary>
         private void ProcessGeneration()
         {
-            //TODO remove :)
-            throw new NotImplementedException();
+            //Calculate breeding chances according to fitness
+            //Do interbreeding to get new populations
+
+            //Mutate (or not) each individual
+            double mutationCoefficient = mutationSeverity / 100;
+            foreach (Individual i in goodPopulation)
+                i.Genes.Mutate(mutationCoefficient);
+            foreach (Individual j in badPopulation)
+                j.Genes.Mutate(mutationCoefficient);
         }
 
         /// <summary>
         /// Callback function for ProcessGeneration.
         /// If stop was not pressed, starts a new generation.
         /// </summary>
-        private void NextGenCallBack()
+        /// <param name="ar">The IAsyncResult response, unused</param>
+        private void NextGenCallBack(IAsyncResult ar)
         {
             if (stop)
             {
-                mainForm.StateLabel.Text = "Stopped, safe to exit.";
-                mainForm.StateLabel.ForeColor = Color.Green;
                 SavePopulations();
                 SaveConfig();
+                mainForm.StateLabel.Text = "Stopped, safe to exit.";
+                mainForm.StateLabel.ForeColor = Color.Green;
             }
             else
                 NextGeneration();

@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="ConfigSettings.cs" />
     <Compile Include="DataSet.cs" />
+    <Compile Include="GeneConstants.cs" />
     <Compile Include="GeneSet.cs" />
     <Compile Include="GeneticAlgo.cs" />
     <Compile Include="Individual.cs" />
@@ -110,7 +111,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ClassDiagram.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -121,6 +124,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MatrixLibrary\MatrixLibrary_dll\MatrixLibrary.csproj">
+      <Project>{E382793F-4A21-490E-9A1B-4C526FC5B16D}</Project>
+      <Name>MatrixLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

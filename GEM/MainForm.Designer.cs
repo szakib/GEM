@@ -58,7 +58,7 @@
             this.stateLabel.Name = "stateLabel";
             this.stateLabel.Size = new System.Drawing.Size(21, 13);
             this.stateLabel.TabIndex = 2;
-            this.stateLabel.Text = "wtf";
+            this.stateLabel.Text = "Init";
             // 
             // MainForm
             // 
@@ -69,7 +69,7 @@
             this.Controls.Add(this.stopButton);
             this.Controls.Add(this.startButton);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Genetic Evaluator for Meta-Learning";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

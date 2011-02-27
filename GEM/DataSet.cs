@@ -12,6 +12,8 @@ namespace GEM
     {
         #region fields & properties
 
+        private double fitness = 0;
+
         /// <summary>
         /// Gets or sets the fitness
         /// </summary>
@@ -22,11 +24,16 @@ namespace GEM
         {
             get
             {
-                throw new System.NotImplementedException();
+                if (fitness == 0)
+                {
+                    //calculate it
+                    throw new System.NotImplementedException();
+                }
+                else return fitness;
             }
             set
             {
-                throw new System.NotImplementedException();
+                fitness = value;
             }
         }
 
@@ -49,6 +56,8 @@ namespace GEM
         /// <param name="geneSet">The gene set.</param>
         public DataSet(GeneSet geneSet)
         {
+            //TODO: before doing this,
+            //I'll have to know how I pass the DS to weka (file/param., etc.)
             throw new System.NotImplementedException();
         }
 
