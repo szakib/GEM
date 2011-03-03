@@ -153,7 +153,7 @@ namespace GEM
         }
 
         /// <summary>
-        /// Randomises the matrices according to the values of the single-number genes.
+        /// Randomises the matrices according to the values of the scalar genes.
         /// </summary>
         public void RandomiseMatrices()
         {
@@ -203,9 +203,10 @@ namespace GEM
                     stdDevMatrix[row, 0] = rnd.NextDouble() * (numClasses - 1);
                 }
 
+                //Correlation matrix
                 for (int column = 0; column < numAttribs; column++)
                 {
-                    //calculate one half
+                    //initialise one half
                     if (column > row)
                         //correlationMatrix elements between -1 and 1
                         correlationMatrix[row, column] = (rnd.NextDouble() * 2) - 1;
@@ -215,8 +216,6 @@ namespace GEM
                     //other half copied
                     else
                         correlationMatrix[row, column] = correlationMatrix[column, row];
-                    //meanMatrix elements between  and 
-                    //stdDevMatrix elements between  and 
                 }
             }
         }
