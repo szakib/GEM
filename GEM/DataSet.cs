@@ -12,13 +12,16 @@ namespace GEM
     {
         #region fields & properties
 
+        /// <summary>
+        /// Fitness value of this dataset
+        /// </summary>
         private double fitness = 0;
 
         /// <summary>
         /// Gets or sets the fitness
         /// </summary>
         /// <value>
-        /// The fitness
+        /// The fitness value
         /// </value>
         public double Fitness
         {
@@ -26,10 +29,13 @@ namespace GEM
             {
                 if (fitness == 0)
                 {
-                    //calculate it
+                    //TODO calculate it, meaning:
+                    //run the learning with the ARFF file
+                    //and actually calculate the fitness value from the results of the learning
                     throw new System.NotImplementedException();
                 }
-                else return fitness;
+                
+                return fitness;
             }
             set
             {
@@ -46,7 +52,7 @@ namespace GEM
         /// </summary>
         public DataSet()
         {
-            throw new Exception("Use the DataSet(GeneSet geneSet) constructor instead of the default.");
+            throw new Exception("Use one of the other constructors instead of the default.");
         }
 
         /// <summary>
@@ -56,10 +62,23 @@ namespace GEM
         /// <param name="geneSet">The gene set.</param>
         public DataSet(GeneSet geneSet)
         {
-            //TODO: before doing this,
-            //I'll have to know how I pass the DS to weka (file/param., etc.)
+            //DS will be passed to weka as an ARFF file
+            //TODO steps to take here:
+            //generate dataset from the data
+            //make ARFF file
+            //save ARFF using the GUID of the gene set as name
             throw new System.NotImplementedException();
         }
+
+        //TODO make constructor to load dataset from file
+        /*        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSet"/> class
+        /// from an ARFF file
+        /// </summary>
+        public DataSet()
+        {
+            throw new System.NotImplementedException();
+        }*/
 
         #endregion
     }

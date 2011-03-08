@@ -6,12 +6,15 @@ using MatrixLibrary;
 
 namespace GEM
 {
+    [Serializable()]
     /// <summary>
     /// The set of genes representing a dataset
     /// </summary>
     public class GeneSet
     {
         #region fields & properties
+
+        private Guid    guid;
 
         /// <summary>
         /// total number of instances (both training and test)
@@ -105,6 +108,9 @@ namespace GEM
             }
         }
 
+        /// <summary>
+        /// Number of continuous attributes
+        /// </summary>
         public int NumContinuousAttribs
         {
             get
@@ -129,10 +135,12 @@ namespace GEM
         /// otherwise returns empty gene set.</param>
         public GeneSet(bool fillRandom)
         {
+            guid = new Guid();
+
             if (fillRandom)
             {
                 Random rnd = new Random();
-                
+
                 dataSetSize = rnd.Next(GeneConstants.minDSSize, GeneConstants.maxDSSize);
                 numAttribs = rnd.Next(GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
                 numClasses = rnd.Next(GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
@@ -141,6 +149,10 @@ namespace GEM
                 discreteAttribRatio = rnd.NextDouble();
                 missingValueRatio = rnd.NextDouble();
                 irrelevantAttribRatio = rnd.NextDouble();
+            }
+            else
+            {
+                numAttribs = 1;
             }
 
             meanMatrix = new Matrix(numAttribs, 1);

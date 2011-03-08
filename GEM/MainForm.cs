@@ -65,9 +65,13 @@ namespace GEM
             ga.Stop();
         }
 
+        /// <summary>
+        /// Handles the Load event of the MainForm control.
+        /// </summary>
+        /// <param name="sender">The source of the event</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
         private void MainForm_Load(object sender, EventArgs e)
         {
-
         }
 
         #endregion

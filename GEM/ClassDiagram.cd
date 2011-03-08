@@ -44,6 +44,7 @@
       <HashCode>QAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="GEM.Learner">
     <Position X="8.75" Y="2.5" Width="1.5" />

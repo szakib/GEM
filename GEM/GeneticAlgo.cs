@@ -260,6 +260,7 @@ namespace GEM
                                 + currentGeneration.ToString()
                                 + ".save";
             BinaryFormatter bFormatter = new BinaryFormatter();
+            //might want to use XmlSerializer instead
             
             //Save good population
             string path = Path.Combine(savePath, filename + "_good");
@@ -295,11 +296,6 @@ namespace GEM
             AsynchProcessGen caller = new AsynchProcessGen(this.ProcessGeneration);
 
             caller.BeginInvoke(new AsyncCallback(NextGenCallBack), ""); 
-
-            //some combo of ProcessGeneration() and NextGenCallBack() here
-
-            //TODO remove :)
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -314,6 +310,8 @@ namespace GEM
         private void ProcessGeneration()
         {
             //Calculate breeding chances according to fitness
+            //(fitness calculation implicitly makes and saves datasets)
+            SavePopulations();
             //Do interbreeding to get new populations
 
             //Mutate (or not) each individual
@@ -322,6 +320,7 @@ namespace GEM
                 i.Genes.Mutate(mutationCoefficient);
             foreach (Individual j in badPopulation)
                 j.Genes.Mutate(mutationCoefficient);
+
         }
 
         /// <summary>
@@ -333,7 +332,6 @@ namespace GEM
         {
             if (stop)
             {
-                SavePopulations();
                 SaveConfig();
                 mainForm.StateLabel.Text = "Stopped, safe to exit.";
                 mainForm.StateLabel.ForeColor = Color.Green;
