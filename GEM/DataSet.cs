@@ -71,7 +71,7 @@ namespace GEM
         }
 
         //TODO make constructor to load dataset from file
-        /*        /// <summary>
+/*        /// <summary>
         /// Initializes a new instance of the <see cref="DataSet"/> class
         /// from an ARFF file
         /// </summary>

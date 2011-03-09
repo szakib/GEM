@@ -66,5 +66,11 @@ namespace GEM
         /// Maximum value of continuous attributes
         /// </summary>
         public const int maxContinuous  = 1000000;  //1M
+
+        /// <summary>
+        /// The base chance of mutation
+        /// The effective chance is this * the coefficient
+        /// </summary>
+        public const double baseMutationChance = 0.1;
     }
 }
