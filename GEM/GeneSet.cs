@@ -57,30 +57,54 @@ namespace GEM
         //Matrices for statistical generation of data (p45 in Anton's thesis)
 
         /// <summary>
-        /// Column vector of mean values of attribs
+        /// Mean value of class attribute
         /// </summary>
-        private Matrix  meanMatrix;
+        private double meanClass;
 
         /// <summary>
-        /// Column vector of stddev values of attribs.
+        /// Standard deviation of class attribute
         /// </summary>
-        private Matrix  stdDevMatrix;
+        private double stdDevClass;
 
         /// <summary>
-        /// Correlation matrix between the attributes
+        /// Column vector of mean values of nominal attribs
         /// </summary>
-        private Matrix  correlationMatrix;
+        private Matrix meanMatrixNominal;
+
+        /// <summary>
+        /// Column vector of mean values of discrete attribs
+        /// </summary>
+        private Matrix meanMatrixDiscrete;
+
+        /// <summary>
+        /// Column vector of mean values of continuous attribs
+        /// </summary>
+        private Matrix meanMatrixContinuous;
+
+        /// <summary>
+        /// Column vector of stddev values of nominal attribs.
+        /// </summary>
+        private Matrix stdDevMatrixNominal;
+
+        /// <summary>
+        /// Column vector of stddev values of discrete attribs.
+        /// </summary>
+        private Matrix stdDevMatrixDiscrete;
+
+        /// <summary>
+        /// Column vector of stddev values of continuous attribs.
+        /// </summary>
+        private Matrix stdDevMatrixContinuous;
 
         /// <summary>
         /// Column vector of number of classes in the nominal attributes
         /// </summary>
-        private Matrix nominalClassesMatrix;
+        private Matrix  nominalClassesMatrix;
 
-        /*The order of the attributes is the following:
-         Class
-         Nominal ones
-         Discrete ones
-         Continuous ones*/
+        /// <summary>
+        /// Correlation matrix among the attributes
+        /// </summary>
+        private Matrix  correlationMatrix;
 
         //properties
 
@@ -128,6 +152,70 @@ namespace GEM
             }
         }
 
+        /*The order of the attributes is the following:
+         Class
+         Nominal ones
+         Discrete ones
+         Continuous ones*/
+
+        /// <summary>
+        /// Column vector of mean values of attribs
+        /// </summary>
+        private Matrix meanMatrix
+        {
+            get
+            {
+                Matrix ret = new Matrix(numAttribs, 1);
+
+                ret[0, 0] = meanClass;
+
+                for (int row = 1; row < numAttribs; row++)
+                    //nominal
+                    if (row < NumNominalAttribs + 1)
+                        ret[row, 0] = meanMatrixNominal[row - 1, 0];
+                    //discrete
+                    else if (row < NumNominalAttribs + NumDiscreteAttribs + 1)
+                        ret[row, 0] = meanMatrixDiscrete[row - 1 - NumNominalAttribs, 0];
+                    //continuous
+                    else
+                    {
+                        int index = row - 1 - NumNominalAttribs - NumDiscreteAttribs;
+                        ret[row, 0] = meanMatrixContinuous[index, 0];
+                    }
+
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// Column vector of stddev values of attribs.
+        /// </summary>
+        private Matrix stdDevMatrix
+        {
+            get
+            {
+                Matrix ret = new Matrix(numAttribs, 1);
+
+                ret[0, 0] = meanClass;
+
+                for (int row = 1; row < numAttribs; row++)
+                    //nominal
+                    if (row < NumNominalAttribs + 1)
+                        ret[row, 0] = stdDevMatrixNominal[row - 1, 0];
+                    //discrete
+                    else if (row < NumNominalAttribs + NumDiscreteAttribs + 1)
+                        ret[row, 0] = stdDevMatrixDiscrete[row - 1 - NumNominalAttribs, 0];
+                    //continuous
+                    else
+                    {
+                        int index = row - 1 - NumNominalAttribs - NumDiscreteAttribs;
+                        ret[row, 0] = stdDevMatrixContinuous[index, 0];
+                    }
+
+                return ret;
+            }
+        }
+
         #endregion
 
         #region methods
@@ -159,16 +247,25 @@ namespace GEM
                 discreteAttribRatio = rnd.NextDouble();
                 missingValueRatio = rnd.NextDouble();
                 irrelevantAttribRatio = rnd.NextDouble();
+
+                meanClass = RandomDouble(rnd, 0, numClasses - 1);
+                stdDevClass = RandomDouble(rnd, 0, numClasses - 1);
             }
             else
             {
                 numAttribs = 1;
+                nominalAttribRatio = 0;
+                discreteAttribRatio = 0;
             }
 
-            meanMatrix = new Matrix(numAttribs, 1);
-            stdDevMatrix = new Matrix(numAttribs, 1);
-            correlationMatrix = new Matrix(numAttribs, numAttribs);
+            meanMatrixNominal = new Matrix(NumNominalAttribs, 1);
+            stdDevMatrixNominal = new Matrix(NumNominalAttribs, 1);
+            meanMatrixDiscrete = new Matrix(NumDiscreteAttribs, 1);
+            stdDevMatrixDiscrete = new Matrix(NumDiscreteAttribs, 1);
+            meanMatrixContinuous = new Matrix(NumContinuousAttribs, 1);
+            stdDevMatrixContinuous = new Matrix(NumContinuousAttribs, 1);
             nominalClassesMatrix = new Matrix(NumNominalAttribs, 1);
+            correlationMatrix = new Matrix(numAttribs, numAttribs);
 
             if (fillRandom)
                 RandomiseMatrices();
@@ -181,50 +278,44 @@ namespace GEM
         {
             Random rnd = new Random();
 
-            for (int row = 0; row < numAttribs; row++)
+            //class is already initialised by the time we get here
+
+            //nominal
+            for (int row = 0; row < NumNominalAttribs; row++)
             {
-                //class
-                if (0 == row)
-                {
-                    //both the mean and stddev need to be
-                    //between 0 and the number of the last class
-                    meanMatrix[row, 0] = RandomDouble(rnd, 0, numClasses - 1);
-                    stdDevMatrix[row, 0] = RandomDouble(rnd, 0, numClasses - 1);
-                }
-                //nominal attribute
-                else if (row < NumNominalAttribs + 1)
-                {
-                    //has to be between min and max, needs to be an int stored as double
-                    nominalClassesMatrix[row, 0]
-                        = Math.Round(RandomDouble(rnd, GeneConstants.minNominal, GeneConstants.maxNominal));
+                //has to be between min and max, needs to be an int stored as double
+                nominalClassesMatrix[row, 0]
+                    = Math.Round(RandomDouble(rnd, GeneConstants.minNominal, GeneConstants.maxNominal));
 
-                    //has to be between 0 and max class
-                    meanMatrix[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
-                    //has to be between 0 and max class
-                    stdDevMatrix[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
-                }
-                //discrete attribute
-                else if (row < NumNominalAttribs + NumDiscreteAttribs + 1)
-                {
-                    //has to be between min and max
-                    meanMatrix[row, 0]
-                        = RandomDouble(rnd, GeneConstants.minDiscrete, GeneConstants.maxDiscrete);
-                    //has to be between 0 and max
-                    stdDevMatrix[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxDiscrete);
-                }
-                //continuous attribute
-                else
-                {
-                    //has to be between min and max
-                    meanMatrix[row, 0]
-                        = RandomDouble(rnd, GeneConstants.minContinuous, GeneConstants.maxContinuous);
-                    //has to be between 0 and max
-                    stdDevMatrix[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxContinuous);
-                }
+                //has to be between 0 and max class
+                meanMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                //has to be between 0 and max class
+                stdDevMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+            }
 
-                //Correlation matrix
+            //discrete
+            for (int row = 0; row < NumDiscreteAttribs; row++)
+            {
+                //has to be between min and max
+                meanMatrixDiscrete[row, 0]
+                    = RandomDouble(rnd, GeneConstants.minDiscrete, GeneConstants.maxDiscrete);
+                //has to be between 0 and max
+                stdDevMatrixDiscrete[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxDiscrete);
+            }
+
+            //continuous
+            for (int row = 0; row < NumContinuousAttribs; row++)
+            {
+                //has to be between min and max
+                meanMatrixContinuous[row, 0]
+                    = RandomDouble(rnd, GeneConstants.minContinuous, GeneConstants.maxContinuous);
+                //has to be between 0 and max
+                stdDevMatrixContinuous[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxContinuous);
+            }
+
+            //Correlation matrix
+            for (int row = 0; row < numAttribs; row++)
                 for (int column = 0; column < numAttribs; column++)
-                {
                     //initialise one half
                     if (column > row)
                         //correlationMatrix elements between -1 and 1
@@ -235,8 +326,6 @@ namespace GEM
                     //other half copied
                     else
                         correlationMatrix[row, column] = correlationMatrix[column, row];
-                }
-            }
         }
 
         /// <summary>
@@ -249,44 +338,101 @@ namespace GEM
 
             double chance = mutationCoefficient * GeneConstants.baseMutationChance;
 
-            //dataSetSize;
+            //dataSetSize
             if (GetsMutated(rnd, chance))
                 dataSetSize = RandomInt(rnd, GeneConstants.minDSSize, GeneConstants.maxDSSize);
-            //numAttribs;
+            //numAttribs
             if (GetsMutated(rnd, chance))
                 numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
-            //numClasses;
+            //numClasses
             if (GetsMutated(rnd, chance))
                 numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
 
-            //nominalAttribRatio;
+            //nominalAttribRatio
             if (GetsMutated(rnd, chance))
                 nominalAttribRatio = rnd.NextDouble();
-            //discreteAttribRatio;
+            //discreteAttribRatio
             if (GetsMutated(rnd, chance))
                 discreteAttribRatio = rnd.NextDouble();
-            //missingValueRatio;
+            //missingValueRatio
             if (GetsMutated(rnd, chance))
                 missingValueRatio = rnd.NextDouble();
-            //irrelevantAttribRatio;
+            //irrelevantAttribRatio
             if (GetsMutated(rnd, chance))
                 irrelevantAttribRatio = rnd.NextDouble();
+
+            //meanClass
+            if (GetsMutated(rnd, chance))
+                meanClass = RandomDouble(rnd, 0, numClasses - 1);
+            //stdDevClass
+            if (GetsMutated(rnd, chance))
+                stdDevClass = RandomDouble(rnd, 0, numClasses - 1);
 
             //The matrices are mutated first and then adjusted
             //to avoid replacing new random values with even newer random values
             
-            /*//meanMatrix;
-            MutateMatrix(meanMatrix, rnd, chance);
-            AdjustMatrixSize(meanMatrix);
-            //stdDevMatrix;
-            MutateMatrix(meanMatrix);
-            AdjustMatrixSize(meanMatrix);
-            //correlationMatrix;
-            MutateMatrix(meanMatrix);
-            AdjustMatrixSize(meanMatrix);
-            //nominalClassesMatrix;
-            MutateMatrix(meanMatrix);
-            AdjustMatrixSize(meanMatrix);*/
+            //correlationMatrix
+            MutateMatrix(correlationMatrix, rnd, chance, -1, 1);
+            AdjustMatrixSize(correlationMatrix, numAttribs, numAttribs, -1, 1, rnd);
+
+            //nominalClassesMatrix
+            MutateMatrix(nominalClassesMatrix, rnd, chance,
+                GeneConstants.minNominal, GeneConstants.maxNominal);
+            AdjustMatrixSize(nominalClassesMatrix, NumNominalAttribs, 1,
+                GeneConstants.minNominal, GeneConstants.maxNominal, rnd);
+            RoundMatrixValues(nominalClassesMatrix);
+            
+            # region nominal mean&stdDev
+
+            Matrix newMeanMatrixNominal = new Matrix(NumNominalAttribs, 1);
+            Matrix newStdDevMatrixNominal = new Matrix(NumNominalAttribs, 1);
+                        
+            for (int row = 0; row < NumNominalAttribs; row++)
+            {
+                //while still inside the original matrix, either copy or mutate
+                if (row < stdDevMatrixNominal.NoRows)
+                {
+                    if (GetsMutated(rnd, chance))
+                        newStdDevMatrixNominal[row, 0]
+                            = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    else
+                        newStdDevMatrixNominal[row, 0] = stdDevMatrixNominal[row, 0];
+                    if (GetsMutated(rnd, chance))
+                        newMeanMatrixNominal[row, 0]
+                            = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    else
+                        newMeanMatrixNominal[row, 0] = meanMatrixNominal[row, 0];
+                }
+                //beyond the original matrix, value has to be a new random number
+                else
+                {
+                    newStdDevMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    newMeanMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                }
+            }
+
+            stdDevMatrixNominal = newStdDevMatrixNominal;
+            meanMatrixNominal = newMeanMatrixNominal;
+
+            #endregion
+
+            //discrete mean&stdDev
+            MutateMatrix(stdDevMatrixDiscrete, rnd, chance, 0, GeneConstants.maxDiscrete);
+            AdjustMatrixSize(stdDevMatrixDiscrete, NumDiscreteAttribs, 1, 0, GeneConstants.maxDiscrete, rnd);
+            MutateMatrix(meanMatrixDiscrete, rnd, chance,
+                GeneConstants.minDiscrete, GeneConstants.maxDiscrete);
+            AdjustMatrixSize(meanMatrixDiscrete, NumDiscreteAttribs, 1,
+                GeneConstants.minDiscrete, GeneConstants.maxDiscrete, rnd);
+
+            //continuous mean&stdDev
+            MutateMatrix(stdDevMatrixContinuous, rnd, chance, 0, GeneConstants.maxContinuous);
+            AdjustMatrixSize(stdDevMatrixContinuous, NumContinuousAttribs, 1,
+                0, GeneConstants.maxContinuous, rnd);
+            MutateMatrix(meanMatrixContinuous, rnd, chance,
+                GeneConstants.minContinuous, GeneConstants.maxContinuous);
+            AdjustMatrixSize(meanMatrixContinuous, NumContinuousAttribs, 1,
+                GeneConstants.minContinuous, GeneConstants.maxContinuous, rnd); 
+            
         }
 
         /// <summary>
@@ -393,6 +539,20 @@ namespace GEM
 
                 return ret;
             }
+        }
+
+        /// <summary>
+        /// Rounds the values of the target matrix
+        /// </summary>
+        /// <param name="target">The target matrix</param>
+        /// <returns>The rounded matrix</returns>
+        private Matrix RoundMatrixValues(Matrix target)
+        {
+            for (int row = 0; row < target.NoRows; row++)
+                for (int col = 0; col < target.NoCols; col++)
+                    target[row, col] = Math.Round(target[row, col]);
+
+            return target;
         }
 
         #endregion
