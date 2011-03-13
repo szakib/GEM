@@ -309,10 +309,12 @@ namespace GEM
         /// </summary>
         private void ProcessGeneration()
         {
+            //TODO
             //Calculate breeding chances according to fitness
             //(fitness calculation implicitly makes and saves datasets)
             SavePopulations();
             //Do interbreeding to get new populations
+            //Use elitist selection: best individuals carry on to next generation.
 
             //Mutate (or not) each individual
             double mutationCoefficient = mutationSeverity / 100;

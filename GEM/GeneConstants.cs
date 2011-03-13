@@ -71,6 +71,6 @@ namespace GEM
         /// The base chance of mutation
         /// The effective chance is this * the coefficient
         /// </summary>
-        public const double baseMutationChance = 0.1;
+        public const double baseMutationChance = 0.01;
     }
 }
