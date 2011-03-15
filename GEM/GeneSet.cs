@@ -111,7 +111,7 @@ namespace GEM
         /// <summary>
         /// Ratio of continuous attributes
         /// </summary>
-        public double ContinuousAttribRatio
+        private double ContinuousAttribRatio
         {
             get
             {
@@ -122,7 +122,7 @@ namespace GEM
         /// <summary>
         /// number of nominal attributes
         /// </summary>
-        public int NumNominalAttribs
+        private int NumNominalAttribs
         {
             get
             {
@@ -133,7 +133,7 @@ namespace GEM
         /// <summary>
         /// Number of discrete attributes
         /// </summary>
-        public int NumDiscreteAttribs
+        private int NumDiscreteAttribs
         {
             get
             {
@@ -144,7 +144,7 @@ namespace GEM
         /// <summary>
         /// Number of continuous attributes
         /// </summary>
-        public int NumContinuousAttribs
+        private int NumContinuousAttribs
         {
             get
             {
@@ -242,9 +242,10 @@ namespace GEM
                 numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
                 numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
 
+                //TODO: adjust so that they don't overlap!
                 //values between 0 and 1, no need for RandomDouble()
                 nominalAttribRatio = rnd.NextDouble();
-                discreteAttribRatio = rnd.NextDouble();
+                discreteAttribRatio = RandomDouble(rnd, 0, 1 - nominalAttribRatio);
                 missingValueRatio = rnd.NextDouble();
                 irrelevantAttribRatio = rnd.NextDouble();
 
@@ -267,7 +268,7 @@ namespace GEM
         /// <summary>
         /// Initialises the matrices
         /// </summary>
-        public InitMatrices()
+        public void InitMatrices()
         {
             meanMatrixNominal = new Matrix(NumNominalAttribs, 1);
             stdDevMatrixNominal = new Matrix(NumNominalAttribs, 1);
@@ -321,6 +322,7 @@ namespace GEM
                 stdDevMatrixContinuous[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxContinuous);
             }
 
+            //TODO insert 0 correlation with irrelevant attributes
             //Correlation matrix
             for (int row = 0; row < numAttribs; row++)
                 for (int column = 0; column < numAttribs; column++)

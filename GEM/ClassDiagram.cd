@@ -41,7 +41,7 @@
   <Class Name="GEM.Individual">
     <Position X="2.25" Y="6" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>QAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAI=</HashCode>
+      <HashCode>QAAgAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -51,13 +51,6 @@
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Learner.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="GEM.GeneSet">
-    <Position X="8.75" Y="3.5" Width="1.75" />
-    <TypeIdentifier>
-      <HashCode>AAIAAAAAAAIIAQAIAIgAAIAgAiAAAAgACCAAAAQEEAA=</HashCode>
-      <FileName>GeneSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Logger">
@@ -72,6 +65,13 @@
     <TypeIdentifier>
       <HashCode>AEAAAAQCAAAAAAAAAAAQAAgAAAAAAQAEAAAAAABAAAA=</HashCode>
       <FileName>ConfigSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GEM.GeneSet">
+    <Position X="8.75" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAJAAAABAAIIAQALAIgAAIgkAjAAQIgMCCDAACYGEAE=</HashCode>
+      <FileName>GeneSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Tahoma" Size="8.25" />
