@@ -25,7 +25,7 @@ namespace GEM
         private int     dataSetSize;
         
         /// <summary>
-        /// number of attributes (including target attribute)
+        /// number of attributes (_including_ target attribute)
         /// </summary>
         private int     numAttribs;
 
@@ -44,15 +44,17 @@ namespace GEM
         /// </summary>
         private double  discreteAttribRatio;
 
+        //This could be a vector, so each attrib can have a different ratio
         /// <summary>
-        /// percentage of missing values
+        /// ratio of missing values
         /// </summary>
         private double  missingValueRatio;
 
+        /* //redundant, the correlation matrix is more precise
         /// <summary>
-        /// percentage of irrelevant attribs
+        /// ratio of irrelevant attribs
         /// </summary>
-        private double  irrelevantAttribRatio;
+        private double  irrelevantAttribRatio;*/
 
         //Matrices for statistical generation of data (p45 in Anton's thesis)
 
@@ -115,10 +117,16 @@ namespace GEM
         {
             get
             {
-                return 1 - nominalAttribRatio - discreteAttribRatio;
+                return ((numAttribs - 1) / numAttribs) - nominalAttribRatio - discreteAttribRatio;
             }
         }
 
+        //The behaviour (which one is a function of which)
+        //of the ratios / counts might need to be swapped.
+        //This way it is _theoretically_ possible that
+        //the rounding of the attribs produces a mismatch in the counts
+        //i.e. the nom+cont+discr don't add up to the total.
+        
         /// <summary>
         /// number of nominal attributes
         /// </summary>
@@ -127,6 +135,10 @@ namespace GEM
             get
             {
                 return (int)Math.Round(numAttribs * nominalAttribRatio);
+            }
+            set
+            {
+                nominalAttribRatio = numAttribs / value;
             }
         }
 
@@ -139,6 +151,10 @@ namespace GEM
             {
                 return (int)Math.Round(numAttribs * discreteAttribRatio);
             }
+            set
+            {
+                discreteAttribRatio = numAttribs / value;
+            }
         }
 
         /// <summary>
@@ -146,9 +162,14 @@ namespace GEM
         /// </summary>
         private int NumContinuousAttribs
         {
+            //the +-1 is the target attribute
             get
             {
-                return numAttribs - NumNominalAttribs - NumDiscreteAttribs;
+                return numAttribs - NumNominalAttribs - NumDiscreteAttribs - 1;
+            }
+            set
+            {
+                numAttribs = NumNominalAttribs + NumDiscreteAttribs + 1 + value;
             }
         }
 
@@ -169,6 +190,7 @@ namespace GEM
 
                 ret[0, 0] = meanClass;
 
+                //index starts from 1 bacause class is already done
                 for (int row = 1; row < numAttribs; row++)
                     //nominal
                     if (row < NumNominalAttribs + 1)
@@ -196,8 +218,9 @@ namespace GEM
             {
                 Matrix ret = new Matrix(numAttribs, 1);
 
-                ret[0, 0] = meanClass;
+                ret[0, 0] = stdDevClass;
 
+                //index starts from 1 bacause class is already done
                 for (int row = 1; row < numAttribs; row++)
                     //nominal
                     if (row < NumNominalAttribs + 1)
@@ -242,12 +265,12 @@ namespace GEM
                 numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
                 numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
 
-                //TODO: adjust so that they don't overlap!
                 //values between 0 and 1, no need for RandomDouble()
                 nominalAttribRatio = rnd.NextDouble();
-                discreteAttribRatio = RandomDouble(rnd, 0, 1 - nominalAttribRatio);
+                double maxDAR = ((numAttribs - 1) / numAttribs) - nominalAttribRatio;
+                discreteAttribRatio = RandomDouble(rnd, 0, maxDAR);
                 missingValueRatio = rnd.NextDouble();
-                irrelevantAttribRatio = rnd.NextDouble();
+                //irrelevantAttribRatio = rnd.NextDouble();
 
                 meanClass = RandomDouble(rnd, 0, numClasses - 1);
                 stdDevClass = RandomDouble(rnd, 0, numClasses - 1);
@@ -287,7 +310,7 @@ namespace GEM
         {
             Random rnd = new Random();
 
-            //class is already initialised by the time we get here
+            //class (not matrices) is already initialised by the time we get here
 
             //nominal
             for (int row = 0; row < NumNominalAttribs; row++)
@@ -322,7 +345,6 @@ namespace GEM
                 stdDevMatrixContinuous[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxContinuous);
             }
 
-            //TODO insert 0 correlation with irrelevant attributes
             //Correlation matrix
             for (int row = 0; row < numAttribs; row++)
                 for (int column = 0; column < numAttribs; column++)
@@ -363,13 +385,16 @@ namespace GEM
                 nominalAttribRatio = rnd.NextDouble();
             //discreteAttribRatio
             if (GetsMutated(rnd, chance))
-                discreteAttribRatio = rnd.NextDouble();
+            {
+                double maxDAR = ((numAttribs - 1) / numAttribs) - nominalAttribRatio;
+                discreteAttribRatio = RandomDouble(rnd, 0, maxDAR);
+            }
             //missingValueRatio
             if (GetsMutated(rnd, chance))
                 missingValueRatio = rnd.NextDouble();
             //irrelevantAttribRatio
             if (GetsMutated(rnd, chance))
-                irrelevantAttribRatio = rnd.NextDouble();
+                //irrelevantAttribRatio = rnd.NextDouble();
 
             //meanClass
             if (GetsMutated(rnd, chance))
@@ -495,8 +520,10 @@ namespace GEM
         /// <returns>List of children</returns>
         public List<GeneSet> Breed(GeneSet other)
         {
-            //init
             //currently 2 parents produce 2 offspring, but this can be changed if needed
+            //"inherit entire attributes" i.e. not the ratios, but the matrix elements
+            
+            //init
             List<GeneSet> ret = new List<GeneSet>(2);
             GeneSet child1 = new GeneSet(false);
             GeneSet child2 = new GeneSet(false);
@@ -505,6 +532,7 @@ namespace GEM
             Random rnd = new Random();
 
             //pass simple values on to children randomly
+            //dataSetSize
             if (rnd.NextDouble() > 0.5)
             {
                 child1.dataSetSize = this.dataSetSize;
@@ -516,23 +544,53 @@ namespace GEM
                 child1.dataSetSize = other.dataSetSize;
             }
 
+            //NumNominalAttribs
             if (rnd.NextDouble() > 0.5)
             {
-                child1.numAttribs = this.numAttribs;
-                child2.numAttribs = other.numAttribs;
+                child1.NumNominalAttribs = this.NumNominalAttribs;
+                child2.NumNominalAttribs = other.NumNominalAttribs;
             }
             else
             {
-                child2.numAttribs = this.numAttribs;
-                child1.numAttribs = other.numAttribs;
+                child2.NumNominalAttribs = this.NumNominalAttribs;
+                child1.NumNominalAttribs = other.NumNominalAttribs;
+            }
+            //NumDiscreteAttribs
+            if (rnd.NextDouble() > 0.5)
+            {
+                child1.NumDiscreteAttribs = this.NumDiscreteAttribs;
+                child2.NumDiscreteAttribs = other.NumDiscreteAttribs;
+            }
+            else
+            {
+                child2.NumDiscreteAttribs = this.NumDiscreteAttribs;
+                child1.NumDiscreteAttribs = other.NumDiscreteAttribs;
+            }
+            //NumContinuousAttribs
+            if (rnd.NextDouble() > 0.5)
+            {
+                child1.NumContinuousAttribs = this.NumContinuousAttribs;
+                child2.NumContinuousAttribs = other.NumContinuousAttribs;
+            }
+            else
+            {
+                child2.NumContinuousAttribs = this.NumContinuousAttribs;
+                child1.NumContinuousAttribs = other.NumContinuousAttribs;
             }
 
+            //helper lists to know which attrib of the children is which parent's which attrib
+            List<GeneSet> child1AttribParents = new List<GeneSet>(child1.numAttribs);
+            List<int> child1AttribIndices = new List<int>(child1.numAttribs);
+            List<GeneSet> child2AttribParents = new List<GeneSet>(child2.numAttribs);
+            List<int> child2AttribIndices = new List<int>(child2.numAttribs);
             //the class attribute is inherited as a whole
             if (rnd.NextDouble() > 0.5)
             {
                 child1.numClasses = this.numClasses;
                 child1.meanClass = this.meanClass;
                 child1.stdDevClass = this.stdDevClass;
+                child1AttribParents.Add(this);
+                child2AttribParents.Add(other);
                 child2.numClasses = other.numClasses;
                 child2.meanClass = other.meanClass;
                 child2.stdDevClass = other.stdDevClass;
@@ -542,33 +600,17 @@ namespace GEM
                 child2.numClasses = this.numClasses;
                 child2.meanClass = this.meanClass;
                 child2.stdDevClass = this.stdDevClass;
+                child2AttribParents.Add(this);
+                child1AttribParents.Add(other);
                 child1.numClasses = other.numClasses;
                 child1.meanClass = other.meanClass;
                 child1.stdDevClass = other.stdDevClass;
             }
+            child1AttribIndices.Add(0);
+            child2AttribIndices.Add(0);
+            //at this point both children know where their classes (and only those) came from
 
-            if (rnd.NextDouble() > 0.5)
-            {
-                child1.nominalAttribRatio = this.nominalAttribRatio;
-                child2.nominalAttribRatio = other.nominalAttribRatio;
-            }
-            else
-            {
-                child2.nominalAttribRatio = this.nominalAttribRatio;
-                child1.nominalAttribRatio = other.nominalAttribRatio;
-            }
-
-            if (rnd.NextDouble() > 0.5)
-            {
-                child1.discreteAttribRatio = this.discreteAttribRatio;
-                child2.discreteAttribRatio = other.discreteAttribRatio;
-            }
-            else
-            {
-                child2.discreteAttribRatio = this.discreteAttribRatio;
-                child1.discreteAttribRatio = other.discreteAttribRatio;
-            }
-
+            //missingValueRatio
             if (rnd.NextDouble() > 0.5)
             {
                 child1.missingValueRatio = this.missingValueRatio;
@@ -580,17 +622,7 @@ namespace GEM
                 child1.missingValueRatio = other.missingValueRatio;
             }
 
-            if (rnd.NextDouble() > 0.5)
-            {
-                child1.irrelevantAttribRatio = this.irrelevantAttribRatio;
-                child2.irrelevantAttribRatio = other.irrelevantAttribRatio;
-            }
-            else
-            {
-                child2.irrelevantAttribRatio = this.irrelevantAttribRatio;
-                child1.irrelevantAttribRatio = other.irrelevantAttribRatio;
-            }
-
+            //create matrices of appropriate sizes
             child1.InitMatrices();
             child2.InitMatrices();
 
@@ -602,12 +634,12 @@ namespace GEM
             Matrix sdDisCombined = CombineVectors(this.stdDevMatrixDiscrete, other.stdDevMatrixDiscrete);
             Matrix sdConCombined = CombineVectors(this.stdDevMatrixContinuous, other.stdDevMatrixContinuous);
             Matrix nomClassCombined = CombineVectors(this.nominalClassesMatrix, other.nominalClassesMatrix);
-
-            //TODO create combined correlationMatrix
-
+            /*Matrix correlationCombined
+                = CombineCorrelMatrices(rnd, this.correlationMatrix, other.correlationMatrix);*/
+            
             #region pass attributes on to children randomly
             //all parametres of an attribute are passed to the same child
-            
+
             int indexCombined;
             int indexChild;
             
@@ -624,6 +656,21 @@ namespace GEM
                     child1.meanMatrixNominal[indexChild, 0] = meanNomCombined[indexCombined, 0];
                     child1.stdDevMatrixNominal[indexChild, 0] = sdNomCombined[indexCombined, 0];
                     child1.nominalClassesMatrix[indexChild, 0] = nomClassCombined[indexCombined, 0];
+
+                    //store where the attrib came from
+                    //attrib came from this parent
+                    if (indexCombined < this.NumNominalAttribs)
+                    {
+                        child1AttribParents.Add(this);
+                        child1AttribIndices.Add(1 + indexCombined);
+                    }
+                    //attrib came from other parent
+                    else
+                    {
+                        child1AttribParents.Add(other);
+                        child1AttribIndices.Add(1 + indexCombined - this.NumNominalAttribs);
+                    }
+
                     indexChild++;
                 }
             }
@@ -635,6 +682,21 @@ namespace GEM
                     child2.meanMatrixNominal[indexChild, 0] = meanNomCombined[indexCombined, 0];
                     child2.stdDevMatrixNominal[indexChild, 0] = sdNomCombined[indexCombined, 0];
                     child2.nominalClassesMatrix[indexChild, 0] = nomClassCombined[indexCombined, 0];
+
+                    //store where the attrib came from
+                    //attrib came from this parent
+                    if (indexCombined < this.NumNominalAttribs)
+                    {
+                        child2AttribParents.Add(this);
+                        child2AttribIndices.Add(1 + indexCombined);
+                    }
+                    //attrib came from other parent
+                    else
+                    {
+                        child2AttribParents.Add(other);
+                        child2AttribIndices.Add(1 + indexCombined - this.NumNominalAttribs);
+                    }
+
                     indexChild++;
                 }
             
@@ -650,6 +712,22 @@ namespace GEM
                     takenAttribsDis.Add(indexCombined);
                     child1.meanMatrixDiscrete[indexChild, 0] = meanDisCombined[indexCombined, 0];
                     child1.stdDevMatrixDiscrete[indexChild, 0] = sdDisCombined[indexCombined, 0];
+
+                    //store where the attrib came from
+                    //attrib came from this parent
+                    if (indexCombined < this.NumDiscreteAttribs)
+                    {
+                        child1AttribParents.Add(this);
+                        child1AttribIndices.Add(1 + this.NumNominalAttribs + indexCombined);
+                    }
+                    //attrib came from other parent
+                    else
+                    {
+                        child1AttribParents.Add(other);
+                        child1AttribIndices.Add(1 + this.NumNominalAttribs + indexCombined
+                            - this.NumDiscreteAttribs);
+                    }
+
                     indexChild++;
                 }
             }
@@ -660,6 +738,22 @@ namespace GEM
                 {
                     child2.meanMatrixDiscrete[indexChild, 0] = meanDisCombined[indexCombined, 0];
                     child2.stdDevMatrixDiscrete[indexChild, 0] = sdDisCombined[indexCombined, 0];
+
+                    //store where the attrib came from
+                    //attrib came from this parent
+                    if (indexCombined < this.NumDiscreteAttribs)
+                    {
+                        child2AttribParents.Add(this);
+                        child2AttribIndices.Add(1 + this.NumNominalAttribs + indexCombined);
+                    }
+                    //attrib came from other parent
+                    else
+                    {
+                        child2AttribParents.Add(other);
+                        child2AttribIndices.Add(1 + this.NumNominalAttribs + indexCombined
+                            - this.NumDiscreteAttribs);
+                    }
+
                     indexChild++;
                 }
 
@@ -675,6 +769,23 @@ namespace GEM
                     takenAttribsCon.Add(indexCombined);
                     child1.meanMatrixContinuous[indexChild, 0] = meanConCombined[indexCombined, 0];
                     child1.stdDevMatrixContinuous[indexChild, 0] = sdConCombined[indexCombined, 0];
+
+                    //store where the attrib came from
+                    //attrib came from this parent
+                    if (indexCombined < this.NumContinuousAttribs)
+                    {
+                        child1AttribParents.Add(this);
+                        child1AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
+                            + indexCombined);
+                    }
+                    //attrib came from other parent
+                    else
+                    {
+                        child1AttribParents.Add(other);
+                        child1AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
+                            + indexCombined - this.NumContinuousAttribs);
+                    }
+
                     indexChild++;
                 }
             }
@@ -685,8 +796,65 @@ namespace GEM
                 {
                     child2.meanMatrixContinuous[indexChild, 0] = meanConCombined[indexCombined, 0];
                     child2.stdDevMatrixContinuous[indexChild, 0] = sdConCombined[indexCombined, 0];
+
+                    //store where the attrib came from
+                    //attrib came from this parent
+                    if (indexCombined < this.NumContinuousAttribs)
+                    {
+                        child2AttribParents.Add(this);
+                        child2AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
+                            + indexCombined);
+                    }
+                    //attrib came from other parent
+                    else
+                    {
+                        child2AttribParents.Add(other);
+                        child2AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
+                            + indexCombined - this.NumContinuousAttribs);
+                    }
+
                     indexChild++;
                 }
+
+            //Correlation matrix for child1
+            for (int row = 0; row < child1.numAttribs; row++)
+                for (int column = 0; column < child1.numAttribs; column++)
+                    //fill one half
+                    if (column > row)
+                        //the two had the same parent, there is a correlation value
+                        if (child1AttribParents[row] == child1AttribParents[column])
+                            child1.correlationMatrix[row, column] =
+                                child1AttribParents[row].correlationMatrix[child1AttribIndices[row],
+                                                                        child1AttribIndices[column]];
+                        //different parents => random correlation between -1 and 1
+                        else
+                            child1.correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
+                    //centerline is filled with 1's
+                    else if (column == row)
+                        child1.correlationMatrix[row, column] = 1;
+                    //other half copied
+                    else
+                        child1.correlationMatrix[row, column] = child1.correlationMatrix[column, row];
+
+            //Correlation matrix for child2
+            for (int row = 0; row < child2.numAttribs; row++)
+                for (int column = 0; column < child2.numAttribs; column++)
+                    //fill one half
+                    if (column > row)
+                        //the two had the same parent, there is a correlation value
+                        if (child2AttribParents[row] == child2AttribParents[column])
+                            child2.correlationMatrix[row, column] =
+                                child1AttribParents[row].correlationMatrix[child2AttribIndices[row],
+                                                                        child2AttribIndices[column]];
+                        //different parents => random correlation between -1 and 1
+                        else
+                            child2.correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
+                    //centerline is filled with 1's
+                    else if (column == row)
+                        child2.correlationMatrix[row, column] = 1;
+                    //other half copied
+                    else
+                        child2.correlationMatrix[row, column] = child2.correlationMatrix[column, row];
 
             #endregion
 
@@ -696,7 +864,7 @@ namespace GEM
         #region general-purpose matrix and vector operations
 
         /// <summary>
-        /// Mutates the target matrix.
+        /// Mutates the values in the target matrix.
         /// </summary>
         /// <param name="target">The target matrix</param>
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
@@ -744,7 +912,7 @@ namespace GEM
 
                 //copy available values and fill any new ones with random numbers
                 for (int row = 0; row < newRows; row++)
-                    //there is a potentially a value to be copied
+                    //there is potentially a value to be copied
                     if (row < target.NoRows)
                         for (int col = 0; col < newRows; col++)
                             //there is a value to be copied
@@ -792,8 +960,45 @@ namespace GEM
             return ret;
         }
 
-        #endregion
+        /*/// <summary>
+        /// Combines two correlation matrices.
+        /// The order of the attributes is the following:
+        /// Classes (1. first, 2. after)
+        /// Nominal ones (1. first, 2. after)
+        /// Discrete ones (1. first, 2. after)
+        /// Continuous ones (1. first, 2. after)
+        /// </summary>
+        /// <param name="c1">First correlation matrix</param>
+        /// <param name="c2">Second correlation matrix</param>
+        /// <returns></returns>
+        private Matrix CombineCorrelMatrices(Random rnd, Matrix c1, Matrix c2)
+        {
+            //square matrix
+            Matrix ret = new Matrix(c1.NoRows + c2.NoRows, c1.NoRows + c2.NoRows);
 
-        #endregion
+            for (int row = 0; row < ret.NoRows; row++)
+                for (int column = 0; column < ret.NoRows; column++)
+                    //fill one half
+                    if (column > row)
+                        //known values
+                        if()
+
+                        //new correlations, elements between -1 and 1
+                        else
+                        correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
+                    //centerline is filled with 1's
+                    else if (column == row)
+                        correlationMatrix[row, column] = 1;
+                    //other half copied
+                    else
+                        correlationMatrix[row, column] = correlationMatrix[column, row];
+
+
+            return ret;
+        }*/
+
+        #endregion //general-purpose matrix and vector operations
+
+        #endregion //methods
     }
 }
