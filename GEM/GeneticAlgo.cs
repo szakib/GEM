@@ -43,10 +43,10 @@ namespace GEM
 
         //fields for properties below
         private Learner                 targetLearner;
-        private List<Learner>           controlGroup;
-        private List<Individual>        goodPopulation;
-        private List<Individual>        badPopulation;
-        
+        private List<Learner>           controlGroup = new List<Learner>();
+        private List<Individual>        goodPopulation = new List<Individual>();
+        private List<Individual>        badPopulation = new List<Individual>();
+
         /// <summary>
         /// Gets or sets the target learner
         /// </summary>
@@ -159,6 +159,8 @@ namespace GEM
             currentGeneration = ConfigSettings.ReadInt("CurrentGeneration");
             mutationSeverity = ConfigSettings.ReadInt("MutationSeverity");
             //TODO target learner, control group
+            targetLearner = new Learner(LearnerType.J48, null);
+            controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
         }
 
         /// <summary>
@@ -254,6 +256,7 @@ namespace GEM
         /// </summary>
         private void SavePopulations()
         {
+            //TODO check serialisation of all classes involved, incl. DataSet
             string filename =   "GEM_"
                                 + experimentID.ToString()
                                 + "_"
@@ -311,6 +314,8 @@ namespace GEM
         {
             //TODO
             //Calculate breeding chances according to fitness
+            CalculateFitness();
+
             //(fitness calculation implicitly makes and saves datasets)
             SavePopulations();
             //Do interbreeding to get new populations
@@ -322,7 +327,37 @@ namespace GEM
                 i.Genes.Mutate(mutationCoefficient);
             foreach (Individual j in badPopulation)
                 j.Genes.Mutate(mutationCoefficient);
+        }
 
+        /// <summary>
+        /// Calculates the fitness values of all members of the population
+        /// </summary>
+        private void CalculateFitness()
+        {
+            foreach (Individual i in goodPopulation)
+                FillFitness(i.DataSet);
+            foreach (Individual j in badPopulation)
+                FillFitness(j.DataSet);
+        }
+
+        /// <summary>
+        /// Fills the fitness value of one individual
+        /// </summary>
+        /// <param name="dataSet">The data set to get fitness for</param>
+        private void FillFitness(DataSet dataSet)
+        {
+            double targetScore = targetLearner.Learn(dataSet.data);
+
+            double controlScore = 0;
+            if (0 != controlGroup.Count)
+            {
+                foreach (Learner l in controlGroup)
+                    controlScore += l.Learn(dataSet.data);
+
+                controlScore = controlScore / controlGroup.Count;
+            }
+
+            dataSet.Fitness = targetScore / controlScore;
         }
 
         /// <summary>

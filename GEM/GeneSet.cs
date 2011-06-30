@@ -17,22 +17,22 @@ namespace GEM
         /// <summary>
         /// Unique ID linking the gene set to the dataset it represents
         /// </summary>
-        private Guid    guid;
+        public Guid    guid;
 
         /// <summary>
         /// total number of instances (both training and test)
         /// </summary>
-        private int     dataSetSize;
+        public int     dataSetSize;
         
         /// <summary>
         /// number of attributes (_including_ target attribute)
         /// </summary>
-        private int     numAttribs;
+        public int     numAttribs;
 
         /// <summary>
         /// number of classes
         /// </summary>
-        private int     numClasses;
+        public int     numClasses;
 
         /// <summary>
         /// percentage of nominal attributes
@@ -48,7 +48,7 @@ namespace GEM
         /// <summary>
         /// ratio of missing values
         /// </summary>
-        private double  missingValueRatio;
+        public double  missingValueRatio;
 
         /* //redundant, the correlation matrix is more precise
         /// <summary>
@@ -101,12 +101,12 @@ namespace GEM
         /// <summary>
         /// Column vector of number of classes in the nominal attributes
         /// </summary>
-        private Matrix  nominalClassesMatrix;
+        public Matrix nominalClassesMatrix;
 
         /// <summary>
         /// Correlation matrix among the attributes
         /// </summary>
-        private Matrix  correlationMatrix;
+        public Matrix correlationMatrix;
 
         //properties
 
@@ -130,7 +130,7 @@ namespace GEM
         /// <summary>
         /// number of nominal attributes
         /// </summary>
-        private int NumNominalAttribs
+        public int NumNominalAttribs
         {
             get
             {
@@ -145,7 +145,7 @@ namespace GEM
         /// <summary>
         /// Number of discrete attributes
         /// </summary>
-        private int NumDiscreteAttribs
+        public int NumDiscreteAttribs
         {
             get
             {
@@ -160,7 +160,7 @@ namespace GEM
         /// <summary>
         /// Number of continuous attributes
         /// </summary>
-        private int NumContinuousAttribs
+        public int NumContinuousAttribs
         {
             //the +-1 is the target attribute
             get
@@ -182,7 +182,7 @@ namespace GEM
         /// <summary>
         /// Column vector of mean values of attribs
         /// </summary>
-        private Matrix meanMatrix
+        public Matrix meanMatrix
         {
             get
             {
@@ -212,7 +212,7 @@ namespace GEM
         /// <summary>
         /// Column vector of stddev values of attribs.
         /// </summary>
-        private Matrix stdDevMatrix
+        public Matrix stdDevMatrix
         {
             get
             {
@@ -520,6 +520,8 @@ namespace GEM
         /// <returns>List of children</returns>
         public List<GeneSet> Breed(GeneSet other)
         {
+            //TODO: refactor! This method is way too long
+
             //currently 2 parents produce 2 offspring, but this can be changed if needed
             //"inherit entire attributes" i.e. not the ratios, but the matrix elements
             
@@ -859,7 +861,7 @@ namespace GEM
             #endregion
 
             return ret;
-        }
+        } //public List<GeneSet> Breed(GeneSet other)
 
         #region general-purpose matrix and vector operations
 

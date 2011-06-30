@@ -27,31 +27,24 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAAAQAACAAAAACAgIAgAIgGgAgAAAwJAQAIAAAMCA=</HashCode>
+      <HashCode>CDCAAAQAACAAAAACAhIAiAIgGgAgAAAwJAQAIAAAMCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.DataSet">
     <Position X="8.75" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAgAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAgBAAAIAAAAAAQAAAAAAAAAAAAAAAAAEAQAAAAAIA=</HashCode>
       <FileName>DataSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Individual">
-    <Position X="2.25" Y="6" Width="1.5" />
+    <Position X="2.25" Y="6" Width="2" />
     <TypeIdentifier>
       <HashCode>QAAgAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GEM.Learner">
-    <Position X="8.75" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Learner.cs</FileName>
-    </TypeIdentifier>
   </Class>
   <Class Name="GEM.Logger">
     <Position X="2.5" Y="4.5" Width="1.5" />
@@ -70,8 +63,15 @@
   <Class Name="GEM.GeneSet">
     <Position X="8.75" Y="3.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAJAAAABAAIIAQALAIgAAIgkAjAAQIgMCCDAACYGEAE=</HashCode>
+      <HashCode>AAJAAAABAAIIAQALAIgAAIgkAhAAQIgMCCDAACYGEAE=</HashCode>
       <FileName>GeneSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GEM.Learner">
+    <Position X="7" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAgAAAAAAAAAAAAAAAAAgAAAAQgAAAAAA=</HashCode>
+      <FileName>Learner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Tahoma" Size="8.25" />
