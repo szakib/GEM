@@ -83,6 +83,20 @@ namespace GEM
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Individual"/> has mutated in the last round.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if mutated; otherwise, <c>false</c>.
+        /// </value>
+        public bool Mutated
+        {
+            get
+            {
+                return genes.Mutated;
+            }
+        }
+
         #endregion
 
         #region methods

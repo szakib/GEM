@@ -18,6 +18,7 @@ namespace GEM
         #region fields & properties
 
         private int                     populationSize;
+        private const int               numCrossValids      = 5;
 
         /// <summary>
         /// resume or start from scratch
@@ -316,6 +317,7 @@ namespace GEM
             //Calculate breeding chances according to fitness
             CalculateFitness();
 
+            //THIS IS CURRENTLY NOT TRUE:
             //(fitness calculation implicitly makes and saves datasets)
             SavePopulations();
             //Do interbreeding to get new populations
@@ -335,29 +337,34 @@ namespace GEM
         private void CalculateFitness()
         {
             foreach (Individual i in goodPopulation)
-                FillFitness(i.DataSet);
+                FillFitness(i);
             foreach (Individual j in badPopulation)
-                FillFitness(j.DataSet);
+                FillFitness(j);
         }
 
         /// <summary>
         /// Fills the fitness value of one individual
         /// </summary>
         /// <param name="dataSet">The data set to get fitness for</param>
-        private void FillFitness(DataSet dataSet)
+        private void FillFitness(Individual i)
         {
-            double targetScore = targetLearner.Learn(dataSet.data);
-
-            double controlScore = 0;
-            if (0 != controlGroup.Count)
+            //only do this if new or mutated
+            if (0 == i.DataSet.Fitness || i.Mutated)
             {
-                foreach (Learner l in controlGroup)
-                    controlScore += l.Learn(dataSet.data);
+                double targetScore = targetLearner.Learn(i.DataSet.data, numCrossValids);
 
-                controlScore = controlScore / controlGroup.Count;
+                double controlScore = 0;
+                if (0 != controlGroup.Count)
+                {
+                    foreach (Learner l in controlGroup)
+                        controlScore += l.Learn(i.DataSet.data, numCrossValids);
+
+                    controlScore = controlScore / controlGroup.Count;
+                    i.DataSet.Fitness = targetScore / controlScore;
+                }
+                else
+                    i.DataSet.Fitness = double.MaxValue;
             }
-
-            dataSet.Fitness = targetScore / controlScore;
         }
 
         /// <summary>

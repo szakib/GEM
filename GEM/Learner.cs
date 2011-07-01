@@ -23,7 +23,6 @@ namespace GEM
     /// </summary>
     public class Learner
     {
-
         #region fields & properties
 
         /// <summary>
@@ -41,10 +40,10 @@ namespace GEM
         /// </summary>
         public string[] options;
         
-        /// <summary>
+        /*/// <summary>
         /// Ratio of test set / all data
         /// </summary>
-        private double testSetRatio = 0.3;
+        private double testSetRatio = 0.3;*/
 
         #endregion
 
@@ -55,6 +54,8 @@ namespace GEM
         /// </summary>
         public Learner()
         {
+            throw new Exception(
+                "Please use the Learner(toolType, options) constructor instead.");
         }
 
         /// <summary>
@@ -73,18 +74,17 @@ namespace GEM
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>Fitness of learning</returns>
-        public double Learn(Instances data)
+        public double Learn(Instances data, int numCrossValids)
         {
+            /*//spilt data into training / test set
             Instances train = new Instances(data, 0);
             Instances test = new Instances(data, 0);
-
-            //spilt data into training / test set
             Random rnd = new Random();
             for (int i = 0; i < data.numInstances(); i++)
                 if (rnd.NextDouble() > testSetRatio)
                     train.add(data.instance(i));
                 else
-                    test.add(data.instance(i));
+                    test.add(data.instance(i));*/
 
             //Weka
             switch (toolType)
@@ -102,11 +102,9 @@ namespace GEM
             if (options != null)
                 tool.setOptions(options);
 
-            tool.buildClassifier(train);
             Evaluation eval = new Evaluation(data);
-            eval.evaluateModel(tool, test);
+            eval.crossValidateModel(tool, data, numCrossValids, new java.util.Random());
 
-            //TODO: return some meaningful value to compare to others
             return eval.pctCorrect();
         }
 

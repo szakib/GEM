@@ -108,7 +108,23 @@ namespace GEM
         /// </summary>
         public Matrix correlationMatrix;
 
+        /// <summary>
+        /// True if this gene set has mutated in the last round
+        /// </summary>
+        private bool mutated = false;
+
         //properties
+
+        /// <summary>
+        /// True if this gene set has mutated in the last round
+        /// </summary>
+        public bool Mutated
+        {
+            get
+            {
+                return mutated;
+            }
+        }
 
         /// <summary>
         /// Ratio of continuous attributes
@@ -267,7 +283,9 @@ namespace GEM
 
                 //values between 0 and 1, no need for RandomDouble()
                 nominalAttribRatio = rnd.NextDouble();
-                double maxDAR = ((numAttribs - 1) / numAttribs) - nominalAttribRatio;
+                //without the explicit casts, the 1st part is 0 because it's an int.
+                double maxDAR = (((double)numAttribs - 1) / (double)numAttribs)
+                                - nominalAttribRatio;
                 discreteAttribRatio = RandomDouble(rnd, 0, maxDAR);
                 missingValueRatio = rnd.NextDouble();
                 //irrelevantAttribRatio = rnd.NextDouble();
@@ -364,25 +382,34 @@ namespace GEM
         /// Mutates the gene set according to the given mutation coefficient
         /// </summary>
         /// <param name="mutationCoefficient">The mutation coefficient</param>
+        /// <returns>true if mutation happened</returns>
         public void Mutate(double mutationCoefficient)
         {
+            mutated = false;
             Random rnd = new Random();
 
             double chance = mutationCoefficient * GeneConstants.baseMutationChance;
 
             //dataSetSize
             if (GetsMutated(rnd, chance))
+            {
                 dataSetSize = RandomInt(rnd, GeneConstants.minDSSize, GeneConstants.maxDSSize);
+            }
             //numAttribs
             if (GetsMutated(rnd, chance))
+            {
                 numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
+            }
             //numClasses
             if (GetsMutated(rnd, chance))
+            {
                 numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
-
+            }
             //nominalAttribRatio
             if (GetsMutated(rnd, chance))
+            {
                 nominalAttribRatio = rnd.NextDouble();
+            }
             //discreteAttribRatio
             if (GetsMutated(rnd, chance))
             {
@@ -391,17 +418,19 @@ namespace GEM
             }
             //missingValueRatio
             if (GetsMutated(rnd, chance))
+            {
                 missingValueRatio = rnd.NextDouble();
-            //irrelevantAttribRatio
-            if (GetsMutated(rnd, chance))
-                //irrelevantAttribRatio = rnd.NextDouble();
-
+            }
             //meanClass
             if (GetsMutated(rnd, chance))
+            {
                 meanClass = RandomDouble(rnd, 0, numClasses - 1);
+            }
             //stdDevClass
             if (GetsMutated(rnd, chance))
+            {
                 stdDevClass = RandomDouble(rnd, 0, numClasses - 1);
+            }
 
             //The matrices are mutated first and then adjusted
             //to avoid replacing new random values with even newer random values
@@ -428,13 +457,18 @@ namespace GEM
                 if (row < stdDevMatrixNominal.NoRows)
                 {
                     if (GetsMutated(rnd, chance))
+                    {
                         newStdDevMatrixNominal[row, 0]
                             = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    }
                     else
                         newStdDevMatrixNominal[row, 0] = stdDevMatrixNominal[row, 0];
+
                     if (GetsMutated(rnd, chance))
+                    {
                         newMeanMatrixNominal[row, 0]
                             = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    }
                     else
                         newMeanMatrixNominal[row, 0] = meanMatrixNominal[row, 0];
                 }
@@ -469,8 +503,8 @@ namespace GEM
             meanMatrixContinuous = MutateMatrix(meanMatrixContinuous, rnd, chance,
                 GeneConstants.minContinuous, GeneConstants.maxContinuous);
             meanMatrixContinuous = AdjustMatrixSize(meanMatrixContinuous, NumContinuousAttribs, 1,
-                GeneConstants.minContinuous, GeneConstants.maxContinuous, rnd); 
-        }
+                GeneConstants.minContinuous, GeneConstants.maxContinuous, rnd);
+        } //public bool Mutate(double mutationCoefficient)
 
         /// <summary>
         /// Binary decision on whether a particular value gets mutated
@@ -480,7 +514,13 @@ namespace GEM
         /// <returns><c>true</c> if it does get mutated, <c>false</c> otherwise</returns>
         private bool GetsMutated(Random rnd, double chance)
         {
-            return rnd.NextDouble() < chance;
+            if (rnd.NextDouble() < chance)
+            {
+                mutated = true;
+                return true;
+            }
+            else
+                return false;
         }
 
         /// <summary>

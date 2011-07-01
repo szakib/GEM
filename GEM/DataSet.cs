@@ -99,6 +99,7 @@ namespace GEM
 
             //TODO: there has to be a matrix of the data table,
             //because the data needs to be passed row by row.
+            //statistical generation of data (p45 in Anton's thesis)
             MatrixLibrary.Matrix ret = new MatrixLibrary.Matrix(geneSet.dataSetSize, geneSet.numAttribs);
 
             return ret;
@@ -138,7 +139,7 @@ namespace GEM
                 attVals.addElement(j.ToString());
             attribs.addElement(new weka.core.Attribute("att0", attVals));
 
-            for (int i = 0; i < geneSet.numAttribs; i++)
+            for (int i = 1; i < geneSet.numAttribs; i++)
                 //nominal
                 if (i < geneSet.NumNominalAttribs + 1)
                 {
