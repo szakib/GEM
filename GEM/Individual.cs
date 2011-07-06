@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Collections;
 
 namespace GEM
 {
@@ -14,6 +15,11 @@ namespace GEM
     {
         #region fields & properties
 
+        /// <summary>
+        /// Accumulated fitness value for selection
+        /// </summary>
+        public double AccumFitness = 0;
+        
         /// <summary>
         /// The gene set of the individual
         /// </summary>
@@ -56,6 +62,10 @@ namespace GEM
         {
             get
             {
+                //the DS only gets generated when it is actually needed
+                if (null == dataSet)
+                    dataSet = new DataSet(genes);
+
                 return dataSet;
             }
             set
@@ -75,11 +85,11 @@ namespace GEM
         {
             get
             {
-                return this.DataSet.Fitness;
+                return dataSet.Fitness;
             }
             set
             {
-                this.DataSet.Fitness = value;
+                dataSet.Fitness = value;
             }
         }
 
@@ -103,12 +113,22 @@ namespace GEM
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Individual"/> class
+        /// with random values
         /// </summary>
         public Individual()
         {
             //fill genes with random values
             genes = new GeneSet(true);
-            dataSet = new DataSet(genes);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Individual"/> class
+        /// from a given gene set
+        /// </summary>
+        /// <param name="initGenes">The <see cref="GeneSet"/> specifying the individual</param>
+        public Individual(GeneSet initGenes)
+        {
+            genes = initGenes;
         }
 
         /// <summary>
@@ -123,6 +143,18 @@ namespace GEM
             //TODO:
             //dataSet = new DataSet(something to ID file);
             Fitness = (double)info.GetValue("Fitness", typeof(double));
+        }
+
+        /// <summary>
+        /// Mutates the gene set according to the specified mutation coefficient
+        /// </summary>
+        /// <param name="mutationCoefficient">The mutation coefficient</param>
+        public void Mutate(double mutationCoefficient)
+        {
+            genes.Mutate(mutationCoefficient);
+            //if there was a mutation, the DS is invalid
+            if (genes.Mutated)
+                dataSet = null;
         }
 
         #region ISerializable Members
@@ -147,5 +179,46 @@ namespace GEM
         #endregion //ISerializable Members
 
         #endregion //methods
+    } //public class Individual: ISerializable
+
+    /// <summary>
+    /// Class for the (descending) sorting of Individuals by their fitness
+    /// </summary>
+    public class IndividualComparer : IComparer<Individual>
+    {
+        #region IComparer<Individual> Members
+
+        /// <summary>
+        /// Compares two objects and returns a value indicating whether one is less than,
+        /// equal to, or greater than the other.
+        /// </summary>
+        /// <param name="x">The first individual to compare.</param>
+        /// <param name="y">The second individual to compare.</param>
+        /// <returns>
+        /// Value
+        /// Condition
+        /// Less than zero
+        /// <paramref name="x"/> is less than <paramref name="y"/>.
+        /// Zero
+        /// <paramref name="x"/> equals <paramref name="y"/>.
+        /// Greater than zero
+        /// <paramref name="x"/> is greater than <paramref name="y"/>.
+        /// </returns>
+        public int Compare(Individual x, Individual y)
+        {
+            int ret = 1;
+
+            if (null != x && null != y)
+            {
+                //this results in a descending order
+                ret = y.Fitness.CompareTo(x.Fitness);
+            }
+
+            return ret;
+        }
+
+        #endregion
     }
+
+
 }

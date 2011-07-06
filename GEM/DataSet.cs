@@ -39,14 +39,6 @@ namespace GEM
         {
             get
             {
-                /*if (fitness == 0)
-                {
-                    //TODO calculate it, meaning:
-                    //run the learning with the ARFF file
-                    //and actually calculate the fitness value from the results of the learning
-                    throw new System.NotImplementedException();
-                }*/
-                
                 return fitness;
             }
             set
@@ -93,6 +85,10 @@ namespace GEM
             CreateInstances(dataMatrix);
         } //memory taken by dataMatrix freed here 
 
+        /// <summary>
+        /// Generates the dataset from the statistical parametres (genes)
+        /// </summary>
+        /// <returns>The dataset in a matrix</returns>
         private MatrixLibrary.Matrix GenerateData()
         {
             throw new NotImplementedException();

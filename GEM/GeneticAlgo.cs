@@ -18,7 +18,16 @@ namespace GEM
         #region fields & properties
 
         private int                     populationSize;
+        
+        /// <summary>
+        /// Number of Cross-validations to do per dataset
+        /// </summary>
         private const int               numCrossValids      = 5;
+
+        /// <summary>
+        /// How big part of the population gets kept during the elitist selection
+        /// </summary>
+        private const double            eliteRatio          = 0.05;
 
         /// <summary>
         /// resume or start from scratch
@@ -175,7 +184,7 @@ namespace GEM
             ConfigSettings.WriteSetting("ExperimentID", experimentID.ToString());
             ConfigSettings.WriteSetting("CurrentGeneration", currentGeneration.ToString());
             ConfigSettings.WriteSetting("MutationSeverity", mutationSeverity.ToString());
-            //TODO target learner, control group
+            //TODO target learner, control group, other things
         }
 
         /// <summary>
@@ -313,22 +322,118 @@ namespace GEM
         /// </summary>
         private void ProcessGeneration()
         {
-            //TODO
-            //Calculate breeding chances according to fitness
             CalculateFitness();
 
-            //THIS IS CURRENTLY NOT TRUE:
-            //(fitness calculation implicitly makes and saves datasets)
             SavePopulations();
-            //Do interbreeding to get new populations
-            //Use elitist selection: best individuals carry on to next generation.
+
+            //Sort the populations by fitness (descending)
+            goodPopulation.Sort(new IndividualComparer());
+            badPopulation.Sort(new IndividualComparer());
+
+            //Create the next generation, which has two groups in it:
+            //1.: Elite from previous
+            //2.: Random children of current generation
+            List<Individual> newGoodPop = new List<Individual>();
+            List<Individual> newBadPop = new List<Individual>();
+
+            //Elite survives
+            for (int i = 0; i < populationSize * eliteRatio; i++)
+            {
+                newBadPop.Add(badPopulation[i]);
+                newGoodPop.Add(goodPopulation[i]);
+            }
+
+            //Breeding chance will depend on accumulated fitness
+            //see http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29
+            double totalFitGood = AccumulateFitness(goodPopulation);
+            double totalFitBad = AccumulateFitness(badPopulation);
+
+            //Breeding to fill the rest of the places
+            Random rnd = new Random();
+            FillRestWithChildren(newBadPop, badPopulation, totalFitBad, rnd);
+            FillRestWithChildren(newGoodPop, goodPopulation, totalFitGood, rnd);
+
+            //Swap in the new populations
+            goodPopulation = newGoodPop;
+            badPopulation = newBadPop;
 
             //Mutate (or not) each individual
             double mutationCoefficient = mutationSeverity / 100;
             foreach (Individual i in goodPopulation)
-                i.Genes.Mutate(mutationCoefficient);
+                i.Mutate(mutationCoefficient);
             foreach (Individual j in badPopulation)
-                j.Genes.Mutate(mutationCoefficient);
+                j.Mutate(mutationCoefficient);
+        } //non-surviving individuals of old populations get garbage collected here
+
+        /// <summary>
+        /// Fills the remaining places of the population with children
+        /// </summary>
+        /// <param name="toFill">New population to fill</param>
+        /// <param name="fillFrom">Old population to choose parents from</param>
+        /// <param name="totalAccFit">The total accumulated fitness of the parents</param>
+        /// <param name="rnd">The Random object to use for selection</param>
+        private void FillRestWithChildren(List<Individual> toFill,
+            List<Individual> fillFrom, double totalAccFit, Random rnd)
+        {
+            while (toFill.Count < populationSize)
+            {
+                //selection of parents is based on these values
+                double currTotFit1 = rnd.NextDouble() * totalAccFit;
+                double currTotFit2 = rnd.NextDouble() * totalAccFit;
+
+                Individual parent1 = null;
+                Individual parent2 = null;
+
+                while (null == parent1)
+                    parent1 = fillFrom.Find(
+                            delegate (Individual i)
+                            {
+                                return i.AccumFitness > currTotFit1;
+                            }
+                            );
+                //2nd condition makes sure the parents are different
+                while (null == parent2 || parent1 == parent2)
+                    parent2 = fillFrom.Find(
+                            //yes, this is copy-paste...
+                            //TODO: have a separate delegate/predicate and reuse it
+                            //don't know how to make it parametric
+                            delegate(Individual i)
+                            {
+                                return i.AccumFitness > currTotFit2;
+                            }
+                            );
+
+                List<GeneSet> childGenes = parent1.Genes.Breed(parent2.Genes);
+
+                //make sure the population will end up with
+                //precisely populationSize individuals
+                while(childGenes.Count > 0 && toFill.Count < populationSize)
+                {
+                    toFill.Add(new Individual(childGenes[0]));
+                    childGenes.RemoveAt(0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculates (non-normalised) accumulated fitness values
+        /// of all individuals of the given population
+        /// </summary>
+        /// <param name="population">The population to work with</param>
+        /// <returns>
+        /// The total of the fitness values
+        /// </returns>
+        private double AccumulateFitness(List<Individual> population)
+        {
+            double total = 0;
+
+            foreach (Individual i in population)
+            {
+                total += i.Fitness;
+                i.AccumFitness = total;
+            }
+
+            return total;
         }
 
         /// <summary>
@@ -336,17 +441,23 @@ namespace GEM
         /// </summary>
         private void CalculateFitness()
         {
+            if (null == targetLearner)
+                throw new Exception("There is no target learner.");
+            if (0 == controlGroup.Count)
+                throw new Exception("The control group is empty.");
+
             foreach (Individual i in goodPopulation)
-                FillFitness(i);
+                FillFitness(i, false);
             foreach (Individual j in badPopulation)
-                FillFitness(j);
+                FillFitness(j, true);
         }
 
         /// <summary>
         /// Fills the fitness value of one individual
         /// </summary>
-        /// <param name="dataSet">The data set to get fitness for</param>
-        private void FillFitness(Individual i)
+        /// <param name="i">The individual</param>
+        /// <param name="invert">If set to <c>true</c>, inverts fitness (for BadPopulation)</param>
+        private void FillFitness(Individual i, bool invert)
         {
             //only do this if new or mutated
             if (0 == i.DataSet.Fitness || i.Mutated)
@@ -354,16 +465,15 @@ namespace GEM
                 double targetScore = targetLearner.Learn(i.DataSet.data, numCrossValids);
 
                 double controlScore = 0;
-                if (0 != controlGroup.Count)
-                {
-                    foreach (Learner l in controlGroup)
-                        controlScore += l.Learn(i.DataSet.data, numCrossValids);
+                foreach (Learner l in controlGroup)
+                    controlScore += l.Learn(i.DataSet.data, numCrossValids);
 
-                    controlScore = controlScore / controlGroup.Count;
-                    i.DataSet.Fitness = targetScore / controlScore;
-                }
+                controlScore = controlScore / controlGroup.Count;
+                
+                if (invert)
+                    i.DataSet.Fitness = controlScore / targetScore;
                 else
-                    i.DataSet.Fitness = double.MaxValue;
+                    i.DataSet.Fitness = targetScore / controlScore;
             }
         }
 
