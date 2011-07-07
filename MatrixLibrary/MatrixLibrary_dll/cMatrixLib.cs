@@ -10,7 +10,7 @@ using System;
 
 namespace MatrixLibrary
 {
-	#region "Exception in the Library"
+	#region "Exceptions in the Library"
 	class MatrixLibraryExceptions: ApplicationException
 	{public MatrixLibraryExceptions (string message) : base(message){}}
 	
@@ -624,7 +624,7 @@ namespace MatrixLibrary
 		{return new Matrix(Transpose(Mat.in_Mat));}																			
 		#endregion
 		
-		#region "Singula Value Decomposition of a Matrix"
+		#region "Singular Value Decomposition of a Matrix"
 		/// <summary>
 		/// Evaluates the Singular Value Decomposition of a matrix, 
 		/// returns the  matrices S, U and V. Such that a given
@@ -994,9 +994,13 @@ namespace MatrixLibrary
 				A = (double[,])Mat.Clone();
 				Find_R_C(Mat , out Rows, out Cols);
 			}
-			catch{throw new MatrixNullException();}
+			catch
+            {
+                throw new MatrixNullException();
+            }
 
-			if (Rows != Cols)  throw new MatrixNotSquare();
+			if (Rows != Cols)
+                throw new MatrixNotSquare();
 
 			int IMAX = 0, N = Rows;
 			double AAMAX, Sum, Dum, TINY = 1E-20;
@@ -1009,8 +1013,10 @@ namespace MatrixLibrary
 			{
 				AAMAX = 0.0;
 				for (j = 0; j<= N;j++)
-					if (Math.Abs(A[i, j]) > AAMAX) AAMAX = Math.Abs(A[i, j]);
-				if  (AAMAX == 0.0) throw new MatrixSingularException();
+					if (Math.Abs(A[i, j]) > AAMAX)
+                        AAMAX = Math.Abs(A[i, j]);
+				if  (AAMAX == 0.0)
+                    throw new MatrixSingularException();
 				VV[i] = 1.0 / AAMAX;
 			}
 			for (j = 0; j<= N; j++)
@@ -1059,15 +1065,16 @@ namespace MatrixLibrary
 				INDX[j] = IMAX;
 				if (j != N) 
 				{
-					if (A[j, j] == 0.0) A[j, j] = TINY;
+					if (A[j, j] == 0.0)
+                        A[j, j] = TINY;
 					Dum = 1.0 / A[j, j];
 					for (i = j + 1; i<=N; i++)
 						A[i, j] = A[i, j] * Dum;
-          
 				}
 			}
 
-			if (A[N, N] == 0.0) A[N, N] = TINY;
+			if (A[N, N] == 0.0)
+                A[N, N] = TINY;
 
 			int count=0;
 			double[,] l = new double[N+1,N+1];
@@ -1077,8 +1084,10 @@ namespace MatrixLibrary
 			{
 				for (j = 0; j<=count; j++)
 				{
-					if (i!=0) l[i,j] = A[i,j];
-					if (i==j) l[i,j] = 1.0;
+					if (i!=0)
+                        l[i,j] = A[i,j];
+					if (i==j)
+                        l[i,j] = 1.0;
 					u[N-i,N-j] = A[N-i,N-j];
 				}
 				count++;

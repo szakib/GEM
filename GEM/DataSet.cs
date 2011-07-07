@@ -87,16 +87,48 @@ namespace GEM
 
         /// <summary>
         /// Generates the dataset from the statistical parametres (genes)
+        /// (p45 in Anton's thesis)
         /// </summary>
         /// <returns>The dataset in a matrix</returns>
         private MatrixLibrary.Matrix GenerateData()
         {
-            throw new NotImplementedException();
+            //TODO there has to be a matrix of the data table,
+            //TODO consider refactoring everything to work with
+            //MaNet matrices instead of MatrixLibrary ones
+            //would be better not to convert,
+            //but the MaNet Matrix is generally not so good as the MatrixLibrary version
 
-            //TODO: there has to be a matrix of the data table,
-            //because the data needs to be passed row by row.
-            //statistical generation of data (p45 in Anton's thesis)
-            MatrixLibrary.Matrix ret = new MatrixLibrary.Matrix(geneSet.dataSetSize, geneSet.numAttribs);
+            MatrixLibrary.Matrix ret
+                = new MatrixLibrary.Matrix(geneSet.dataSetSize, geneSet.numAttribs);
+
+            //Step 1: C -> R matrix by Cholesky decomposition
+            //R is a lower triangular matrix
+
+            double[][] jaggedCorrel = new double[geneSet.correlationMatrix.NoRows][];
+            for (int i = 0; i < geneSet.correlationMatrix.NoRows; i++)
+            {
+                jaggedCorrel[i] = new double[geneSet.correlationMatrix.NoCols];
+                for (int j = 0; j < geneSet.correlationMatrix.NoCols; j++)
+                    jaggedCorrel[i][j] = geneSet.correlationMatrix[i, j];
+            }
+
+            MaNet.CholeskyDecomposition cholesky
+                = new MaNet.CholeskyDecomposition(
+                    new MaNet.Matrix(jaggedCorrel,
+                                    geneSet.correlationMatrix.NoRows,
+                                    geneSet.correlationMatrix.NoCols));
+
+            MaNet.Matrix rMatrix = cholesky.getL();
+
+            //Step 2: Create BVn variables
+
+            /*Random rand = new Random(); //reuse this if you are generating many
+            double u1 = rand.NextDouble(); //these are uniform(0,1) random doubles
+            double u2 = rand.NextDouble();
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) *
+                Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)*/
+
+            //Step 3: Create data columns
 
             return ret;
         }

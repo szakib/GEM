@@ -131,6 +131,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MaNet\MaNet\MaNet.csproj">
+      <Project>{85D6AA43-2028-4518-82D4-6CE971CCBD8B}</Project>
+      <Name>MaNet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MatrixLibrary\MatrixLibrary_dll\MatrixLibrary.csproj">
       <Project>{E382793F-4A21-490E-9A1B-4C526FC5B16D}</Project>
       <Name>MatrixLibrary</Name>

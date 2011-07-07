@@ -155,6 +155,8 @@ namespace GEM
         {
             mainForm = main;
             ReadConfig();
+            targetLearner = new Learner(LearnerType.J48, null);
+            controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
         }
 
         /// <summary>
@@ -168,9 +170,8 @@ namespace GEM
             experimentID = ConfigSettings.ReadInt("ExperimentID");
             currentGeneration = ConfigSettings.ReadInt("CurrentGeneration");
             mutationSeverity = ConfigSettings.ReadInt("MutationSeverity");
-            //TODO target learner, control group
-            targetLearner = new Learner(LearnerType.J48, null);
-            controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
+            //TODO target learner, control group could perhaps be in config
+            //instead of in public GeneticAlgo(MainForm main) above
         }
 
         /// <summary>
