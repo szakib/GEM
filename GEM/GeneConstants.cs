@@ -10,22 +10,22 @@ namespace GEM
         /// <summary>
         /// Minimum dataset size
         /// </summary>
-        public const int minDSSize      = 100;
+        public const int minDSSize      = 10;
 
         /// <summary>
         /// Maximum dataset size
         /// </summary>
-        public const int maxDSSize      = 1000;
+        public const int maxDSSize      = 100;
 
         /// <summary>
         /// Minimum number of attributes
         /// </summary>
-        public const int minNumAttribs  = 10;
+        public const int minNumAttribs  = 5;
 
         /// <summary>
         /// Maximum number of attributes
         /// </summary>
-        public const int maxNumAttribs  = 1000;
+        public const int maxNumAttribs  = 10;
 
         /// <summary>
         /// Minimum number of classes
@@ -35,7 +35,7 @@ namespace GEM
         /// <summary>
         /// Maximum number of classes
         /// </summary>
-        public const int maxNumClasses  = 1000;
+        public const int maxNumClasses  = 10;
         
         /// <summary>
         /// Minimum number of classes in nominal attributes

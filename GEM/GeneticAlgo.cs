@@ -45,6 +45,7 @@ namespace GEM
         private string                  savePath;
         private int                     experimentID;
         private int                     currentGeneration;
+        private double                  overallFitness      = 0;
 
         /// <summary>
         /// between 0 and 100; 100 means very many mutations
@@ -276,6 +277,10 @@ namespace GEM
             BinaryFormatter bFormatter = new BinaryFormatter();
             //might want to use XmlSerializer instead
             
+            //check if save dir exists, create it if needed
+            if (!Directory.Exists(savePath))
+                Directory.CreateDirectory(savePath);
+
             //Save good population
             string path = Path.Combine(savePath, filename + "_good");
             Stream stream = File.Open(path, FileMode.Create);
@@ -421,9 +426,7 @@ namespace GEM
         /// of all individuals of the given population
         /// </summary>
         /// <param name="population">The population to work with</param>
-        /// <returns>
-        /// The total of the fitness values
-        /// </returns>
+        /// <returns>The total of the fitness values</returns>
         private double AccumulateFitness(List<Individual> population)
         {
             double total = 0;
@@ -451,6 +454,15 @@ namespace GEM
                 FillFitness(i, false);
             foreach (Individual j in badPopulation)
                 FillFitness(j, true);
+
+            double newOverallFitness
+                = goodPopulation.Max(i => i.Fitness) + badPopulation.Max(j => j.Fitness);
+
+            //this here is the stop criterion!
+            if (newOverallFitness <= overallFitness)
+                stop = true;
+
+            overallFitness = newOverallFitness;
         }
 
         /// <summary>

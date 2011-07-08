@@ -4,17 +4,6 @@
         <name>MatrixLibrary</name>
     </assembly>
     <members>
-        <member name="T:MatrixLibrary.Matrix">
-            <summary>
-            Matrix Library .Net v2.0 By Anas Abidi, 2004.
-            
-            The Matrix Library contains Class Matrix which provides many 
-            static methods for making various matrix operations on objects
-            derived from the class or on arrays defined as double. The 
-            '+','-','*' operators are overloaded to work with the objects
-            derived from the matrix class.
-            </summary>
-        </member>
         <member name="M:MatrixLibrary.Matrix.#ctor(System.Int32,System.Int32)">
             <summary>
             Matrix object constructor, constructs an empty

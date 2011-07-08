@@ -69,6 +69,9 @@
     <Reference Include="IKVM.OpenJDK.Core">
       <HintPath>..\IKVM\IKVM.OpenJDK.Core.dll</HintPath>
     </Reference>
+    <Reference Include="IKVM.OpenJDK.Util">
+      <HintPath>..\IKVM\IKVM.OpenJDK.Util.dll</HintPath>
+    </Reference>
     <Reference Include="IKVM.Runtime">
       <HintPath>..\IKVM\IKVM.Runtime.dll</HintPath>
     </Reference>

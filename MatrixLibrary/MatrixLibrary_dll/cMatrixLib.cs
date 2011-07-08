@@ -47,6 +47,7 @@ namespace MatrixLibrary
 	}	
 	#endregion
 
+    [Serializable()]
 	/// <summary>
 	/// Matrix Library .Net v2.0 By Anas Abidi, 2004.
 	/// 
