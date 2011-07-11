@@ -34,7 +34,7 @@ namespace GEM
         /// </summary>
         private bool                    resume;
 
-        private Logger                  logger              = new Logger();
+        //private Logger                  logger              = new Logger();
 
         /// <summary>
         /// flag signalling that Stop has been pressed on the UI
@@ -171,7 +171,9 @@ namespace GEM
             experimentID = ConfigSettings.ReadInt("ExperimentID");
             currentGeneration = ConfigSettings.ReadInt("CurrentGeneration");
             mutationSeverity = ConfigSettings.ReadInt("MutationSeverity");
-            //TODO target learner, control group could perhaps be in config
+            if (0 > mutationSeverity || 100 < mutationSeverity)
+                throw new Exception("MutationSeverity has to be between 0 and 100.");
+            //target learner, control group could perhaps be in config
             //instead of in public GeneticAlgo(MainForm main) above
         }
 
@@ -195,7 +197,7 @@ namespace GEM
         public void Start()
         {
             stop = false;
-            mainForm.StateLabel.Text = "Running";
+            mainForm.StateLabel.Text = "Starting";
             mainForm.StateLabel.ForeColor = Color.Green;
 
             //if this is the first run, the populations need init
@@ -217,6 +219,8 @@ namespace GEM
         /// </summary>
         private void InitPopulations()
         {
+            SetLabel2("Initialising populations");
+
             goodPopulation = new List<Individual>();
             badPopulation = new List<Individual>();
 
@@ -226,6 +230,8 @@ namespace GEM
                 goodPopulation.Add(new Individual());
                 badPopulation.Add(new Individual());
             }
+
+            SetLabel2("");
         }
 
         /// <summary>
@@ -243,6 +249,8 @@ namespace GEM
         /// <param name="generation">The generation</param>
         private void LoadPopulations(int expID, int generation)
         {
+            SetLabel2("Loading populations");
+
             string filename = "GEM_"
                                 + expID.ToString()
                                 + "_"
@@ -261,6 +269,8 @@ namespace GEM
             stream = File.Open(path, FileMode.Open);
             badPopulation = (List<Individual>)bFormatter.Deserialize(stream);
             stream.Close();
+
+            SetLabel2("");
         }
 
         /// <summary>
@@ -268,7 +278,8 @@ namespace GEM
         /// </summary>
         private void SavePopulations()
         {
-            //TODO check serialisation of all classes involved, incl. DataSet
+            SetLabel2("Saving populations");
+
             string filename =   "GEM_"
                                 + experimentID.ToString()
                                 + "_"
@@ -293,6 +304,8 @@ namespace GEM
             bFormatter.Serialize(stream, badPopulation);
             stream.Close();
             resume = true;
+
+            SetLabel2("");
         }
 
         /// <summary>
@@ -311,6 +324,9 @@ namespace GEM
         /// </summary>
         private void NextGeneration()
         {
+            mainForm.StateLabel.Text = "Running";
+            mainForm.StateLabel.ForeColor = Color.Green;
+
             //start new generation by calling ProcessGeneration asynchronously
             AsynchProcessGen caller = new AsynchProcessGen(this.ProcessGeneration);
 
@@ -381,6 +397,8 @@ namespace GEM
         private void FillRestWithChildren(List<Individual> toFill,
             List<Individual> fillFrom, double totalAccFit, Random rnd)
         {
+            SetLabel2("Calculating children");
+
             while (toFill.Count < populationSize)
             {
                 //selection of parents is based on these values
@@ -401,7 +419,7 @@ namespace GEM
                 while (null == parent2 || parent1 == parent2)
                     parent2 = fillFrom.Find(
                             //yes, this is copy-paste...
-                            //TODO: have a separate delegate/predicate and reuse it
+                            //Would be nicer to have a separate delegate/predicate and reuse it
                             //don't know how to make it parametric
                             delegate(Individual i)
                             {
@@ -419,6 +437,8 @@ namespace GEM
                     childGenes.RemoveAt(0);
                 }
             }
+
+            SetLabel2("");
         }
 
         /// <summary>
@@ -445,6 +465,8 @@ namespace GEM
         /// </summary>
         private void CalculateFitness()
         {
+            SetLabel2("Calculating fitness values");
+
             if (null == targetLearner)
                 throw new Exception("There is no target learner.");
             if (0 == controlGroup.Count)
@@ -463,6 +485,8 @@ namespace GEM
                 stop = true;
 
             overallFitness = newOverallFitness;
+
+            SetLabel2("");
         }
 
         /// <summary>
@@ -505,6 +529,32 @@ namespace GEM
             }
             else
                 NextGeneration();
+        }
+
+        /// <summary>
+        /// Delegate for SetLabel2
+        /// </summary>
+        /// <param name="txt">The text to set</param>
+        delegate void SetLabel2Callback(string txt);
+        
+        /// <summary>
+        /// Sets stateLabel2 on the main form in a thread-safe way
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        private void SetLabel2(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.StateLabel2.InvokeRequired)
+            {
+                SetLabel2Callback d = new SetLabel2Callback(SetLabel2);
+                mainForm.StateLabel2.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                mainForm.StateLabel2.Text = text;
+            }
         }
 
         #endregion

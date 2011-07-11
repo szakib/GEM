@@ -26,6 +26,14 @@ namespace GEM
             }
         }
 
+        public Label StateLabel2
+        {
+            get
+            {
+                return stateLabel2;
+            }
+        }
+
         #endregion
 
         #region methods

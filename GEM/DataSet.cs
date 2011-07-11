@@ -7,6 +7,7 @@ using weka.core.converters;
 
 namespace GEM
 {
+    [Serializable()]
     /// <summary>
     /// A dataset
     /// </summary>
@@ -67,10 +68,6 @@ namespace GEM
         public DataSet(GeneSet geneSet)
         {
             this.geneSet = geneSet;
-            //DS will be passed to weka as an ARFF file
-            //TODO steps to take here:
-            //generate dataset from the data
-            // http://weka.wikispaces.com/Creating+an+ARFF+file
 
             // 1. set up attributes
             FastVector attribs = SetupAttribs();
@@ -224,7 +221,7 @@ namespace GEM
             return attribs;
         }
 
-        //TODO make constructor to load dataset from file
+        //constructor to load dataset from file
 /*        /// <summary>
         /// Initializes a new instance of the <see cref="DataSet"/> class
         /// NOT from an ARFF file, just the class without the data itself

@@ -10,7 +10,7 @@
   <Class Name="GEM.MainForm">
     <Position X="2.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AABAgAAAACAAQAAggACAEAACAAAAAAAAAAAAAAAAABA=</HashCode>
+      <HashCode>AABAgAAAACAAQAAggACAEAACACAAAAAgAAAAAAAAABA=</HashCode>
       <FileName>MainForm.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -25,9 +25,14 @@
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetLabel2Callback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAAAQAADAAAAACAhIAiAIgGgAgABAwJAQgIAAANCA=</HashCode>
+      <HashCode>CDCAAAQAADAAAAACAhIAiAIgGgAhABAwJAQgIAEANCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -41,16 +46,8 @@
   <Class Name="GEM.Individual">
     <Position X="2.5" Y="6" Width="2" />
     <TypeIdentifier>
-      <HashCode>QAAgAAAAAAAAAAAAAAAAgAAgAAAAAAAAAAAAAkAAAAI=</HashCode>
+      <HashCode>QAAgAAAAAAAAAAAAAAAAgAAAAAAAAAAACAAAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GEM.Logger">
-    <Position X="2.5" Y="4.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Logger.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.ConfigSettings">

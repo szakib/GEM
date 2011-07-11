@@ -11,7 +11,7 @@ namespace GEM
     /// <summary>
     /// An individual in the population of the genetic algorithm
     /// </summary>
-    public class Individual: ISerializable
+    public class Individual //: ISerializable
     {
         #region fields & properties
 
@@ -131,7 +131,7 @@ namespace GEM
             genes = initGenes;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Initializes a new instance of the <see cref="Individual"/> class
         /// as a deserialised object from a save file.
         /// </summary>
@@ -140,10 +140,9 @@ namespace GEM
         public Individual(SerializationInfo info, StreamingContext ctxt)
         {
             genes = (GeneSet)info.GetValue("GeneSet", typeof(GeneSet));
-            //TODO:
             //dataSet = new DataSet(something to ID file);
             Fitness = (double)info.GetValue("Fitness", typeof(double));
-        }
+        }*/
 
         /// <summary>
         /// Mutates the gene set according to the specified mutation coefficient
@@ -157,7 +156,7 @@ namespace GEM
                 dataSet = null;
         }
 
-        #region ISerializable Members
+        /*#region ISerializable Members
 
         /// <summary>
         /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/>
@@ -176,7 +175,7 @@ namespace GEM
             info.AddValue("Fitness", Fitness);
         }
 
-        #endregion //ISerializable Members
+        #endregion //ISerializable Members*/
 
         #endregion //methods
     } //public class Individual: ISerializable
@@ -218,7 +217,5 @@ namespace GEM
         }
 
         #endregion
-    }
-
-
+    } //public class IndividualComparer : IComparer<Individual>
 }

@@ -31,6 +31,7 @@
             this.startButton = new System.Windows.Forms.Button();
             this.stopButton = new System.Windows.Forms.Button();
             this.stateLabel = new System.Windows.Forms.Label();
+            this.stateLabel2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // startButton
@@ -60,11 +61,20 @@
             this.stateLabel.TabIndex = 2;
             this.stateLabel.Text = "Init";
             // 
+            // stateLabel2
+            // 
+            this.stateLabel2.AutoSize = true;
+            this.stateLabel2.Location = new System.Drawing.Point(87, 116);
+            this.stateLabel2.Name = "stateLabel2";
+            this.stateLabel2.Size = new System.Drawing.Size(0, 13);
+            this.stateLabel2.TabIndex = 3;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(292, 273);
+            this.Controls.Add(this.stateLabel2);
             this.Controls.Add(this.stateLabel);
             this.Controls.Add(this.stopButton);
             this.Controls.Add(this.startButton);
@@ -81,6 +91,7 @@
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.Button stopButton;
         private System.Windows.Forms.Label stateLabel;
+        private System.Windows.Forms.Label stateLabel2;
     }
 }
 
