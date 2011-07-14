@@ -91,13 +91,12 @@ namespace GEM
         /// <returns>The dataset in a matrix</returns>
         private MatrixLibrary.Matrix GenerateData()
         {
-            //TODO Do something about minimum / maximum violations.
-            //TODO Exactly this: remove BVMatrix and do the generation in-place,
-            //in a while loop until value is within range.
             //I did consider refactoring everything to work with
             //MaNet matrices instead of MatrixLibrary ones.
             //Would be better not to convert,
             //but the MaNet.Matrix is generally not so good as MatrixLibrary.Matrix
+            //(It's idiotic to use a jagged array to represent a matrix
+            //which has to have rows of the same size.)
 
             if (geneSet.correlationMatrix.NoRows != geneSet.correlationMatrix.NoCols)
                 throw new Exception("The correlation matrix needs to be a square matrix.");
@@ -124,42 +123,55 @@ namespace GEM
 
             MaNet.Matrix rMatrix = cholesky.getL();
 
-            //Step 2: Create BVn variables
-            
+            //Step 2: Create BVn variables implicitly done by using RandomNormal()
             Random rnd = new Random();
-            //this will contain the BVn random variables. The nth column is the nth variable
-            MatrixLibrary.Matrix bvMatrix
-                = new MatrixLibrary.Matrix(geneSet.dataSetSize, geneSet.numAttribs);
-
-            //each column is one variable
-            for (int col = 0; col < bvMatrix.NoCols; col++)
-                //each row is one value
-                for (int row = 0; row < bvMatrix.NoRows; row++)
-                {
-                    bvMatrix[row, col] = RandomNormal(rnd);
-                }
 
             //Step 3: Create data columns
             MatrixLibrary.Matrix meanMatrix = geneSet.meanMatrix;
             MatrixLibrary.Matrix stdDevMatrix = geneSet.stdDevMatrix;
             double factor;
+            bool done;
+            //class, nominal, discrete attribs need to be rounded
+            int roundThisManyAttribs
+                = geneSet.NumNominalAttribs + geneSet.NumDiscreteAttribs + 1;
+            double minOfCurrentAttrib;
+            double maxOfCurrentAttrib;
+            double meanOfCurrentAttrib;
+            double stdDevOfCurrentAttrib;
 
             //each column is an attribute
             for (int colRet = 0; colRet < ret.NoCols; colRet++)
             {
+                minOfCurrentAttrib = geneSet.MinOfAttrib(colRet);
+                maxOfCurrentAttrib = geneSet.MaxOfAttrib(colRet);
+                meanOfCurrentAttrib = meanMatrix[colRet, 0];
+                stdDevOfCurrentAttrib = stdDevMatrix[colRet, 0];
                 //each row is a sample
                 for (int rowRet = 0; rowRet < ret.NoRows; rowRet++)
                 {
-                    factor = 0;
+                    done = false;
+                    while (!done)
+                    {
+                        factor = 0;
 
-                    //for (int rowR = 0; rowR < rMatrix.RowDimension; rowR++)
+                        //for (int rowR = 0; rowR < rMatrix.RowDimension; rowR++)
                         for (int colR = 0; colR <= colRet; colR++)
-                            factor += bvMatrix[rowRet, colR] * rMatrix.Get(colRet, colR);
+                            factor += RandomNormal(rnd) * rMatrix.Get(colRet, colR);
 
-                    ret[rowRet, colRet]
-                        = meanMatrix[colRet, 0] + stdDevMatrix[colRet, 0] * factor;
-                }
-            }
+                        ret[rowRet, colRet]
+                            = meanOfCurrentAttrib + stdDevOfCurrentAttrib * factor;
+
+                        //round if necessary
+                        if (colRet < roundThisManyAttribs)
+                            ret[rowRet, colRet] = Math.Round(ret[rowRet, colRet]);
+
+                        //only accept the new value if it's within range.
+                        if (ret[rowRet, colRet] <= maxOfCurrentAttrib
+                            && ret[rowRet, colRet] >= minOfCurrentAttrib)
+                            done = true;
+                    } //while
+                } //for (int rowRet = 0; rowRet < ret.NoRows; rowRet++)
+            } //for (int colRet = 0; colRet < ret.NoCols; colRet++)
 
             return ret;
         }
