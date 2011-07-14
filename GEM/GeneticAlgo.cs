@@ -22,7 +22,7 @@ namespace GEM
         /// <summary>
         /// Number of Cross-validations to do per dataset
         /// </summary>
-        private const int               numCrossValids      = 5;
+        private const int               numCrossValids      = 2;
 
         /// <summary>
         /// How big part of the population gets kept during the elitist selection
@@ -211,6 +211,10 @@ namespace GEM
                 currentGeneration = 0;
             }
 
+            mainForm.ExperimentIDLabel.Text = experimentID.ToString();
+            mainForm.PopSizeLabel.Text = populationSize.ToString();
+            SetProgressBarValue(0);
+
             NextGeneration();
         }
 
@@ -326,6 +330,7 @@ namespace GEM
         {
             mainForm.StateLabel.Text = "Running";
             mainForm.StateLabel.ForeColor = Color.Green;
+            SetExperimentDetailLabels();
 
             //start new generation by calling ProcessGeneration asynchronously
             AsynchProcessGen caller = new AsynchProcessGen(this.ProcessGeneration);
@@ -401,6 +406,7 @@ namespace GEM
 
             while (toFill.Count < populationSize)
             {
+                SetProgressBarValue((int)Math.Round((double)(toFill.Count / populationSize) * 100));
                 //selection of parents is based on these values
                 double currTotFit1 = rnd.NextDouble() * totalAccFit;
                 double currTotFit2 = rnd.NextDouble() * totalAccFit;
@@ -472,10 +478,18 @@ namespace GEM
             if (0 == controlGroup.Count)
                 throw new Exception("The control group is empty.");
 
-            foreach (Individual i in goodPopulation)
-                FillFitness(i, false);
-            foreach (Individual j in badPopulation)
-                FillFitness(j, true);
+            SetProgressBarValue(0);
+
+            for (int i = 0; i < goodPopulation.Count; i++)
+            {
+                FillFitness(goodPopulation[i], false);
+                SetProgressBarValue((int)Math.Round((double)(i / goodPopulation.Count) * 50));
+            }
+            for (int j = 0; j < badPopulation.Count; j++)
+            {
+                FillFitness(badPopulation[j], true);
+                SetProgressBarValue(50 + (int)Math.Round((double)(j / badPopulation.Count) * 50));
+            }
 
             double newOverallFitness
                 = goodPopulation.Max(i => i.Fitness) + badPopulation.Max(j => j.Fitness);
@@ -521,6 +535,8 @@ namespace GEM
         /// <param name="ar">The IAsyncResult response, unused</param>
         private void NextGenCallBack(IAsyncResult ar)
         {
+            SetExperimentDetailLabels();
+
             if (stop)
             {
                 SaveConfig();
@@ -555,6 +571,46 @@ namespace GEM
             {
                 mainForm.StateLabel2.Text = text;
             }
+        }
+
+        /// <summary>
+        /// Delegate for SetProgressBarValue
+        /// </summary>
+        /// <param name="value">The value to set, between 0 and 100</param>
+        delegate void SetProgressBarValueCallback(int value);
+        
+        /// <summary>
+        /// Sets the value of the progress bar.
+        /// </summary>
+        /// <param name="value">The value to set, between 0 and 100</param>
+        private void SetProgressBarValue(int value)
+        {
+            if (value < 0 || value > 100)
+                throw new Exception("Progress bar value must be between 0 and 100.");
+
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.ProgBar.InvokeRequired)
+            {
+                SetProgressBarValueCallback d
+                    = new SetProgressBarValueCallback(SetProgressBarValue);
+                mainForm.ProgBar.Invoke(d, new object[] { value });
+            }
+            else
+            {
+                mainForm.ProgBar.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets the set experiment detail labels
+        /// (exp. ID, pop. size, generation, fitness)
+        /// </summary>
+        private void SetExperimentDetailLabels()
+        {
+            mainForm.GenerationLabel.Text = currentGeneration.ToString();
+            mainForm.FitnessLabel.Text = overallFitness.ToString();
         }
 
         #endregion

@@ -10,7 +10,7 @@
   <Class Name="GEM.MainForm">
     <Position X="2.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AABAgAAAACAAQAAggACAEAACACAAAAAgAAAAAAAAABA=</HashCode>
+      <HashCode>AADIgAAQACgEQBAhgASIEgACACoAAAAgAAAAEAAAABA=</HashCode>
       <FileName>MainForm.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -30,16 +30,21 @@
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetProgressBarValueCallback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAAAQAADAAAAACAhIAiAIgGgAhABAwJAQgIAEANCA=</HashCode>
+      <HashCode>CDCAAAQAADAAAAAAAhoAiAIgGgEhABAwJAQgIAEANCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.DataSet">
     <Position X="8.75" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAgBAAAIAAAAAAQAAAAAAAAAAAAAAAAAEAQAAAAAIA=</HashCode>
+      <HashCode>AAAgBAAAIAAAAAAQAAAAAAACAAAAAAAAAEAQAAAAAIA=</HashCode>
       <FileName>DataSet.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -60,7 +65,7 @@
   <Class Name="GEM.GeneSet">
     <Position X="8.75" Y="3.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAJAAAABAAIIAQALAIgAgIgkApAAQIgMCCDAACYGEAE=</HashCode>
+      <HashCode>AAJAAAABAAIIAQALAIgAgIgkApQAQIgMDCDAACYGEAE=</HashCode>
       <FileName>GeneSet.cs</FileName>
     </TypeIdentifier>
   </Class>

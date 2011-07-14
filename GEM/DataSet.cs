@@ -150,6 +150,10 @@ namespace GEM
                 for (int rowRet = 0; rowRet < ret.NoRows; rowRet++)
                 {
                     done = false;
+                    //TODO: avoid the practically infinite loop by either
+                    //restricting sigma to be less than (max-min)*some constant (0.3???)
+                    //or approximating the probability of the values falling within [min, max]
+                    //and making it more than a constant (0.5???)
                     while (!done)
                     {
                         factor = 0;

@@ -34,6 +34,46 @@ namespace GEM
             }
         }
 
+        public Label ExperimentIDLabel
+        {
+            get
+            {
+                return experimentIDLabel;
+            }
+        }
+
+        public Label PopSizeLabel
+        {
+            get
+            {
+                return popSizeLabel;
+            }
+        }
+
+        public Label GenerationLabel
+        {
+            get
+            {
+                return generationLabel;
+            }
+        }
+
+        public Label FitnessLabel
+        {
+            get
+            {
+                return fitnessLabel;
+            }
+        }
+
+        public ProgressBar ProgBar
+        {
+            get
+            {
+                return progressBar;
+            }
+        }
+
         #endregion
 
         #region methods
@@ -83,6 +123,20 @@ namespace GEM
         }
 
         #endregion
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void stateLabel2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void stateLabel_Click(object sender, EventArgs e)
+        {
+
+        }
 
     }
 }
