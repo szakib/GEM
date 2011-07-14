@@ -125,25 +125,18 @@ namespace GEM
             MaNet.Matrix rMatrix = cholesky.getL();
 
             //Step 2: Create BVn variables
-            //code based on http://stackoverflow.com/questions/218060/random-gaussian-variables
+            
             Random rnd = new Random();
             //this will contain the BVn random variables. The nth column is the nth variable
             MatrixLibrary.Matrix bvMatrix
                 = new MatrixLibrary.Matrix(geneSet.dataSetSize, geneSet.numAttribs);
-
-            double u1;
-            double u2;
 
             //each column is one variable
             for (int col = 0; col < bvMatrix.NoCols; col++)
                 //each row is one value
                 for (int row = 0; row < bvMatrix.NoRows; row++)
                 {
-                    u1 = rnd.NextDouble();
-                    u2 = rnd.NextDouble();
-
-                    bvMatrix[row, col] = Math.Sqrt(-2.0 * Math.Log(u1)) *
-                                 Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+                    bvMatrix[row, col] = RandomNormal(rnd);
                 }
 
             //Step 3: Create data columns
@@ -159,9 +152,9 @@ namespace GEM
                 {
                     factor = 0;
 
-                    for (int rowR = 0; rowR < rMatrix.RowDimension; rowR++)
-                        for (int colR = 0; colR < rMatrix.ColumnDimension; colR++)
-                            factor += bvMatrix[rowRet, colR] * rMatrix.Get(rowR, colR);
+                    //for (int rowR = 0; rowR < rMatrix.RowDimension; rowR++)
+                        for (int colR = 0; colR <= colRet; colR++)
+                            factor += bvMatrix[rowRet, colR] * rMatrix.Get(colRet, colR);
 
                     ret[rowRet, colRet]
                         = meanMatrix[colRet, 0] + stdDevMatrix[colRet, 0] * factor;
@@ -169,6 +162,21 @@ namespace GEM
             }
 
             return ret;
+        }
+
+        /// <summary>
+        /// Returns a random value from a normal distribution
+        /// (mean=0, stddev = 1)
+        /// </summary>
+        /// <param name="rnd">The Random object to use</param>
+        /// <returns>The normally distributed random value</returns>
+        private double RandomNormal(Random rnd)
+        {
+            //code based on http://stackoverflow.com/questions/218060/random-gaussian-variables
+            double u1 = rnd.NextDouble();
+            double u2 = rnd.NextDouble();
+            return Math.Sqrt(-2.0 * Math.Log(u1)) *
+                         Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
         }
 
         /// <summary>

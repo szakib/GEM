@@ -903,6 +903,45 @@ namespace GEM
             return ret;
         } //public List<GeneSet> Breed(GeneSet other)
 
+        /// <summary>
+        /// Returns the minimum value of the given attribute
+        /// </summary>
+        /// <param name="index">Index of the attribute</param>
+        /// <returns>The minimum value of the given attribute</returns>
+        public double MinOfAttrib(int index)
+        {
+            //class or nominal
+            if (index < NumNominalAttribs + 1)
+                return 0;
+            //discrete
+            else if (index < NumNominalAttribs + NumDiscreteAttribs + 1)
+                return GeneConstants.minDiscrete;
+            //continuous
+            else
+                return GeneConstants.minContinuous;
+        }
+
+        /// <summary>
+        /// Returns the maximum value of the given attribute
+        /// </summary>
+        /// <param name="index">Index of the attribute</param>
+        /// <returns>The maximum value of the given attribute</returns>
+        public double MaxOfAttrib(int index)
+        {
+            //class
+            if (0 == index)
+                return numClasses - 1;
+            //nominal
+            else if (index < NumNominalAttribs + 1)
+                return nominalClassesMatrix[index - 1, 0] - 1;
+            //discrete
+            else if (index < NumNominalAttribs + NumDiscreteAttribs + 1)
+                return GeneConstants.maxDiscrete;
+            //continuous
+            else
+                return GeneConstants.maxContinuous;
+        }
+
         #region general-purpose matrix and vector operations
 
         /// <summary>
