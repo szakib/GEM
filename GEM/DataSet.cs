@@ -150,7 +150,7 @@ namespace GEM
                 for (int rowRet = 0; rowRet < ret.NoRows; rowRet++)
                 {
                     done = false;
-                    //TODO: avoid the practically infinite loop by either
+                    //TODO: avoid the infinite loop by making sure that rMatrix is finite everywhere
                     //restricting sigma to be less than (max-min)*some constant (0.3???)
                     //or approximating the probability of the values falling within [min, max]
                     //and making it more than a constant (0.5???)
@@ -160,7 +160,12 @@ namespace GEM
 
                         //for (int rowR = 0; rowR < rMatrix.RowDimension; rowR++)
                         for (int colR = 0; colR <= colRet; colR++)
+                        {
+                            if (double.IsInfinity(rMatrix.Get(colRet, colR)))
+                                throw new Exception(
+                                    "The R matrix contains an infinite value. Check correlation matrix.");
                             factor += RandomNormal(rnd) * rMatrix.Get(colRet, colR);
+                        }
 
                         ret[rowRet, colRet]
                             = meanOfCurrentAttrib + stdDevOfCurrentAttrib * factor;
