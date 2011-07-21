@@ -76,7 +76,7 @@ namespace GEM
         /// <returns>Fitness of learning</returns>
         public double Learn(Instances data, int numCrossValids)
         {
-            /*//spilt data into training / test set
+            /*//split data into training / test set
             Instances train = new Instances(data, 0);
             Instances test = new Instances(data, 0);
             Random rnd = new Random();

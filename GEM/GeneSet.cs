@@ -50,12 +50,6 @@ namespace GEM
         /// </summary>
         public double  missingValueRatio;
 
-        /* //redundant, the correlation matrix is more precise
-        /// <summary>
-        /// ratio of irrelevant attribs
-        /// </summary>
-        private double  irrelevantAttribRatio;*/
-
         //Matrices for statistical generation of data (p45 in Anton's thesis)
 
         /// <summary>
@@ -169,7 +163,7 @@ namespace GEM
             }
             set
             {
-                discreteAttribRatio = numAttribs / value;
+                discreteAttribRatio = value / numAttribs;
             }
         }
 
@@ -281,14 +275,11 @@ namespace GEM
                 numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
                 numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
 
-                //values between 0 and 1, no need for RandomDouble()
-                nominalAttribRatio = rnd.NextDouble();
                 //without the explicit casts, the 1st part is 0 because it's an int.
-                double maxDAR = (((double)numAttribs - 1) / (double)numAttribs)
-                                - nominalAttribRatio;
-                discreteAttribRatio = RandomDouble(rnd, 0, maxDAR);
+                double maxNAR = ((double)numAttribs - 1) / (double)numAttribs;
+                nominalAttribRatio = RandomDouble(rnd, 0, maxNAR);
+                discreteAttribRatio = RandomDouble(rnd, 0, maxNAR - nominalAttribRatio);
                 missingValueRatio = rnd.NextDouble();
-                //irrelevantAttribRatio = rnd.NextDouble();
 
                 meanClass = RandomDouble(rnd, 0, numClasses - 1);
                 stdDevClass = RandomDouble(rnd, 0, numClasses - 1);
@@ -364,18 +355,69 @@ namespace GEM
             }
 
             //Correlation matrix
+            correlationMatrix = RandomCorrelMatrix(rnd);
+        } //public void RandomiseMatrices()
+
+        /// <summary>
+        /// Creates a random correlation matrix
+        /// </summary>
+        /// <param name="rnd">The Random object to use</param>
+        /// <returns>The correlation matrix</returns>
+        private Matrix RandomCorrelMatrix(Random rnd)
+        {
+            Matrix m = new Matrix(numAttribs, numAttribs);
+
+            /*//old version
             for (int row = 0; row < numAttribs; row++)
                 for (int column = 0; column < numAttribs; column++)
                     //initialise one half
                     if (column > row)
                         //correlationMatrix elements between -1 and 1
-                        correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
+                        ret[row, column] = RandomDouble(rnd, -1, 1);
                     //centerline is filled with 1's
                     else if (column == row)
-                        correlationMatrix[row, column] = 1;
+                        ret[row, column] = 1;
                     //other half copied
                     else
-                        correlationMatrix[row, column] = correlationMatrix[column, row];
+                        ret[row, column] = ret[column, row];*/
+
+            for (int row = 0; row < numAttribs; row++)
+                for (int column = 0; column < numAttribs; column++)
+                    //initialise one half
+                    if (column > row)
+                        //correlationMatrix elements between -1 and 1
+                        m[row, column] = RandomDouble(rnd, -1, 1);
+                    //centerline is filled with 1's
+                    else if (column == row)
+                        m[row, column] = 1;
+                    //other half copied
+                    else
+                        m[row, column] = m[column, row];
+
+            NormaliseColumns(m);
+
+            return m * Matrix.Transpose(m);;
+        } //private Matrix RandomCorrelMatrix(Random rnd)
+
+        /// <summary>
+        /// Normalises the columns of a matrix, meaning:
+        /// divide all elements by the 2-norm of its column
+        /// </summary>
+        /// <param name="mtrx">The matrix to normalise</param>
+        private void NormaliseColumns(Matrix mtrx)
+        {
+            double norm;
+
+            for (int col = 0; col < mtrx.NoCols; col++)
+            {
+                norm = 0;
+                for (int row1 = 0; row1 < mtrx.NoRows; row1++)
+                    norm += mtrx[row1, col] * mtrx[row1, col];
+                norm = Math.Sqrt(norm);
+
+                for (int row2 = 0; row2 < mtrx.NoRows; row2++)
+                    mtrx[row2, col] = mtrx[row2, col] / norm;
+            }
         }
 
         /// <summary>
@@ -385,6 +427,9 @@ namespace GEM
         /// <returns>true if mutation happened</returns>
         public void Mutate(double mutationCoefficient)
         {
+            //TODO: the ratios are probably wrong
+            //TODO: the correlation matrix will definitely not be SPD
+
             mutated = false;
             Random rnd = new Random();
 
@@ -574,7 +619,7 @@ namespace GEM
             Random rnd = new Random();
 
             //pass simple values on to children randomly
-            //dataSetSize
+            //dataSetSize is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
                 child1.dataSetSize = this.dataSetSize;
@@ -586,39 +631,54 @@ namespace GEM
                 child1.dataSetSize = other.dataSetSize;
             }
 
-            //NumNominalAttribs
+            int[] numNom = new int[2];
+            int[] numDisc = new int[2];
+            int[] numCont = new int[2];
+
+            //NumNominalAttribs is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
-                child1.NumNominalAttribs = this.NumNominalAttribs;
-                child2.NumNominalAttribs = other.NumNominalAttribs;
+                numNom[0] = this.NumNominalAttribs;
+                numNom[1] = other.NumNominalAttribs;
             }
             else
             {
-                child2.NumNominalAttribs = this.NumNominalAttribs;
-                child1.NumNominalAttribs = other.NumNominalAttribs;
+                numNom[1] = this.NumNominalAttribs;
+                numNom[0] = other.NumNominalAttribs;
             }
-            //NumDiscreteAttribs
+            //NumDiscreteAttribs is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
-                child1.NumDiscreteAttribs = this.NumDiscreteAttribs;
-                child2.NumDiscreteAttribs = other.NumDiscreteAttribs;
+                numDisc[0] = this.NumDiscreteAttribs;
+                numDisc[1] = other.NumDiscreteAttribs;
             }
             else
             {
-                child2.NumDiscreteAttribs = this.NumDiscreteAttribs;
-                child1.NumDiscreteAttribs = other.NumDiscreteAttribs;
+                numDisc[1] = this.NumDiscreteAttribs;
+                numDisc[0] = other.NumDiscreteAttribs;
             }
-            //NumContinuousAttribs
+            //NumContinuousAttribs is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
-                child1.NumContinuousAttribs = this.NumContinuousAttribs;
-                child2.NumContinuousAttribs = other.NumContinuousAttribs;
+                numCont[0] = this.NumContinuousAttribs;
+                numCont[1] = other.NumContinuousAttribs;
             }
             else
             {
-                child2.NumContinuousAttribs = this.NumContinuousAttribs;
-                child1.NumContinuousAttribs = other.NumContinuousAttribs;
+                numCont[1] = this.NumContinuousAttribs;
+                numCont[0] = other.NumContinuousAttribs;
             }
+
+            //Set the actual values. Remember, we are actually setting the ratios. ;)
+            child1.numAttribs = numNom[0] + numDisc[0] + numCont[0] + 1;
+            child2.numAttribs = numNom[1] + numDisc[1] + numCont[1] + 1;
+            child1.NumNominalAttribs    = numNom[0];
+            child1.NumDiscreteAttribs   = numDisc[0];
+            child1.NumContinuousAttribs = numCont[0];
+            child2.NumNominalAttribs    = numNom[1];
+            child2.NumDiscreteAttribs   = numDisc[1];
+            child2.NumContinuousAttribs = numCont[1];
+
 
             //helper lists to know which attrib of the children is which parent's which attrib
             List<GeneSet> child1AttribParents = new List<GeneSet>(child1.numAttribs);

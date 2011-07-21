@@ -44,7 +44,12 @@ namespace GEM
             }
             set
             {
-                fitness = value;
+                if (double.IsNaN(value))
+                    throw new Exception("Trying to set a fitness value of NaN.");
+                else if (double.IsInfinity(value))
+                    throw new Exception("Trying to set a fitness value of infinity.");
+                else
+                    fitness = value;
             }
         }
 
@@ -121,7 +126,12 @@ namespace GEM
                                     geneSet.correlationMatrix.NoRows,
                                     geneSet.correlationMatrix.NoCols));
 
-            MaNet.Matrix rMatrix = cholesky.getL();
+            MaNet.Matrix rMatrix;
+            if(cholesky.IsSPD())
+                rMatrix = cholesky.getL();
+            else
+                throw new Exception(
+                    "The correlation matrix needs to be symmetric and positive-definite.");
 
             //Step 2: Create BVn variables implicitly done by using RandomNormal()
             Random rnd = new Random();
@@ -161,9 +171,6 @@ namespace GEM
                         //for (int rowR = 0; rowR < rMatrix.RowDimension; rowR++)
                         for (int colR = 0; colR <= colRet; colR++)
                         {
-                            if (double.IsInfinity(rMatrix.Get(colRet, colR)))
-                                throw new Exception(
-                                    "The R matrix contains an infinite value. Check correlation matrix.");
                             factor += RandomNormal(rnd) * rMatrix.Get(colRet, colR);
                         }
 

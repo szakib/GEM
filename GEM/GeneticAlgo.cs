@@ -407,31 +407,15 @@ namespace GEM
             while (toFill.Count < populationSize)
             {
                 SetProgressBarValue((int)Math.Round((double)(toFill.Count / populationSize) * 100));
-                //selection of parents is based on these values
-                double currTotFit1 = rnd.NextDouble() * totalAccFit;
-                double currTotFit2 = rnd.NextDouble() * totalAccFit;
 
                 Individual parent1 = null;
                 Individual parent2 = null;
 
                 while (null == parent1)
-                    parent1 = fillFrom.Find(
-                            delegate (Individual i)
-                            {
-                                return i.AccumFitness > currTotFit1;
-                            }
-                            );
+                    parent1 = SelectParent(fillFrom, totalAccFit, rnd);
                 //2nd condition makes sure the parents are different
                 while (null == parent2 || parent1 == parent2)
-                    parent2 = fillFrom.Find(
-                            //yes, this is copy-paste...
-                            //Would be nicer to have a separate delegate/predicate and reuse it
-                            //don't know how to make it parametric
-                            delegate(Individual i)
-                            {
-                                return i.AccumFitness > currTotFit2;
-                            }
-                            );
+                    parent2 = SelectParent(fillFrom, totalAccFit, rnd);
 
                 List<GeneSet> childGenes = parent1.Genes.Breed(parent2.Genes);
 
@@ -448,6 +432,26 @@ namespace GEM
         }
 
         /// <summary>
+        /// Selects a prospective parent for breeding based on the accumulated fitness values
+        /// </summary>
+        /// <param name="fillFrom">Old population to choose parents from</param>
+        /// <param name="totalAccFit">The total accumulated fitness of the parents</param>
+        /// <param name="rnd">The Random object to use for selection</param>
+        /// <returns>Prospective parent</returns>
+        private Individual SelectParent(List<Individual> fillFrom, double totalAccFit, Random rnd)
+        {
+            //selection of parents is based on this value
+            double currTotFit = rnd.NextDouble() * totalAccFit;
+
+            return fillFrom.Find(
+                    delegate(Individual i)
+                    {
+                        return i.AccumFitness > currTotFit;
+                    }
+                    );
+        }
+
+        /// <summary>
         /// Calculates (non-normalised) accumulated fitness values
         /// of all individuals of the given population
         /// </summary>
@@ -455,12 +459,19 @@ namespace GEM
         /// <returns>The total of the fitness values</returns>
         private double AccumulateFitness(List<Individual> population)
         {
+            if (null == population)
+                throw new Exception("Population parametre of AccumulateFitness() is null.");
             double total = 0;
 
             foreach (Individual i in population)
             {
-                total += i.Fitness;
-                i.AccumFitness = total;
+                if (null == i)
+                    throw new Exception("Member " + i + " of one of the populations is null.");
+                else
+                {
+                    total += i.Fitness;
+                    i.AccumFitness = total;
+                }
             }
 
             return total;
@@ -520,8 +531,10 @@ namespace GEM
                     controlScore += l.Learn(i.DataSet.data, numCrossValids);
 
                 controlScore = controlScore / controlGroup.Count;
-                
-                if (invert)
+
+                if (0 == controlScore && 0 == targetScore)
+                    i.DataSet.Fitness = 0;
+                else if (invert)
                     i.DataSet.Fitness = controlScore / targetScore;
                 else
                     i.DataSet.Fitness = targetScore / controlScore;
