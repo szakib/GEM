@@ -622,10 +622,62 @@ namespace GEM
         /// </summary>
         private void SetExperimentDetailLabels()
         {
-            mainForm.GenerationLabel.Text = currentGeneration.ToString();
-            mainForm.FitnessLabel.Text = overallFitness.ToString();
+            SetGenerationLabel(currentGeneration.ToString());
+            SetFitnessLabel(overallFitness.ToString());
         }
 
+        /// <summary>
+        /// Delegate for SetGenerationLabel
+        /// </summary>
+        /// <param name="txt">The text to set</param>
+        delegate void SetGenerationLabelCallback(string txt);
+
+        /// <summary>
+        /// Sets GenerationLabel on the main form in a thread-safe way
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        private void SetGenerationLabel(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.GenerationLabel.InvokeRequired)
+            {
+                SetGenerationLabelCallback d
+                    = new SetGenerationLabelCallback(SetGenerationLabel);
+                mainForm.GenerationLabel.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                mainForm.GenerationLabel.Text = text;
+            }
+        }
+
+        /// <summary>
+        /// Delegate for SetFitnessLabel
+        /// </summary>
+        /// <param name="txt">The text to set</param>
+        delegate void SetFitnessLabelCallback(string txt);
+
+        /// <summary>
+        /// Sets FitnessLabel on the main form in a thread-safe way
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        private void SetFitnessLabel(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.FitnessLabel.InvokeRequired)
+            {
+                SetFitnessLabelCallback d = new SetFitnessLabelCallback(SetFitnessLabel);
+                mainForm.FitnessLabel.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                mainForm.FitnessLabel.Text = text;
+            }
+        }
         #endregion
     }
 }

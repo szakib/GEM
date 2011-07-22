@@ -35,9 +35,19 @@
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetGenerationLabelCallback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetFitnessLabelCallback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAAAQAADAAAAAAAhoAiAIgGgEhABAwJAQgIAEANCA=</HashCode>
+      <HashCode>CDCAAAQAADAAAAABAhoAiAIgGgEhABAwJAQgIAEANCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -65,7 +75,7 @@
   <Class Name="GEM.GeneSet">
     <Position X="8.75" Y="3.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAJAAAABAAIIAQALAIgAgIgkApQAQIgMDCDAACYGEAE=</HashCode>
+      <HashCode>AAJAAAABAAIIAQALAIgQgIgkApQARIgMDCDAACYGEAE=</HashCode>
       <FileName>GeneSet.cs</FileName>
     </TypeIdentifier>
   </Class>

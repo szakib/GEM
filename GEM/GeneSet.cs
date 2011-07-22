@@ -148,7 +148,7 @@ namespace GEM
             }
             set
             {
-                nominalAttribRatio = numAttribs / value;
+                nominalAttribRatio = ((double)value) / ((double)numAttribs);
             }
         }
 
@@ -163,7 +163,7 @@ namespace GEM
             }
             set
             {
-                discreteAttribRatio = value / numAttribs;
+                discreteAttribRatio = ((double)value) / ((double)numAttribs);
             }
         }
 
@@ -200,7 +200,7 @@ namespace GEM
 
                 ret[0, 0] = meanClass;
 
-                //index starts from 1 bacause class is already done
+                //index starts from 1 because class is already done
                 for (int row = 1; row < numAttribs; row++)
                     //nominal
                     if (row < NumNominalAttribs + 1)
@@ -230,7 +230,7 @@ namespace GEM
 
                 ret[0, 0] = stdDevClass;
 
-                //index starts from 1 bacause class is already done
+                //index starts from 1 because class is already done
                 for (int row = 1; row < numAttribs; row++)
                     //nominal
                     if (row < NumNominalAttribs + 1)
@@ -729,13 +729,20 @@ namespace GEM
             child2.InitMatrices();
 
             //create combined vectors of attribute parametres
-            Matrix meanNomCombined = CombineVectors(this.meanMatrixNominal, other.meanMatrixNominal);
-            Matrix meanDisCombined = CombineVectors(this.meanMatrixDiscrete, other.meanMatrixDiscrete);
-            Matrix meanConCombined = CombineVectors(this.meanMatrixContinuous, other.meanMatrixContinuous);
-            Matrix sdNomCombined = CombineVectors(this.stdDevMatrixNominal, other.stdDevMatrixNominal);
-            Matrix sdDisCombined = CombineVectors(this.stdDevMatrixDiscrete, other.stdDevMatrixDiscrete);
-            Matrix sdConCombined = CombineVectors(this.stdDevMatrixContinuous, other.stdDevMatrixContinuous);
-            Matrix nomClassCombined = CombineVectors(this.nominalClassesMatrix, other.nominalClassesMatrix);
+            Matrix meanNomCombined
+                = CombineVectors(this.meanMatrixNominal, other.meanMatrixNominal);
+            Matrix meanDisCombined
+                = CombineVectors(this.meanMatrixDiscrete, other.meanMatrixDiscrete);
+            Matrix meanConCombined
+                = CombineVectors(this.meanMatrixContinuous, other.meanMatrixContinuous);
+            Matrix sdNomCombined
+                = CombineVectors(this.stdDevMatrixNominal, other.stdDevMatrixNominal);
+            Matrix sdDisCombined
+                = CombineVectors(this.stdDevMatrixDiscrete, other.stdDevMatrixDiscrete);
+            Matrix sdConCombined
+                = CombineVectors(this.stdDevMatrixContinuous, other.stdDevMatrixContinuous);
+            Matrix nomClassCombined
+                = CombineVectors(this.nominalClassesMatrix, other.nominalClassesMatrix);
             /*Matrix correlationCombined
                 = CombineCorrelMatrices(rnd, this.correlationMatrix, other.correlationMatrix);*/
             
@@ -778,7 +785,7 @@ namespace GEM
             }
             //child2 takes the rest
             indexChild = 0;
-            for(indexCombined = 0; indexCombined < child2.NumNominalAttribs; indexCombined++)
+            for (indexCombined = 0; indexCombined < meanNomCombined.NoRows; indexCombined++)
                 if (!takenAttribsNom.Contains(indexCombined))
                 {
                     child2.meanMatrixNominal[indexChild, 0] = meanNomCombined[indexCombined, 0];
@@ -826,7 +833,7 @@ namespace GEM
                     else
                     {
                         child1AttribParents.Add(other);
-                        child1AttribIndices.Add(1 + this.NumNominalAttribs + indexCombined
+                        child1AttribIndices.Add(1 + other.NumNominalAttribs + indexCombined
                             - this.NumDiscreteAttribs);
                     }
 
@@ -835,7 +842,7 @@ namespace GEM
             }
             //child2 takes the rest
             indexChild = 0;
-            for(indexCombined = 0; indexCombined < child2.NumDiscreteAttribs; indexCombined++)
+            for (indexCombined = 0; indexCombined < meanDisCombined.NoRows; indexCombined++)
                 if (!takenAttribsDis.Contains(indexCombined))
                 {
                     child2.meanMatrixDiscrete[indexChild, 0] = meanDisCombined[indexCombined, 0];
@@ -852,7 +859,7 @@ namespace GEM
                     else
                     {
                         child2AttribParents.Add(other);
-                        child2AttribIndices.Add(1 + this.NumNominalAttribs + indexCombined
+                        child2AttribIndices.Add(1 + other.NumNominalAttribs + indexCombined
                             - this.NumDiscreteAttribs);
                     }
 
@@ -884,7 +891,7 @@ namespace GEM
                     else
                     {
                         child1AttribParents.Add(other);
-                        child1AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
+                        child1AttribIndices.Add(1 + other.NumNominalAttribs + other.NumDiscreteAttribs
                             + indexCombined - this.NumContinuousAttribs);
                     }
 
@@ -893,8 +900,8 @@ namespace GEM
             }
             //child2 takes the rest
             indexChild = 0;
-            for(indexCombined = 0; indexCombined < child2.NumNominalAttribs; indexCombined++)
-                if (!takenAttribsNom.Contains(indexCombined))
+            for (indexCombined = 0; indexCombined < meanConCombined.NoRows; indexCombined++)
+                if (!takenAttribsCon.Contains(indexCombined))
                 {
                     child2.meanMatrixContinuous[indexChild, 0] = meanConCombined[indexCombined, 0];
                     child2.stdDevMatrixContinuous[indexChild, 0] = sdConCombined[indexCombined, 0];
@@ -911,7 +918,7 @@ namespace GEM
                     else
                     {
                         child2AttribParents.Add(other);
-                        child2AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
+                        child2AttribIndices.Add(1 + other.NumNominalAttribs + other.NumDiscreteAttribs
                             + indexCombined - this.NumContinuousAttribs);
                     }
 

@@ -105,7 +105,11 @@ namespace GEM
             Evaluation eval = new Evaluation(data);
             eval.crossValidateModel(tool, data, numCrossValids, new java.util.Random());
 
-            return eval.pctCorrect();
+            double ret = eval.pctCorrect();
+            if (double.IsNaN(ret))
+                return 0;
+            else
+                return ret;
         }
 
         #endregion
