@@ -396,7 +396,7 @@ namespace GEM
 
             NormaliseColumns(m);
 
-            return m * Matrix.Transpose(m);;
+            return m * Matrix.Transpose(m);
         } //private Matrix RandomCorrelMatrix(Random rnd)
 
         /// <summary>
@@ -965,7 +965,7 @@ namespace GEM
                     else
                         child2.correlationMatrix[row, column] = child2.correlationMatrix[column, row];
 
-            #endregion
+            #endregion //pass attributes on to children randomly
 
             return ret;
         } //public List<GeneSet> Breed(GeneSet other)
@@ -1011,6 +1011,80 @@ namespace GEM
 
         #region general-purpose matrix and vector operations
 
+        /// <summary>
+        /// Calculates the product of all the correlations in the input correlation matrix and 
+        /// the sum of the squares of all the correlations in the input correlation matrix
+        /// </summary>
+        /// <param name="m">The correlation matrix</param>
+        /// <returns>List of: product, sum of squares</returns>
+        private List<double> PreprocessCorrelMatrix(Matrix m)
+        {
+            double prod = 1;
+            double sumSq = 0;
+            for(int row = 0; row < m.NoRows; row++)
+                for (int col = row + 1; col < m.NoCols; col++)
+                {
+                    prod *= m[row, col];
+                    sumSq += (m[row, col] * m[row, col]);
+                }
+
+            List<double> ret = new List<double>();
+            ret.Add(prod);
+            ret.Add(sumSq);
+            return ret;
+        }
+
+        /// <summary>
+        /// Calculates the upper and lower bounds of the elements of a given correlation matrix
+        /// This method is proof-of-concept only,
+        /// it is inefficiant to calculate the whole matrix of values like this.
+        /// </summary>
+        /// <param name="m">The input corelation matrix</param>
+        /// <returns>List of matrix of lower bounds, matrix of upper bounds</returns>
+        private List<Matrix> BoundsOfCorrelations(Matrix m)
+        {
+            //PROD(Ci) +- SQRT[PROD(Ci^2)-SUM(Ci^2) +1]
+
+            Matrix lower = new Matrix(m.NoRows, m.NoCols);
+            Matrix upper = new Matrix(m.NoRows, m.NoCols);
+
+            List<double> pre = PreprocessCorrelMatrix(m);
+            double prod = pre[0];
+            double squareOfProd = prod * prod;
+            double sumSq = pre[1];
+
+            double plusMinus;
+
+            for (int row = 0; row < m.NoRows; row++)
+                for (int column = 0; column < m.NoCols; column++)
+                    //calculate one half
+                    if (column > row)
+                    {
+                        double squareOfThis = m[row, column] * m[row, column];
+                        plusMinus = Math.Sqrt(squareOfProd / squareOfThis
+                            - sumSq + squareOfThis + 1);
+                        lower[row, column] = prod / m[row, column] - plusMinus;
+                        upper[row, column] = prod / m[row, column] + plusMinus;
+                    }
+                    //centerline is filled with 1's
+                    else if (column == row)
+                    {
+                        lower[row, column] = 1;
+                        upper[row, column] = 1;
+                    }
+                    //other half copied
+                    else
+                    {
+                        lower[row, column] = lower[column, row];
+                        upper[row, column] = upper[column, row];
+                    }
+
+            List<Matrix> ret = new List<Matrix>();
+            ret.Add(lower);
+            ret.Add(upper);
+            return ret;
+        }
+        
         /// <summary>
         /// Mutates the values in the target matrix.
         /// </summary>
