@@ -273,6 +273,7 @@ namespace GEM
             stream = File.Open(path, FileMode.Open);
             badPopulation = (List<Individual>)bFormatter.Deserialize(stream);
             stream.Close();
+            stream.Dispose();
 
             SetLabel2("");
         }
@@ -307,6 +308,7 @@ namespace GEM
             stream = File.Open(path, FileMode.Create);
             bFormatter.Serialize(stream, badPopulation);
             stream.Close();
+            stream.Dispose();
             resume = true;
 
             SetLabel2("");
