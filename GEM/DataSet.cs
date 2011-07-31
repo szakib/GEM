@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using weka.core;
 using weka.core.converters;
+using System.IO;
 
 namespace GEM
 {
@@ -133,7 +134,7 @@ namespace GEM
                 throw new Exception(
                     "The correlation matrix needs to be symmetric and positive-definite.");
 
-            //Step 2: Create BVn variables implicitly done by using RandomNormal()
+            //"Step 2: Create BVn variables" implicitly done by using RandomNormal()
             Random rnd = new Random();
 
             //Step 3: Create data columns
@@ -257,6 +258,24 @@ namespace GEM
             return attribs;
         }
 
+        /// <summary>
+        /// Saves the data in an ARFF file.
+        /// </summary>
+        /// <param name="path">The path and name of the output file</param>
+        internal void SaveArff(string path)
+        {
+            if (!File.Exists(path))
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(path)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                ArffSaver saver = new ArffSaver();
+                saver.setInstances(data);
+                saver.setFile(new java.io.File(path));
+                saver.writeBatch();
+            }
+        }
+
         //constructor to load dataset from file
 /*        /// <summary>
         /// Initializes a new instance of the <see cref="DataSet"/> class
@@ -267,6 +286,7 @@ namespace GEM
             throw new System.NotImplementedException();
         }*/
 
-        #endregion
+        #endregion //methods
+
     }
 }

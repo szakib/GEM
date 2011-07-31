@@ -7,6 +7,10 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using log4net;
+using log4net.Config;
+using log4net.Appender;
+using log4net.Layout;
 
 namespace GEM
 {
@@ -34,7 +38,10 @@ namespace GEM
         /// </summary>
         private bool                    resume;
 
-        //private Logger                  logger              = new Logger();
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private ILog                    log;
 
         /// <summary>
         /// flag signalling that Stop has been pressed on the UI
@@ -54,9 +61,11 @@ namespace GEM
 
         //fields for properties below
         private Learner                 targetLearner;
-        private List<Learner>           controlGroup = new List<Learner>();
-        private List<Individual>        goodPopulation = new List<Individual>();
-        private List<Individual>        badPopulation = new List<Individual>();
+        private List<Learner>           controlGroup        = new List<Learner>();
+        private List<Individual>        goodPopulation      = new List<Individual>();
+        private List<Individual>        badPopulation       = new List<Individual>();
+        private Individual              bestGood            = null;
+        private Individual              bestBad             = null;
 
         /// <summary>
         /// Gets or sets the target learner
@@ -158,6 +167,28 @@ namespace GEM
             ReadConfig();
             targetLearner = new Learner(LearnerType.J48, null);
             controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
+
+            InitLog();
+        }
+
+        /// <summary>
+        /// Initialises the logger.
+        /// </summary>
+        private void InitLog()
+        {
+            log = LogManager.GetLogger(
+                System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+            //even though this is supposed to be deprecated, it works,
+            //while the official method doesn't
+            FileAppender fa = new FileAppender(
+            /*fa.Layout =*/         new GEMLogLayout(),
+            /*fa.File =*/           Path.Combine(savePath, "GEM_log.txt"),
+            /*fa.AppendToFile =*/   true);
+            fa.Encoding = Encoding.UTF8;
+            fa.ImmediateFlush = true;
+            BasicConfigurator.Configure(fa);
+            log.Info("*****************************");
+            log.Info("GEM started, init successful.");
         }
 
         /// <summary>
@@ -323,6 +354,7 @@ namespace GEM
             stop = true;
             mainForm.StateLabel.Text = "Stopping, please wait.";
             mainForm.StateLabel.ForeColor = Color.Red;
+            log.Info("Stop button pressed.");
         }
 
         /// <summary>
@@ -330,6 +362,9 @@ namespace GEM
         /// </summary>
         private void NextGeneration()
         {
+            currentGeneration++;
+
+            log.Info("Generation " + currentGeneration + " started.");
             mainForm.StateLabel.Text = "Running";
             mainForm.StateLabel.ForeColor = Color.Green;
             SetExperimentDetailLabels();
@@ -365,17 +400,27 @@ namespace GEM
             List<Individual> newGoodPop = new List<Individual>();
             List<Individual> newBadPop = new List<Individual>();
 
-            //Elite survives
+            //Elite survives...
             for (int i = 0; i < populationSize * eliteRatio; i++)
             {
-                newBadPop.Add(badPopulation[i]);
-                newGoodPop.Add(goodPopulation[i]);
+                //... but only if it's not useless
+                if (badPopulation[i].Fitness > 0)
+                    newBadPop.Add(badPopulation[i]);
+                if (goodPopulation[i].Fitness > 0)
+                    newGoodPop.Add(goodPopulation[i]);
             }
 
             //Breeding chance will depend on accumulated fitness
             //see http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29
-            double totalFitGood = AccumulateFitness(goodPopulation);
-            double totalFitBad = AccumulateFitness(badPopulation);
+            double totalFitGood = AccumulateFitness(goodPopulation, out bestGood);
+            double totalFitBad = AccumulateFitness(badPopulation, out bestBad);
+
+            log.Info("Best individual in good population:");
+            logIndividual(bestGood);
+            bestGood.SaveArff(savePath);
+            log.Info("Best individual in bad population:");
+            logIndividual(bestBad);
+            bestBad.SaveArff(savePath);
 
             //Breeding to fill the rest of the places
             Random rnd = new Random();
@@ -393,6 +438,21 @@ namespace GEM
             foreach (Individual j in badPopulation)
                 j.Mutate(mutationCoefficient);
         } //non-surviving individuals of old populations get garbage collected here
+
+        /// <summary>
+        /// Logs an individual's parametres
+        /// </summary>
+        /// <param name="i">The individual to write into the log</param>
+        private void logIndividual(Individual i)
+        {
+            if (null == i)
+                log.Info("Individual is null.");
+            else
+            {
+                log.Info("Fitness = " + i.Fitness);
+                log.Info(i.Genes.ToString());
+            }
+        }
 
         /// <summary>
         /// Fills the remaining places of the population with children
@@ -448,7 +508,7 @@ namespace GEM
             return fillFrom.Find(
                     delegate(Individual i)
                     {
-                        return i.AccumFitness > currTotFit;
+                        return i.AccumFitness >= currTotFit;
                     }
                     );
         }
@@ -456,14 +516,20 @@ namespace GEM
         /// <summary>
         /// Calculates (non-normalised) accumulated fitness values
         /// of all individuals of the given population
+        /// Side effect: it selects the best individual and stores it in an output variable
         /// </summary>
         /// <param name="population">The population to work with</param>
-        /// <returns>The total of the fitness values</returns>
-        private double AccumulateFitness(List<Individual> population)
+        /// <param name="best">The individual with the highest fitness value</param>
+        /// <returns>
+        /// The total of the fitness values
+        /// </returns>
+        private double AccumulateFitness(List<Individual> population, out Individual best)
         {
             if (null == population)
-                throw new Exception("Population parametre of AccumulateFitness() is null.");
+                throw new Exception("Population parameter of AccumulateFitness() is null.");
             double total = 0;
+            double bestFit = 0;
+            best = null;
 
             foreach (Individual i in population)
             {
@@ -473,6 +539,11 @@ namespace GEM
                 {
                     total += i.Fitness;
                     i.AccumFitness = total;
+                    if (i.Fitness > bestFit)
+                    {
+                        best = i;
+                        bestFit = i.Fitness;
+                    }
                 }
             }
 
@@ -507,13 +578,18 @@ namespace GEM
             double newOverallFitness
                 = goodPopulation.Max(i => i.Fitness) + badPopulation.Max(j => j.Fitness);
 
-            //this here is the stop criterion!
+            //this here is the stop criterion for the entire genetic algorithm!
             if (newOverallFitness <= overallFitness)
+            {
                 stop = true;
+                string happyMessage = "Stop criterion reached.";
+                SetLabel2(happyMessage);
+                log.Info(happyMessage);
+            }
+            else
+                SetLabel2("");
 
             overallFitness = newOverallFitness;
-
-            SetLabel2("");
         }
 
         /// <summary>
@@ -534,7 +610,9 @@ namespace GEM
 
                 controlScore = controlScore / controlGroup.Count;
 
-                if (0 == controlScore && 0 == targetScore)
+                //if the target score is 0, this is perfectly justified.
+                //if the control score is 0, only rejected for practical reasons.
+                if (0 == controlScore || 0 == targetScore)
                     i.DataSet.Fitness = 0;
                 else if (invert)
                     i.DataSet.Fitness = controlScore / targetScore;
@@ -557,6 +635,7 @@ namespace GEM
                 SaveConfig();
                 mainForm.StateLabel.Text = "Stopped, safe to exit.";
                 mainForm.StateLabel.ForeColor = Color.Green;
+                log.Info("Processing stopped.");
             }
             else
                 NextGeneration();

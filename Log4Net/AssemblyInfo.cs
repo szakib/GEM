@@ -46,7 +46,7 @@ using System.Runtime.CompilerServices;
 
 #if (CLI_1_0)
 [assembly: AssemblyTitle("log4net for CLI 1.0 Compatible Frameworks")]
-#elif (NET_1_0)
+#elif (NET_1_0 || NET_4_0)
 [assembly: AssemblyTitle("log4net for .NET Framework 1.0")]
 #elif (NET_1_1)
 [assembly: AssemblyTitle("log4net for .NET Framework 1.1")]
@@ -83,8 +83,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("The Apache Software Foundation log4net Logging Framework")]
 [assembly: AssemblyProduct("log4net")]
 [assembly: AssemblyDefaultAlias("log4net")]
-[assembly: AssemblyCulture("")]		
-		
+[assembly: AssemblyCulture("")]
+[assembly: System.Security.SecurityRules(System.Security.SecurityRuleSet.Level1)]		
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
 // Microsoft .NET Framework documentation for more information on assembly signing.
@@ -110,7 +110,7 @@ using System.Runtime.CompilerServices;
 //   (*) Delay Signing is an advanced option - see the Microsoft .NET Framework
 //       documentation for more information on this.
 //
-#if STRONG && (CLI_1_0 || NET_1_0 || NET_1_1 || NETCF_1_0 || SSCLI)
+#if STRONG && (CLI_1_0 || NET_1_0 || NET_4_0 || NET_1_1 || NETCF_1_0 || SSCLI)
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile(@"..\..\..\log4net.snk")]
 #endif

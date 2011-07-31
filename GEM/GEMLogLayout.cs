@@ -1,51 +1,26 @@
-#region Copyright & License
-//
-// Copyright 2001-2005 The Apache Software Foundation
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-#endregion
-
-using System;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using log4net.Util;
+using log4net.Layout;
+using System.IO;
 using log4net.Core;
 
-namespace log4net.Layout
+namespace GEM
 {
-	/// <summary>
-	/// A very simple layout
-	/// </summary>
-	/// <remarks>
-	/// <para>
-	/// SimpleLayout consists of the level of the log statement,
-	/// followed by " - " and then the log message itself. For example,
-	/// <code>
-	/// DEBUG - Hello world
-	/// </code>
-	/// </para>
-	/// </remarks>
-	/// <author>Nicko Cadell</author>
-	/// <author>Gert Driesen</author>
-	public class SimpleLayout : LayoutSkeleton
-	{
+    class GEMLogLayout : LayoutSkeleton
+    {
+        /// <summary>
+        /// Length of the non-message part of the formatting
+        /// </summary>
+        public const int padding = 23;
+
 		#region Constructors
 
 		/// <summary>
 		/// Constructs a SimpleLayout
 		/// </summary>
-		public SimpleLayout()
+        public GEMLogLayout()
 		{
 			IgnoresException = true;
 		}
@@ -98,12 +73,13 @@ namespace log4net.Layout
 				throw new ArgumentNullException("loggingEvent");
 			}
 
-			writer.Write(loggingEvent.Level.DisplayName);
-			writer.Write(" - ");
+            writer.Write(DateTime.Now.ToString().PadRight(padding));
+			//writer.Write(loggingEvent.Level.DisplayName);
+			//writer.Write(" - ");
 			loggingEvent.WriteRenderedMessage(writer);
 			writer.WriteLine();
 		}
 
 		#endregion
-	}
+    }
 }

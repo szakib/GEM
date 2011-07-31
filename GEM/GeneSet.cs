@@ -265,7 +265,7 @@ namespace GEM
         /// otherwise returns empty gene set.</param>
         public GeneSet(bool fillRandom)
         {
-            guid = new Guid();
+            guid = Guid.NewGuid();
 
             if (fillRandom)
             {
@@ -569,7 +569,7 @@ namespace GEM
         }
 
         /// <summary>
-        /// Random int between min and max
+        /// Random int between min and max, _including_ both the bounds
         /// </summary>
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
         /// <param name="min">The minimum</param>
@@ -578,9 +578,9 @@ namespace GEM
         private int RandomInt(Random rnd, int min, int max)
         {
             if (max >= min)
-                return rnd.Next(min, max);
+                return rnd.Next(min, max + 1);
             else
-                return rnd.Next(max, min);
+                return rnd.Next(max, min + 1);
         }
 
         /// <summary>
@@ -1035,57 +1035,6 @@ namespace GEM
         }
 
         /// <summary>
-        /// Calculates the upper and lower bounds of the elements of a given correlation matrix
-        /// This method is proof-of-concept only,
-        /// it is inefficiant to calculate the whole matrix of values like this.
-        /// </summary>
-        /// <param name="m">The input corelation matrix</param>
-        /// <returns>List of matrix of lower bounds, matrix of upper bounds</returns>
-        private List<Matrix> BoundsOfCorrelations(Matrix m)
-        {
-            //PROD(Ci) +- SQRT[PROD(Ci^2)-SUM(Ci^2) +1]
-
-            Matrix lower = new Matrix(m.NoRows, m.NoCols);
-            Matrix upper = new Matrix(m.NoRows, m.NoCols);
-
-            List<double> pre = PreprocessCorrelMatrix(m);
-            double prod = pre[0];
-            double squareOfProd = prod * prod;
-            double sumSq = pre[1];
-
-            double plusMinus;
-
-            for (int row = 0; row < m.NoRows; row++)
-                for (int column = 0; column < m.NoCols; column++)
-                    //calculate one half
-                    if (column > row)
-                    {
-                        double squareOfThis = m[row, column] * m[row, column];
-                        plusMinus = Math.Sqrt(squareOfProd / squareOfThis
-                            - sumSq + squareOfThis + 1);
-                        lower[row, column] = prod / m[row, column] - plusMinus;
-                        upper[row, column] = prod / m[row, column] + plusMinus;
-                    }
-                    //centerline is filled with 1's
-                    else if (column == row)
-                    {
-                        lower[row, column] = 1;
-                        upper[row, column] = 1;
-                    }
-                    //other half copied
-                    else
-                    {
-                        lower[row, column] = lower[column, row];
-                        upper[row, column] = upper[column, row];
-                    }
-
-            List<Matrix> ret = new List<Matrix>();
-            ret.Add(lower);
-            ret.Add(upper);
-            return ret;
-        }
-        
-        /// <summary>
         /// Mutates the values in the target matrix.
         /// </summary>
         /// <param name="target">The target matrix</param>
@@ -1220,6 +1169,38 @@ namespace GEM
         }*/
 
         #endregion //general-purpose matrix and vector operations
+
+        private string IndentMultilineString(string str, string indentString)
+        {
+            string[] strs = str.Split(Environment.NewLine.ToCharArray());
+            for (int i = 0; i < strs.GetLength(0); i++)
+                strs[i] = indentString + strs[i];
+            return string.Join(Environment.NewLine, strs);
+        }
+
+        public override string ToString()
+        {
+            string leadingSpaces = new String(' ', GEMLogLayout.padding);
+
+            return "guid: " + guid.ToString() + Environment.NewLine
+                + leadingSpaces + "dataSetSize: " + dataSetSize.ToString() + Environment.NewLine
+                + leadingSpaces + "numAttribs: " + numAttribs.ToString() + Environment.NewLine
+                + leadingSpaces + "numClasses: " + numClasses.ToString() + Environment.NewLine
+                + leadingSpaces + "nominalAttribRatio: " + nominalAttribRatio.ToString() + Environment.NewLine
+                + leadingSpaces + "discreteAttribRatio: " + discreteAttribRatio.ToString() + Environment.NewLine
+                + leadingSpaces + "missingValueRatio: " + missingValueRatio.ToString() + Environment.NewLine
+                + leadingSpaces + "meanClass: " + meanClass.ToString() + Environment.NewLine
+                + leadingSpaces + "stdDevClass: " + stdDevClass.ToString() + Environment.NewLine
+                + leadingSpaces + "meanMatrix: " + Environment.NewLine
+                + IndentMultilineString(meanMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                + leadingSpaces + "stdDevMatrix: " + Environment.NewLine
+                + IndentMultilineString(stdDevMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                + leadingSpaces + "nominalClassesMatrix: " + Environment.NewLine
+                + IndentMultilineString(nominalClassesMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                + leadingSpaces + "correlationMatrix: " + Environment.NewLine
+                + IndentMultilineString(correlationMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                ;
+        }
 
         #endregion //methods
     }

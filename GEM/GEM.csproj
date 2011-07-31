@@ -11,7 +11,8 @@
     <RootNamespace>GEM</RootNamespace>
     <AssemblyName>GEM</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -96,6 +97,7 @@
   <ItemGroup>
     <Compile Include="ConfigSettings.cs" />
     <Compile Include="DataSet.cs" />
+    <Compile Include="GEMLogLayout.cs" />
     <Compile Include="GeneConstants.cs" />
     <Compile Include="GeneSet.cs" />
     <Compile Include="GeneticAlgo.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="App.config">
       <SubType>Designer</SubType>
@@ -136,6 +139,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Log4Net\log4net.csproj">
+      <Project>{F6A02431-167E-4347-BC43-65532C31CDB7}</Project>
+      <Name>log4net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MaNet\MaNet\MaNet.csproj">
       <Project>{85D6AA43-2028-4518-82D4-6CE971CCBD8B}</Project>
       <Name>MaNet</Name>

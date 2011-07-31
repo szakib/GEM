@@ -137,7 +137,8 @@ namespace log4net.Config
 		/// </remarks>
 		static public void Configure(ILoggerRepository repository, IAppender appender) 
 		{
-			IBasicRepositoryConfigurator configurableRepository = repository as IBasicRepositoryConfigurator;
+			IBasicRepositoryConfigurator configurableRepository
+                = repository as IBasicRepositoryConfigurator;
 			if (configurableRepository != null)
 			{
 				configurableRepository.Configure(appender);

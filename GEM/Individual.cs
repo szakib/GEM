@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Collections;
+using System.IO;
 
 namespace GEM
 {
@@ -154,6 +155,15 @@ namespace GEM
             //if there was a mutation, the DS is invalid
             if (genes.Mutated)
                 dataSet = null;
+        }
+
+        /// <summary>
+        /// Saves the dataset of this individual into an ARFF file
+        /// </summary>
+        /// <param name="path">The path to save to, excluding the filename</param>
+        public void SaveArff(string path)
+        {
+            dataSet.SaveArff(Path.Combine(path, genes.guid.ToString()));
         }
 
         /*#region ISerializable Members
