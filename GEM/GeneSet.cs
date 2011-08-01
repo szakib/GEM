@@ -15,6 +15,11 @@ namespace GEM
         #region fields & properties
 
         /// <summary>
+        /// Magic number for signalling unknown correlation to be specified later
+        /// </summary>
+        private const double noKnownCorrelation= -2;
+
+        /// <summary>
         /// Unique ID linking the gene set to the dataset it represents
         /// </summary>
         public Guid    guid;
@@ -108,6 +113,14 @@ namespace GEM
         private bool mutated = false;
 
         //properties
+
+        public MaNet.Matrix CholeskyMatrix
+        {
+            get
+            {
+                return CholeskyOfCorrelations(correlationMatrix);
+            }
+        }
 
         /// <summary>
         /// True if this gene set has mutated in the last round
@@ -359,27 +372,14 @@ namespace GEM
         } //public void RandomiseMatrices()
 
         /// <summary>
-        /// Creates a random correlation matrix
+        /// Creates a random correlation matrix based on
+        /// C = M * M^T
         /// </summary>
         /// <param name="rnd">The Random object to use</param>
         /// <returns>The correlation matrix</returns>
         private Matrix RandomCorrelMatrix(Random rnd)
         {
             Matrix m = new Matrix(numAttribs, numAttribs);
-
-            /*//old version
-            for (int row = 0; row < numAttribs; row++)
-                for (int column = 0; column < numAttribs; column++)
-                    //initialise one half
-                    if (column > row)
-                        //correlationMatrix elements between -1 and 1
-                        ret[row, column] = RandomDouble(rnd, -1, 1);
-                    //centerline is filled with 1's
-                    else if (column == row)
-                        ret[row, column] = 1;
-                    //other half copied
-                    else
-                        ret[row, column] = ret[column, row];*/
 
             for (int row = 0; row < numAttribs; row++)
                 for (int column = 0; column < numAttribs; column++)
@@ -398,27 +398,6 @@ namespace GEM
 
             return m * Matrix.Transpose(m);
         } //private Matrix RandomCorrelMatrix(Random rnd)
-
-        /// <summary>
-        /// Normalises the columns of a matrix, meaning:
-        /// divide all elements by the 2-norm of its column
-        /// </summary>
-        /// <param name="mtrx">The matrix to normalise</param>
-        private void NormaliseColumns(Matrix mtrx)
-        {
-            double norm;
-
-            for (int col = 0; col < mtrx.NoCols; col++)
-            {
-                norm = 0;
-                for (int row1 = 0; row1 < mtrx.NoRows; row1++)
-                    norm += mtrx[row1, col] * mtrx[row1, col];
-                norm = Math.Sqrt(norm);
-
-                for (int row2 = 0; row2 < mtrx.NoRows; row2++)
-                    mtrx[row2, col] = mtrx[row2, col] / norm;
-            }
-        }
 
         /// <summary>
         /// Mutates the gene set according to the given mutation coefficient
@@ -480,6 +459,7 @@ namespace GEM
             //The matrices are mutated first and then adjusted
             //to avoid replacing new random values with even newer random values
             
+            //TODO these are both wrong
             //correlationMatrix
             correlationMatrix = MutateMatrix(correlationMatrix, rnd, chance, -1, 1);
             correlationMatrix = AdjustMatrixSize(correlationMatrix, numAttribs, numAttribs, -1, 1, rnd);
@@ -926,49 +906,155 @@ namespace GEM
                 }
 
             //Correlation matrix for child1
-            for (int row = 0; row < child1.numAttribs; row++)
-                for (int column = 0; column < child1.numAttribs; column++)
-                    //fill one half
-                    if (column > row)
-                        //the two had the same parent, there is a correlation value
-                        if (child1AttribParents[row] == child1AttribParents[column])
-                            child1.correlationMatrix[row, column] =
-                                child1AttribParents[row].correlationMatrix[child1AttribIndices[row],
-                                                                        child1AttribIndices[column]];
-                        //different parents => random correlation between -1 and 1
-                        else
-                            child1.correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
-                    //centerline is filled with 1's
-                    else if (column == row)
-                        child1.correlationMatrix[row, column] = 1;
-                    //other half copied
-                    else
-                        child1.correlationMatrix[row, column] = child1.correlationMatrix[column, row];
-
+            FillChildCorrelationMatrix(child1, child1AttribParents, child1AttribIndices, rnd);
             //Correlation matrix for child2
-            for (int row = 0; row < child2.numAttribs; row++)
-                for (int column = 0; column < child2.numAttribs; column++)
-                    //fill one half
-                    if (column > row)
-                        //the two had the same parent, there is a correlation value
-                        if (child2AttribParents[row] == child2AttribParents[column])
-                            child2.correlationMatrix[row, column] =
-                                child1AttribParents[row].correlationMatrix[child2AttribIndices[row],
-                                                                        child2AttribIndices[column]];
-                        //different parents => random correlation between -1 and 1
-                        else
-                            child2.correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
-                    //centerline is filled with 1's
-                    else if (column == row)
-                        child2.correlationMatrix[row, column] = 1;
-                    //other half copied
-                    else
-                        child2.correlationMatrix[row, column] = child2.correlationMatrix[column, row];
+            FillChildCorrelationMatrix(child2, child2AttribParents, child2AttribIndices, rnd);
 
             #endregion //pass attributes on to children randomly
 
             return ret;
         } //public List<GeneSet> Breed(GeneSet other)
+
+        /// <summary>
+        /// Fills the correlation matrix of a child during breeding.
+        /// </summary>
+        /// <param name="child">The target child</param>
+        /// <param name="attribParents">The parents for each attribute</param>
+        /// <param name="attribIndices">The indices for each attribute (in the parent)</param>
+        /// <param name="rnd">The <see cref="Random"/> object to use</param>
+        private void FillChildCorrelationMatrix(
+            GeneSet child,
+            List<GeneSet> attribParents,
+            List<int> attribIndices,
+            Random rnd)
+        {
+            //TODO Finish/reconsider
+            
+            //Step 1: fill in values from parents, into a compressed matrix
+            Matrix compressed = new Matrix(attribParents.Count, attribParents.Count);
+
+            for (int row = 0; row < child.numAttribs; row++)
+                for (int column = 0; column < child.numAttribs; column++)
+                    //fill one half
+                    if (column > row)
+                        //the two had the same parent, there is a correlation value
+                        if (attribParents[row] == attribParents[column])
+                            child.correlationMatrix[row, column] =
+                                attribParents[row].correlationMatrix[attribIndices[row],
+                                                                        attribIndices[column]];
+                        //different parents => mark for later
+                        else
+                            child.correlationMatrix[row, column] = noKnownCorrelation;
+                    //centerline is filled with 1's
+                    else if (column == row)
+                        child.correlationMatrix[row, column] = 1;
+                    //other half copied
+                    else
+                        child.correlationMatrix[row, column] = child.correlationMatrix[column, row];
+
+            //Step 2: Shrink the matrix and remember
+            //the original position of the values we have
+            //plus the original size of the matrix
+            int originalSize = child.correlationMatrix.NoCols;
+            List<int> rearrangePositions = new List<int>();
+            // nth value  = x means the nth variable
+            // in the compressed matrix is the xth in the original
+            /*Matrix cPrime = CompressCorrelMatrix(
+                child.correlationMatrix, out rearrangePositions);*/
+
+            //Step 3: Cholesky decomposition
+
+            //Step4: Expand matrix to original size
+            //and fill with appropriate random numbers
+
+            //Step 5: Normalise and transform back
+
+            //Step 6: Rearrange to original order of attribs
+            //child.correlationMatrix = 
+        }
+
+        /// <summary>
+        /// Expands a correlation matrix.
+        /// Simulates the adding of new, randomly correlated attribs
+        /// </summary>
+        /// <param name="c">The input correlation matrix.</param>
+        /// <param name="attribsToAdd">The number of attribs to add</param>
+        /// <param name="rnd">The <see cref="Random"/> object to use</param>
+        /// <returns>
+        /// The expanded correlation matrix
+        /// </returns>
+        private Matrix ExpandCorrelMatrix(Matrix c, int attribsToAdd, Random rnd)
+        {
+            Matrix l2 = new Matrix(c.NoRows + attribsToAdd, c.NoRows + attribsToAdd);
+
+            //Cholesky gives C -> L
+            MaNet.Matrix l1 = CholeskyOfCorrelations(c);
+
+            double min = double.PositiveInfinity;
+            double max = double.NegativeInfinity;
+            for (int row1 = 0; row1 < c.NoRows; row1++)
+                for (int col1 = 0; col1 < c.NoRows; col1++)
+                {
+                    if (l1.Get(row1, col1) < min)
+                        min =  l1.Get(row1, col1);
+                    if (l1.Get(row1, col1) > max)
+                        max = l1.Get(row1, col1);
+                }
+
+            //Add numbers
+            for (int row = 0; row < l2.NoRows; row++)
+                for (int col = 0; col < l2.NoRows; col++)
+                    //existing values copied
+                    if (row < c.NoRows && col < c.NoRows)
+                        l2[row, col] = l1.Get(row, col);
+                    //diagonal > 0
+                    else if (row == col)
+                        l2[row, col] = RandomDouble(rnd, 0, max);
+                    //bottom side random values
+                    else if (row > col)
+                        l2[row, col] = RandomDouble(rnd, min, max);
+                    //right side: zeroes
+                    else
+                        l2[row, col] = 0;
+            
+            //Normalise
+            NormaliseColumns(l2);
+
+            //L -> C
+            return l2 * Matrix.Transpose(l2);
+        }
+
+        /// <summary>
+        /// Returns the Cholesky decomposition of a correlation matrix
+        /// </summary>
+        /// <param name="correlMatrix">The correlation matrix</param>
+        /// <returns>Cholesky decomposition of correlation matrix
+        /// (lower triangular)</returns>
+        private MaNet.Matrix CholeskyOfCorrelations(Matrix correlMatrix)
+        {
+            double[][] jaggedCorrel = new double[correlMatrix.NoRows][];
+            for (int i = 0; i < correlMatrix.NoRows; i++)
+            {
+                jaggedCorrel[i] = new double[correlMatrix.NoCols];
+                for (int j = 0; j < correlMatrix.NoCols; j++)
+                    jaggedCorrel[i][j] = correlMatrix[i, j];
+            }
+
+            MaNet.CholeskyDecomposition cholesky
+                = new MaNet.CholeskyDecomposition(
+                    new MaNet.Matrix(jaggedCorrel,
+                                    correlMatrix.NoRows,
+                                    correlMatrix.NoCols));
+
+            MaNet.Matrix rMatrix = null;
+            if (cholesky.IsSPD())
+                rMatrix = cholesky.getL();
+            else
+                throw new Exception(
+                    "The correlation matrix needs to be symmetric and positive-definite.");
+
+            return rMatrix;
+        }
 
         /// <summary>
         /// Returns the minimum value of the given attribute
@@ -1012,30 +1098,8 @@ namespace GEM
         #region general-purpose matrix and vector operations
 
         /// <summary>
-        /// Calculates the product of all the correlations in the input correlation matrix and 
-        /// the sum of the squares of all the correlations in the input correlation matrix
-        /// </summary>
-        /// <param name="m">The correlation matrix</param>
-        /// <returns>List of: product, sum of squares</returns>
-        private List<double> PreprocessCorrelMatrix(Matrix m)
-        {
-            double prod = 1;
-            double sumSq = 0;
-            for(int row = 0; row < m.NoRows; row++)
-                for (int col = row + 1; col < m.NoCols; col++)
-                {
-                    prod *= m[row, col];
-                    sumSq += (m[row, col] * m[row, col]);
-                }
-
-            List<double> ret = new List<double>();
-            ret.Add(prod);
-            ret.Add(sumSq);
-            return ret;
-        }
-
-        /// <summary>
         /// Mutates the values in the target matrix.
+        /// Do not use for correlation matrices!
         /// </summary>
         /// <param name="target">The target matrix</param>
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
@@ -1060,6 +1124,7 @@ namespace GEM
         /// <summary>
         /// Adjusts the size of a matrix
         /// and fills any newly created elements with appropriate random values
+        /// Do not use on correlation matrices!
         /// </summary>
         /// <param name="target">The matrix to adjust</param>
         /// <param name="newRows">The new number of rows</param>
@@ -1131,45 +1196,37 @@ namespace GEM
             return ret;
         }
 
-        /*/// <summary>
-        /// Combines two correlation matrices.
-        /// The order of the attributes is the following:
-        /// Classes (1. first, 2. after)
-        /// Nominal ones (1. first, 2. after)
-        /// Discrete ones (1. first, 2. after)
-        /// Continuous ones (1. first, 2. after)
+        /// <summary>
+        /// Normalises the columns of a matrix, meaning:
+        /// divide all elements by the 2-norm of its column
         /// </summary>
-        /// <param name="c1">First correlation matrix</param>
-        /// <param name="c2">Second correlation matrix</param>
-        /// <returns></returns>
-        private Matrix CombineCorrelMatrices(Random rnd, Matrix c1, Matrix c2)
+        /// <param name="mtrx">The matrix to normalise</param>
+        private void NormaliseColumns(Matrix mtrx)
         {
-            //square matrix
-            Matrix ret = new Matrix(c1.NoRows + c2.NoRows, c1.NoRows + c2.NoRows);
+            double norm;
 
-            for (int row = 0; row < ret.NoRows; row++)
-                for (int column = 0; column < ret.NoRows; column++)
-                    //fill one half
-                    if (column > row)
-                        //known values
-                        if()
+            for (int col = 0; col < mtrx.NoCols; col++)
+            {
+                norm = 0;
+                for (int row1 = 0; row1 < mtrx.NoRows; row1++)
+                    norm += mtrx[row1, col] * mtrx[row1, col];
+                norm = Math.Sqrt(norm);
 
-                        //new correlations, elements between -1 and 1
-                        else
-                        correlationMatrix[row, column] = RandomDouble(rnd, -1, 1);
-                    //centerline is filled with 1's
-                    else if (column == row)
-                        correlationMatrix[row, column] = 1;
-                    //other half copied
-                    else
-                        correlationMatrix[row, column] = correlationMatrix[column, row];
-
-
-            return ret;
-        }*/
+                for (int row2 = 0; row2 < mtrx.NoRows; row2++)
+                    mtrx[row2, col] = mtrx[row2, col] / norm;
+            }
+        }
 
         #endregion //general-purpose matrix and vector operations
 
+        #region ToString() override and co
+
+        /// <summary>
+        /// Indents the multiline string.
+        /// </summary>
+        /// <param name="str">The tring to indent</param>
+        /// <param name="indentString">The string to put in front of every row of str.</param>
+        /// <returns>The indented string</returns>
         private string IndentMultilineString(string str, string indentString)
         {
             string[] strs = str.Split(Environment.NewLine.ToCharArray());
@@ -1178,6 +1235,12 @@ namespace GEM
             return string.Join(Environment.NewLine, strs);
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String"/> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String"/> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             string leadingSpaces = new String(' ', GEMLogLayout.padding);
@@ -1201,6 +1264,8 @@ namespace GEM
                 + IndentMultilineString(correlationMatrix.ToString(), leadingSpaces) + Environment.NewLine
                 ;
         }
+
+        #endregion //ToString() override and co
 
         #endregion //methods
     }

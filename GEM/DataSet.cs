@@ -112,27 +112,7 @@ namespace GEM
 
             //Step 1: C -> R matrix by Cholesky decomposition
             //R is a lower triangular matrix
-
-            double[][] jaggedCorrel = new double[geneSet.correlationMatrix.NoRows][];
-            for (int i = 0; i < geneSet.correlationMatrix.NoRows; i++)
-            {
-                jaggedCorrel[i] = new double[geneSet.correlationMatrix.NoCols];
-                for (int j = 0; j < geneSet.correlationMatrix.NoCols; j++)
-                    jaggedCorrel[i][j] = geneSet.correlationMatrix[i, j];
-            }
-
-            MaNet.CholeskyDecomposition cholesky
-                = new MaNet.CholeskyDecomposition(
-                    new MaNet.Matrix(jaggedCorrel,
-                                    geneSet.correlationMatrix.NoRows,
-                                    geneSet.correlationMatrix.NoCols));
-
-            MaNet.Matrix rMatrix;
-            if(cholesky.IsSPD())
-                rMatrix = cholesky.getL();
-            else
-                throw new Exception(
-                    "The correlation matrix needs to be symmetric and positive-definite.");
+            MaNet.Matrix rMatrix = geneSet.CholeskyMatrix;
 
             //"Step 2: Create BVn variables" implicitly done by using RandomNormal()
             Random rnd = new Random();
