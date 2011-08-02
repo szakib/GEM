@@ -476,8 +476,21 @@ namespace GEM
                 while (null == parent1)
                     parent1 = SelectParent(fillFrom, totalAccFit, rnd);
                 //2nd condition makes sure the parents are different
-                while (null == parent2 || parent1 == parent2)
+                while (null == parent2)
+                {
                     parent2 = SelectParent(fillFrom, totalAccFit, rnd);
+                    if (parent1 == parent2)
+                    {
+                        int p1idx = fillFrom.IndexOf(parent1);
+                        if (p1idx < fillFrom.Count - 1)
+                            parent2 = fillFrom[p1idx + 1];
+                        else if (p1idx > 0)
+                            parent2 = fillFrom[p1idx - 1];
+                        else
+                            throw new Exception(
+                                "reproduction is not possible without at least 2 potential parents.");
+                    }
+                }
 
                 List<GeneSet> childGenes = parent1.Genes.Breed(parent2.Genes);
 
