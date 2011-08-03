@@ -163,7 +163,7 @@ namespace GEM
         /// <param name="path">The path to save to, excluding the filename</param>
         public void SaveArff(string path)
         {
-            dataSet.SaveArff(Path.Combine(path, genes.guid.ToString()));
+            dataSet.SaveArff(Path.Combine(path, genes.guid.ToString() + ".arff"));
         }
 
         /*#region ISerializable Members

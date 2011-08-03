@@ -141,10 +141,7 @@ namespace GEM
                 for (int rowRet = 0; rowRet < ret.NoRows; rowRet++)
                 {
                     done = false;
-                    //TODO: avoid the infinite loop by making sure that rMatrix is finite everywhere
-                    //restricting sigma to be less than (max-min)*some constant (0.3???)
-                    //or approximating the probability of the values falling within [min, max]
-                    //and making it more than a constant (0.5???)
+
                     while (!done)
                     {
                         factor = 0;
@@ -242,7 +239,7 @@ namespace GEM
         /// Saves the data in an ARFF file.
         /// </summary>
         /// <param name="path">The path and name of the output file</param>
-        internal void SaveArff(string path)
+        public void SaveArff(string path)
         {
             if (!File.Exists(path))
             {

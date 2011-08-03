@@ -11,6 +11,8 @@ using log4net;
 using log4net.Config;
 using log4net.Appender;
 using log4net.Layout;
+using System.Diagnostics;
+using System.Threading;
 
 namespace GEM
 {
@@ -26,12 +28,12 @@ namespace GEM
         /// <summary>
         /// Number of Cross-validations to do per dataset
         /// </summary>
-        private const int               numCrossValids      = 2;
+        private int                     numCrossValids;
 
         /// <summary>
         /// How big part of the population gets kept during the elitist selection
         /// </summary>
-        private const double            eliteRatio          = 0.05;
+        private double                  eliteRatio;
 
         /// <summary>
         /// resume or start from scratch
@@ -58,6 +60,20 @@ namespace GEM
         /// between 0 and 100; 100 means very many mutations
         /// </summary>
         private int                     mutationSeverity;
+
+        private List<double>            pastFitness         = new List<double>();
+        private double                  pastFitnessCount;
+        private double                  minFitnessDerivative;
+
+        /// <summary>
+        /// Save frequency, minutes
+        /// </summary>
+        private int                     saveFrequency;
+
+        /// <summary>
+        /// For measuring time between two saves.
+        /// </summary>
+        private Stopwatch               t                   = new Stopwatch();
 
         //fields for properties below
         private Learner                 targetLearner;
@@ -167,6 +183,10 @@ namespace GEM
             ReadConfig();
             targetLearner = new Learner(LearnerType.J48, null);
             controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
+            //controlGroup.Add(new Learner(LearnerType.SimpleLogistic, null));
+            //controlGroup.Add(new Learner(LearnerType.SMO, null));
+
+            t.Start();
 
             InitLog();
         }
@@ -204,8 +224,11 @@ namespace GEM
             mutationSeverity = ConfigSettings.ReadInt("MutationSeverity");
             if (0 > mutationSeverity || 100 < mutationSeverity)
                 throw new Exception("MutationSeverity has to be between 0 and 100.");
-            //target learner, control group could perhaps be in config
-            //instead of in public GeneticAlgo(MainForm main) above
+            numCrossValids = ConfigSettings.ReadInt("NumCrossValids");
+            eliteRatio = ConfigSettings.ReadDouble("EliteRatio");
+            pastFitnessCount = ConfigSettings.ReadInt("PastFitnessCount");
+            minFitnessDerivative = ConfigSettings.ReadDouble("MinFitnessDerivative");
+            saveFrequency = ConfigSettings.ReadInt("SaveFrequency");
         }
 
         /// <summary>
@@ -219,7 +242,11 @@ namespace GEM
             ConfigSettings.WriteSetting("ExperimentID", experimentID.ToString());
             ConfigSettings.WriteSetting("CurrentGeneration", currentGeneration.ToString());
             ConfigSettings.WriteSetting("MutationSeverity", mutationSeverity.ToString());
-            //TODO target learner, control group, other things
+            ConfigSettings.WriteSetting("NumCrossValids", numCrossValids.ToString());
+            ConfigSettings.WriteSetting("EliteRatio", eliteRatio.ToString());
+            ConfigSettings.WriteSetting("PastFitnessCount", pastFitnessCount.ToString());
+            ConfigSettings.WriteSetting("MinFitnessDerivative", minFitnessDerivative.ToString());
+            ConfigSettings.WriteSetting("SaveFrequency", saveFrequency.ToString());
         }
 
         /// <summary>
@@ -234,12 +261,13 @@ namespace GEM
             //if this is the first run, the populations need init
             //otherwise they get loaded
             if (resume)
+            {
+                mainForm.StateLabel.Text = "Loading data, please wait.";
                 LoadPopulations(experimentID, currentGeneration);
+            }
             else
             {
                 InitPopulations();
-                experimentID++;
-                currentGeneration = 0;
             }
 
             mainForm.ExperimentIDLabel.Text = experimentID.ToString();
@@ -265,6 +293,9 @@ namespace GEM
                 goodPopulation.Add(new Individual());
                 badPopulation.Add(new Individual());
             }
+
+            experimentID++;
+            currentGeneration = 0;
 
             SetLabel2("");
         }
@@ -293,18 +324,22 @@ namespace GEM
                                 + ".save";
             BinaryFormatter bFormatter = new BinaryFormatter();
 
-            //Load good population
-            string path = Path.Combine(savePath, filename + "_good");
-            Stream stream = File.Open(path, FileMode.Open);
-            goodPopulation = (List<Individual>)bFormatter.Deserialize(stream);
-            stream.Close();
-
-            //Load bad population
-            path = Path.Combine(savePath, filename + "_bad");
-            stream = File.Open(path, FileMode.Open);
-            badPopulation = (List<Individual>)bFormatter.Deserialize(stream);
-            stream.Close();
-            stream.Dispose();
+            string path1 = Path.Combine(savePath, filename + "_good");
+            string path2 = Path.Combine(savePath, filename + "_bad");
+            if (File.Exists(path1) && File.Exists(path2))
+            {
+                //Load good population
+                Stream stream = File.Open(path1, FileMode.Open);
+                goodPopulation = (List<Individual>)bFormatter.Deserialize(stream);
+                stream.Close();
+                //Load bad population
+                Stream stream2 = File.Open(path2, FileMode.Open);
+                badPopulation = (List<Individual>)bFormatter.Deserialize(stream2);
+                stream2.Close();
+                stream2.Dispose();
+            }
+            else
+                InitPopulations();
 
             SetLabel2("");
         }
@@ -343,6 +378,22 @@ namespace GEM
             resume = true;
 
             SetLabel2("");
+        }
+
+        /// <summary>
+        /// Terminates the current experiment
+        /// </summary>
+        public void Reset()
+        {
+            mainForm.StateLabel.Text = "Resetting, please wait.";
+            mainForm.StateLabel.ForeColor = Color.Red;
+            log.Info("Reset button pressed.");
+
+            resume = false;
+            SaveConfig();
+            
+            mainForm.StateLabel.Text = "Reset done.";
+            mainForm.StateLabel.ForeColor = Color.Green;
         }
 
         /// <summary>
@@ -388,7 +439,14 @@ namespace GEM
         {
             CalculateFitness();
 
-            SavePopulations();
+            //save in the beginning, and every few minutes
+            if (currentGeneration == 1 || stop)
+                SavePopulations();
+            if (t.Elapsed.Minutes == saveFrequency)
+            {
+                SavePopulations();
+                t.Restart();
+            }
 
             //Sort the populations by fitness (descending)
             goodPopulation.Sort(new IndividualComparer());
@@ -591,11 +649,14 @@ namespace GEM
             double newOverallFitness
                 = goodPopulation.Max(i => i.Fitness) + badPopulation.Max(j => j.Fitness);
 
+            pastFitness.Add(newOverallFitness);
+
             //this here is the stop criterion for the entire genetic algorithm!
-            if (newOverallFitness <= overallFitness)
+            if (StopCrit())
             {
                 stop = true;
                 string happyMessage = "Stop criterion reached.";
+                resume = false;
                 SetLabel2(happyMessage);
                 log.Info(happyMessage);
             }
@@ -603,6 +664,34 @@ namespace GEM
                 SetLabel2("");
 
             overallFitness = newOverallFitness;
+        }
+
+        /// <summary>
+        /// The stop criterion of the genetic algorithm
+        /// </summary>
+        /// <returns>true, if the criterion is met</returns>
+        private bool StopCrit()
+        {
+            //not enough data yet
+            if (pastFitness.Count < pastFitnessCount)
+                return false;
+            else
+            {
+                //sum of individual deltas
+                double sum = 0;
+                
+                //keep only the specified number of old values
+                while (pastFitness.Count > pastFitnessCount)
+                    pastFitness.RemoveAt(0);
+                for (int i = 0; i < pastFitness.Count - 1; i++)
+                    sum += pastFitness[i + 1] - pastFitness[i];
+
+                if (sum / (pastFitness.Count - 1) > minFitnessDerivative)
+                    return false;
+                //stop crit reached
+                else
+                    return true;
+            }
         }
 
         /// <summary>
@@ -619,7 +708,9 @@ namespace GEM
 
                 double controlScore = 0;
                 foreach (Learner l in controlGroup)
+                {
                     controlScore += l.Learn(i.DataSet.data, numCrossValids);
+                }
 
                 controlScore = controlScore / controlGroup.Count;
 
@@ -646,12 +737,69 @@ namespace GEM
             if (stop)
             {
                 SaveConfig();
-                mainForm.StateLabel.Text = "Stopped, safe to exit.";
-                mainForm.StateLabel.ForeColor = Color.Green;
+                SetStateLabel("Stopped, safe to exit or continue by pressing Start.");
+                //mainForm.StateLabel.ForeColor = Color.Green;
+                EnableResetButton();
                 log.Info("Processing stopped.");
             }
             else
+            {
+                Thread.Sleep(10);
                 NextGeneration();
+            }
+        }
+
+        #region UI manipulation
+
+        /// <summary>
+        /// Delegate for EnableResetButton
+        /// </summary>
+        delegate void EnableResetButtonCallBack();
+
+        /// <summary>
+        /// Enables the reset button.
+        /// </summary>
+        private void EnableResetButton()
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.ResetButton.InvokeRequired)
+            {
+                EnableResetButtonCallBack d
+                    = new EnableResetButtonCallBack(EnableResetButton);
+                mainForm.ResetButton.Invoke(d);
+            }
+            else
+            {
+                mainForm.ResetButton.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Delegate for SetLabel2
+        /// </summary>
+        /// <param name="txt">The text to set</param>
+        delegate void SetStateLabelCallback(string txt);
+        
+        /// <summary>
+        /// Sets stateLabel2 on the main form in a thread-safe way
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        private void SetStateLabel(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.StateLabel2.InvokeRequired)
+            {
+                SetStateLabelCallback d = new SetStateLabelCallback(SetStateLabel);
+                mainForm.StateLabel.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                mainForm.StateLabel.Text = text;
+            }
         }
 
         /// <summary>
@@ -659,7 +807,7 @@ namespace GEM
         /// </summary>
         /// <param name="txt">The text to set</param>
         delegate void SetLabel2Callback(string txt);
-        
+
         /// <summary>
         /// Sets stateLabel2 on the main form in a thread-safe way
         /// </summary>
@@ -718,6 +866,10 @@ namespace GEM
         {
             SetGenerationLabel(currentGeneration.ToString());
             SetFitnessLabel(overallFitness.ToString());
+            if (null != bestGood)
+                SetGoodFitnessLabel(bestGood.Fitness.ToString());
+            if (null != bestBad)
+                SetBadFitnessLabel(bestBad.Fitness.ToString());
         }
 
         /// <summary>
@@ -772,6 +924,62 @@ namespace GEM
                 mainForm.FitnessLabel.Text = text;
             }
         }
+
+        /// <summary>
+        /// Delegate for SetGoodFitnessLabel
+        /// </summary>
+        /// <param name="txt">The text to set</param>
+        delegate void SetGoodFitnessLabelCallback(string txt);
+
+        /// <summary>
+        /// Sets GoodFitnessLabel on the main form in a thread-safe way
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        private void SetGoodFitnessLabel(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.GoodFitnessLabel.InvokeRequired)
+            {
+                SetGoodFitnessLabelCallback d
+                    = new SetGoodFitnessLabelCallback(SetGoodFitnessLabel);
+                mainForm.GoodFitnessLabel.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                mainForm.GoodFitnessLabel.Text = text;
+            }
+        }
+
+        /// <summary>
+        /// Delegate for SetBadFitnessLabel
+        /// </summary>
+        /// <param name="txt">The text to set</param>
+        delegate void SetBadFitnessLabelCallback(string txt);
+
+        /// <summary>
+        /// Sets BadFitnessLabel on the main form in a thread-safe way
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        private void SetBadFitnessLabel(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (mainForm.BadFitnessLabel.InvokeRequired)
+            {
+                SetBadFitnessLabelCallback d = new SetBadFitnessLabelCallback(SetBadFitnessLabel);
+                mainForm.BadFitnessLabel.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                mainForm.BadFitnessLabel.Text = text;
+            }
+        }
+
+        #endregion //UI manipulation
+
         #endregion
     }
 }

@@ -43,12 +43,14 @@ namespace GEM
             XmlNode node = doc.SelectSingleNode("//appSettings");
 
             if (node == null)
-                throw new InvalidOperationException("appSettings section not found in config file.");
+                throw new InvalidOperationException(
+                    "appSettings section not found in config file.");
 
             try
             {
                 // select the 'add' element that contains the key
-                XmlElement elem = (XmlElement)node.SelectSingleNode(string.Format("//add[@key='{0}']", key));
+                XmlElement elem = (XmlElement)node.SelectSingleNode(
+                    string.Format("//add[@key='{0}']", key));
 
                 if (elem != null)
                 {
@@ -87,11 +89,13 @@ namespace GEM
             try
             {
                 if (node == null)
-                    throw new InvalidOperationException("appSettings section not found in config file.");
+                    throw new InvalidOperationException(
+                        "appSettings section not found in config file.");
                 else
                 {
                     // remove 'add' element with coresponding key
-                    node.RemoveChild(node.SelectSingleNode(string.Format("//add[@key='{0}']", key)));
+                    node.RemoveChild(node.SelectSingleNode(
+                        string.Format("//add[@key='{0}']", key)));
                     doc.Save(getConfigFilePath());
                 }
             }
@@ -142,15 +146,46 @@ namespace GEM
             }
             catch (FormatException)
             {
-                throw new Exception(key + " specified in the config file is not a sequence of digits.");
+                throw new Exception(key
+                    + " specified in the config file is not a sequence of digits.");
             }
             catch (OverflowException)
             {
-                throw new Exception(key + " specified in the config file cannot fit in an Int32.");
+                throw new Exception(key
+                    + " specified in the config file cannot fit in an Int32.");
             }
             catch (Exception e)
             {
-                throw new Exception("Unknown error while reading " + key + " from config file. Exception text:" + e.Message);
+                throw new Exception("Unknown error while reading "
+                    + key + " from config file. Exception text:" + e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Reads a double value
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>The value</returns>
+        public static double ReadDouble(string key)
+        {
+            try
+            {
+                return Convert.ToDouble(ConfigurationManager.AppSettings[key]);
+            }
+            catch (FormatException)
+            {
+                throw new Exception(key + 
+                    " specified in the config file is not a well-formed double.");
+            }
+            catch (OverflowException)
+            {
+                throw new Exception(key +
+                    " specified in the config file cannot fit in a double.");
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Unknown error while reading "
+                    + key + " from config file. Exception text:" + e.Message);
             }
         }
 
@@ -167,7 +202,8 @@ namespace GEM
             }
             catch (Exception e)
             {
-                throw new Exception("Unknown error while reading " + key + " from config file. Exception text:" + e.Message);
+                throw new Exception("Unknown error while reading "
+                    + key + " from config file. Exception text:" + e.Message);
             }
         }
 
@@ -179,11 +215,13 @@ namespace GEM
             }
             catch (FormatException)
             {
-                throw new Exception(key + " value specified in the config file is not a proper boolean value.");
+                throw new Exception(key
+                    + " value specified in the config file is not a proper boolean value.");
             }
             catch (Exception e)
             {
-                throw new Exception("Unknown error while reading " + key + " from config file. Exception text:" + e.Message);
+                throw new Exception("Unknown error while reading "
+                    + key + " from config file. Exception text:" + e.Message);
             }
         }
     }

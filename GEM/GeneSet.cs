@@ -419,6 +419,21 @@ namespace GEM
         }
 
         /// <summary>
+        /// Random float between min and max
+        /// </summary>
+        /// <param name="rnd">The <see cref="Random"/> object to use</param>
+        /// <param name="min">The minimum</param>
+        /// <param name="max">The maximum</param>
+        /// <returns>The random float</returns>
+        private float RandomFloat(Random rnd, double min, double max)
+        {
+            if (max >= min)
+                return (float)((rnd.NextDouble() * (max - min)) + min);
+            else
+                return (float)((rnd.NextDouble() * (min - max)) + max);
+        }
+
+        /// <summary>
         /// Returns the minimum value of the given attribute
         /// </summary>
         /// <param name="index">Index of the attribute</param>
@@ -466,9 +481,6 @@ namespace GEM
         /// <returns>true if mutation happened</returns>
         public void Mutate(double mutationCoefficient)
         {
-            //TODO: the ratios are probably wrong
-            //TODO: the correlation matrix will definitely not be SPD
-
             mutated = false;
             Random rnd = new Random();
 
@@ -964,11 +976,7 @@ namespace GEM
                     if (GetsMutated(rnd, chance))
                         ret[i, j] = RandomDouble(rnd, -1, 1);
 
-            ret = Matrix.Transpose(ret);
-            NormaliseColumns(ret);
-            //ret here is the transpose of itself
-            return Matrix.Transpose(ret) * ret;
-            
+            return DeCholesky(ret);
         }
 
         /// <summary>
@@ -1000,7 +1008,6 @@ namespace GEM
         private Matrix RandomCorrelMatrix(Random rnd, int size)
         {
             Matrix m = new Matrix(size, size);
-
             for (int row = 0; row < size; row++)
                 for (int column = 0; column < size; column++)
                     //initialise one half
@@ -1014,10 +1021,16 @@ namespace GEM
                     else
                         m[row, column] = m[column, row];
 
-            NormaliseColumns(m);
-
-            return m * Matrix.Transpose(m);
+            return DeCholesky(m);
         } //private Matrix RandomCorrelMatrix(Random rnd)
+
+        private Matrix DeCholesky(Matrix m)
+        {
+            NormaliseRows(m);
+            RoundMatrixValues(m, 15);
+            Matrix ret = m * Matrix.Transpose(m);
+            return RoundMatrixValues(ret, 14);
+        }
 
         /// <summary>
         /// Fills the correlation matrix of a child during breeding.
@@ -1126,9 +1139,7 @@ namespace GEM
                                 ret[row, col] = fatherR.Get(row - motherCorrel.NoRows - 1,
                                     col - motherCorrel.NoRows - 1);
 
-            NormaliseColumns(ret);
-
-            return ret * Matrix.Transpose(ret);
+            return DeCholesky(ret);
         }
 
         /// <summary>
@@ -1183,11 +1194,7 @@ namespace GEM
                         ret[row, col] = 0;
                 }
 
-            /*ret = Matrix.Transpose(ret);
-            NormaliseColumns(ret);
-
-            return Matrix.Transpose(ret) * ret;*/
-            return ret * Matrix.Transpose(ret);
+            return DeCholesky(ret);
         }
         
         /// <summary>
@@ -1233,12 +1240,8 @@ namespace GEM
                     //right side: zeroes
                     else
                         l2[row, col] = 0;
-            
-            //Normalise
-            NormaliseColumns(l2);
 
-            //L -> C
-            return l2 * Matrix.Transpose(l2);
+            return DeCholesky(l2);
         }
 
         /// <summary>
@@ -1271,6 +1274,55 @@ namespace GEM
                     "The correlation matrix needs to be symmetric and positive-definite.");
 
             return rMatrix;
+        }
+
+        /// <summary>
+        /// Validates the correlation matrix
+        /// </summary>
+        /// <returns>true if the correlation matrix is valid, exception otherwise</returns>
+        public bool ValidateCorrelMatrix()
+        {
+            return ValidateCorrelMatrix(correlationMatrix);
+        }
+
+        /// <summary>
+        /// Validates a correlation matrix for
+        /// - being SPD 
+        /// - having elements in [-1, 1]
+        /// - diagonal values = 1
+        /// </summary>
+        /// <param name="correls">The correlation matrix to validate</param>
+        /// <returns>true if the correlation matrix is valid, exception otherwise</returns>
+        private bool ValidateCorrelMatrix(Matrix correls)
+        {
+            bool ret = true;
+            //SPD
+            try
+            {
+                CholeskyOfCorrelations(correls);
+            }
+            catch
+            {
+                ret = false;
+            }
+            
+            //values in [-1, 1], Main diagonal all 1's
+            if (ret)
+                for (int row = 0; row < correls.NoRows; row++)
+                    if (ret)
+                        for (int col = 0; col < row + 1; col++)
+                            if ((col == row && correls[row, col] != 1) ||
+                                (col != row &&
+                                (correls[row, col] < -1 || correls[row, col] > 1)))
+                            {
+                                ret = false;
+                                break;
+                            }
+
+            if (!ret)
+                throw new Exception("The correlation matrix is invalid.");
+
+            return ret;
         }
 
         #endregion //Correlation Matrix manipulations
@@ -1351,9 +1403,22 @@ namespace GEM
         /// <returns>The rounded matrix</returns>
         private Matrix RoundMatrixValues(Matrix target)
         {
+            return RoundMatrixValues(target, 0);
+        }
+
+        /// <summary>
+        /// Rounds the values of the target matrix
+        /// </summary>
+        /// <param name="target">The target matrix</param>
+        /// <param name="decimalPlaces">The number of decimal places to round to.</param>
+        /// <returns>
+        /// The rounded matrix
+        /// </returns>
+        private Matrix RoundMatrixValues(Matrix target, int decimalPlaces)
+        {
             for (int row = 0; row < target.NoRows; row++)
                 for (int col = 0; col < target.NoCols; col++)
-                    target[row, col] = Math.Round(target[row, col]);
+                    target[row, col] = Math.Round(target[row, col], decimalPlaces);
 
             return target;
         }
@@ -1394,6 +1459,48 @@ namespace GEM
 
                 for (int row2 = 0; row2 < mtrx.NoRows; row2++)
                     mtrx[row2, col] = mtrx[row2, col] / norm;
+            }
+        }
+
+        /// <summary>
+        /// Normalises the rows of a matrix, meaning:
+        /// divide all elements by the 2-norm of its row
+        /// </summary>
+        /// <param name="mtrx">The matrix to normalise</param>
+        private void NormaliseRows(Matrix mtrx)
+        {
+            double norm;
+
+            for (int row = 0; row < mtrx.NoCols; row++)
+            {
+                norm = 0;
+                for (int col1 = 0; col1 < mtrx.NoRows; col1++)
+                    norm += mtrx[row, col1] * mtrx[row, col1];
+                norm = Math.Sqrt(norm);
+
+                for (int col2 = 0; col2 < mtrx.NoRows; col2++)
+                    mtrx[row, col2] = mtrx[row, col2] / norm;
+            }
+        }
+
+        /// <summary>
+        /// Normalises the rows of a matrix, meaning:
+        /// divide all elements by the 2-norm of its row
+        /// </summary>
+        /// <param name="mtrx">The matrix to normalise</param>
+        private void NormaliseRows(float[,] mtrx)
+        {
+            float norm;
+
+            for (int row = 0; row < mtrx.GetLength(0); row++)
+            {
+                norm = 0;
+                for (int col1 = 0; col1 < mtrx.GetLength(0); col1++)
+                    norm += mtrx[row, col1] * mtrx[row, col1];
+                norm = (float)Math.Sqrt(norm);
+
+                for (int col2 = 0; col2 < mtrx.GetLength(0); col2++)
+                    mtrx[row, col2] = mtrx[row, col2] / norm;
             }
         }
 

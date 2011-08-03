@@ -6,6 +6,8 @@ using weka.core;
 using weka.classifiers;
 using weka.classifiers.bayes;
 using weka.classifiers.trees;
+using weka.classifiers.functions;
+using System.Diagnostics;
 
 namespace GEM
 {
@@ -15,7 +17,13 @@ namespace GEM
     public enum LearnerType
     {
         NaiveBayes,
-        J48
+        J48,
+        SimpleLinearRegression,
+        LinearRegression,
+        MultilayerPerceptron,
+        Logistic,
+        SimpleLogistic,
+        SMO
     };
 
     /// <summary>
@@ -25,6 +33,8 @@ namespace GEM
     {
         #region fields & properties
 
+        //public Stopwatch stopWatch = new Stopwatch();
+        
         /// <summary>
         /// Type of learner to use
         /// </summary>
@@ -76,6 +86,7 @@ namespace GEM
         /// <returns>Fitness of learning</returns>
         public double Learn(Instances data, int numCrossValids)
         {
+            //stopWatch.Start();
             /*//split data into training / test set
             Instances train = new Instances(data, 0);
             Instances test = new Instances(data, 0);
@@ -95,6 +106,24 @@ namespace GEM
                 case LearnerType.J48:
                     tool = new J48();
                     break;
+                case LearnerType.SimpleLinearRegression:
+                    tool = new SimpleLinearRegression();
+                    break;
+                case LearnerType.LinearRegression:
+                    tool = new LinearRegression();
+                    break;
+                case LearnerType.MultilayerPerceptron:
+                    tool = new MultilayerPerceptron();
+                    break;
+                case LearnerType.Logistic:
+                    tool = new Logistic();
+                    break;
+                case LearnerType.SimpleLogistic:
+                    tool = new SimpleLogistic();
+                    break;
+                case LearnerType.SMO:
+                    tool = new SMO();
+                    break;
                 default:
                     throw new Exception("LearnerType invalid");
             }
@@ -103,9 +132,20 @@ namespace GEM
                 tool.setOptions(options);
 
             Evaluation eval = new Evaluation(data);
-            eval.crossValidateModel(tool, data, numCrossValids, new java.util.Random());
+            try
+            {
+                eval.crossValidateModel(tool, data, numCrossValids, new java.util.Random());
+            }
+            catch
+            {
+                //stopWatch.Stop();
+                return 0;
+            }
 
             double ret = eval.pctCorrect();
+
+            //stopWatch.Stop();
+            
             if (double.IsNaN(ret))
                 return 0;
             else

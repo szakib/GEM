@@ -66,11 +66,35 @@ namespace GEM
             }
         }
 
+        public Label GoodFitnessLabel
+        {
+            get
+            {
+                return goodPopFitnessLabel;
+            }
+        }
+
+        public Label BadFitnessLabel
+        {
+            get
+            {
+                return badPopFitnessLabel;
+            }
+        }
+
         public ProgressBar ProgBar
         {
             get
             {
                 return progressBar;
+            }
+        }
+
+        public Button ResetButton
+        {
+            get
+            {
+                return resetButton;
             }
         }
 
@@ -86,31 +110,7 @@ namespace GEM
             //Generated, do not remove, has to be 1st
             InitializeComponent();
 
-            //event handlers
-            this.startButton.Click += new System.EventHandler(this.Start_Click);
-            this.stopButton.Click += new System.EventHandler(this.Stop_Click);
-
             ga = new GeneticAlgo(this);
-        }
-
-        /// <summary>
-        /// Handles the Click event of the start button
-        /// </summary>
-        /// <param name="sender">The source of the event</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
-        public void Start_Click(object sender, EventArgs e)
-        {
-            ga.Start();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the stop button
-        /// </summary>
-        /// <param name="sender">The source of the event</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data</param>
-        public void Stop_Click(object sender, EventArgs e)
-        {
-            ga.Stop();
         }
 
         /// <summary>
@@ -122,20 +122,75 @@ namespace GEM
         {
         }
 
+        /// <summary>
+        /// Handles the Click event of the progressBar1 control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void progressBar1_Click(object sender, EventArgs e)
         {
         }
 
+        /// <summary>
+        /// Handles the Click event of the stateLabel2 control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void stateLabel2_Click(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// Handles the Click event of the stateLabel control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void stateLabel_Click(object sender, EventArgs e)
         {
+        }
 
+        /// <summary>
+        /// Handles the Click event of the stop button
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            stopButton.Enabled = false;
+            startButton.Enabled = true;
+            ga.Stop();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the start button
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            startButton.Enabled = false;
+            stopButton.Enabled = true;
+            resetButton.Enabled = false;
+            ga.Start();
         }
 
         #endregion //methods
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            stopButton.Enabled = false;
+            startButton.Enabled = true;
+            ga.Reset();
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

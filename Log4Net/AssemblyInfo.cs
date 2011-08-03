@@ -112,7 +112,8 @@ using System.Runtime.CompilerServices;
 //
 #if STRONG && (CLI_1_0 || NET_1_0 || NET_4_0 || NET_1_1 || NETCF_1_0 || SSCLI)
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile(@"..\..\..\log4net.snk")]
+//[assembly: AssemblyKeyFile(@"..\..\..\log4net.snk")]
+[assembly: AssemblyKeyFile("")]
 #endif
 // We do not use a CSP key for strong naming
 // [assembly: AssemblyKeyName("")]
