@@ -15,17 +15,17 @@ namespace GEM
         /// <summary>
         /// Maximum dataset size
         /// </summary>
-        public const int maxDSSize      = 100;
+        public const int maxDSSize      = 1000;
 
         /// <summary>
         /// Minimum number of attributes
         /// </summary>
-        public const int minNumAttribs  = 5;
+        public const int minNumAttribs  = 2;
 
         /// <summary>
         /// Maximum number of attributes
         /// </summary>
-        public const int maxNumAttribs  = 10;
+        public const int maxNumAttribs  = 30;
 
         /// <summary>
         /// Minimum number of classes
@@ -35,7 +35,7 @@ namespace GEM
         /// <summary>
         /// Maximum number of classes
         /// </summary>
-        public const int maxNumClasses  = 10;
+        public const int maxNumClasses  = 30;
         
         /// <summary>
         /// Minimum number of classes in nominal attributes
@@ -66,6 +66,16 @@ namespace GEM
         /// Maximum value of continuous attributes
         /// </summary>
         public const int maxContinuous  = 1000000;  //1M
+
+        /// <summary>
+        /// Minimum of missingValueRatio
+        /// </summary>
+        public const double minMissing = 0.01;
+
+        /// <summary>
+        /// Maximum of missingValueRatio
+        /// </summary>
+        public const double maxMissing = 0.5;
 
         /// <summary>
         /// The base chance of mutation

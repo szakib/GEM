@@ -15,11 +15,6 @@ namespace GEM
         #region fields & properties
 
         /// <summary>
-        /// Magic number for signalling unknown correlation to be specified later
-        /// </summary>
-        private const double noKnownCorrelation= -2;
-
-        /// <summary>
         /// Unique ID linking the gene set to the dataset it represents
         /// </summary>
         public Guid    guid;
@@ -161,7 +156,11 @@ namespace GEM
             }
             set
             {
+                int cont = NumContinuousAttribs;
+                int disc = NumDiscreteAttribs;
+                numAttribs = 1 + cont + disc + value;
                 nominalAttribRatio = ((double)value) / ((double)numAttribs);
+                discreteAttribRatio = ((double)disc) / ((double)numAttribs);
             }
         }
 
@@ -176,7 +175,11 @@ namespace GEM
             }
             set
             {
+                int cont = NumContinuousAttribs;
+                int nom = NumNominalAttribs;
+                numAttribs = 1 + cont + nom + value;
                 discreteAttribRatio = ((double)value) / ((double)numAttribs);
+                nominalAttribRatio = ((double)nom) / ((double)numAttribs);
             }
         }
 
@@ -192,7 +195,11 @@ namespace GEM
             }
             set
             {
-                numAttribs = NumNominalAttribs + NumDiscreteAttribs + 1 + value;
+                int nom = NumNominalAttribs;
+                int disc = NumDiscreteAttribs;
+                numAttribs = 1 + nom + disc + value;
+                nominalAttribRatio = ((double)nom) / ((double)numAttribs);
+                discreteAttribRatio = ((double)disc) / ((double)numAttribs);
             }
         }
 
@@ -292,7 +299,8 @@ namespace GEM
                 double maxNAR = ((double)numAttribs - 1) / (double)numAttribs;
                 nominalAttribRatio = RandomDouble(rnd, 0, maxNAR);
                 discreteAttribRatio = RandomDouble(rnd, 0, maxNAR - nominalAttribRatio);
-                missingValueRatio = rnd.NextDouble();
+                missingValueRatio = RandomDouble(
+                    rnd, GeneConstants.minMissing, GeneConstants.maxMissing);
 
                 meanClass = RandomDouble(rnd, 0, numClasses - 1);
                 stdDevClass = RandomDouble(rnd, 0, numClasses - 1);
@@ -515,7 +523,8 @@ namespace GEM
             //missingValueRatio
             if (GetsMutated(rnd, chance))
             {
-                missingValueRatio = rnd.NextDouble();
+                missingValueRatio = RandomDouble(
+                    rnd, GeneConstants.minMissing, GeneConstants.maxMissing);
             }
             //meanClass
             if (GetsMutated(rnd, chance))
@@ -626,8 +635,6 @@ namespace GEM
         /// <returns>List of children</returns>
         public List<GeneSet> Breed(GeneSet other)
         {
-            //TODO: refactor! This method is way too long
-
             //currently 2 parents produce 2 offspring, but this can be changed if needed
             //"inherit entire attributes" i.e. not the ratios, but the matrix elements
             

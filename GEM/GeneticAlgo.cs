@@ -185,6 +185,7 @@ namespace GEM
             controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
             //controlGroup.Add(new Learner(LearnerType.SimpleLogistic, null));
             //controlGroup.Add(new Learner(LearnerType.SMO, null));
+            //controlGroup.Add(new Learner(LearnerType.Logistic, null));
 
             t.Start();
 
@@ -388,6 +389,7 @@ namespace GEM
             mainForm.StateLabel.Text = "Resetting, please wait.";
             mainForm.StateLabel.ForeColor = Color.Red;
             log.Info("Reset button pressed.");
+            pastFitness = new List<double>();
 
             resume = false;
             SaveConfig();
@@ -442,7 +444,7 @@ namespace GEM
             //save in the beginning, and every few minutes
             if (currentGeneration == 1 || stop)
                 SavePopulations();
-            if (t.Elapsed.Minutes == saveFrequency)
+            if (t.Elapsed.Minutes >= saveFrequency)
             {
                 SavePopulations();
                 t.Restart();

@@ -10,17 +10,14 @@
   <Class Name="GEM.MainForm">
     <Position X="2.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AADIgAAQACgEQBAhgASIEgACACoAAAAgAAAAEAAAABA=</HashCode>
+      <HashCode>AADIgAQYACgEADAhgAyJEgACACoIAAQgAAAEEAAAABA=</HashCode>
       <FileName>MainForm.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneticAlgo">
     <Position X="4.75" Y="0.5" Width="2.25" />
-    <Compartments>
-      <Compartment Name="Nested Types" Collapsed="false" />
-    </Compartments>
     <NestedTypes>
-      <Delegate Name="GEM.GeneticAlgo.AsynchProcessGen" Collapsed="true">
+      <Delegate Name="GEM.GeneticAlgo.SetGoodFitnessLabelCallback" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
@@ -30,12 +27,27 @@
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetGenerationLabelCallback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetStateLabelCallback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
       <Delegate Name="GEM.GeneticAlgo.SetProgressBarValueCallback" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
-      <Delegate Name="GEM.GeneticAlgo.SetGenerationLabelCallback" Collapsed="true">
+      <Delegate Name="GEM.GeneticAlgo.AsynchProcessGen" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.SetBadFitnessLabelCallback" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
@@ -45,37 +57,42 @@
           <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
+      <Delegate Name="GEM.GeneticAlgo.EnableResetButtonCallBack" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GeneticAlgo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAAAQAADAAAAABAhoAiAIgGgEhABAwJAQgIAEANCA=</HashCode>
+      <HashCode>CDCAgAQICDAABACJAhoAyAIoGgkhABAwJAQgMAGgNCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.DataSet">
-    <Position X="8.75" Y="0.5" Width="1.75" />
+    <Position X="12.25" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAgBAAAIAAAAAAQAAAAAAACAAAAAAAAAEAQAAAAAIA=</HashCode>
+      <HashCode>AAAgBAAAIAAAAAAQAAAAAAACAAAAAAAQAEAQAAAAAIA=</HashCode>
       <FileName>DataSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Individual">
-    <Position X="2.5" Y="6" Width="2" />
+    <Position X="10" Y="0.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>QAAgAAAAAAAAAAAAAAAAgAAAAAAAAAAACAAAAkAAAAI=</HashCode>
+      <HashCode>QAAgAAAAAAAAAAAAAAAAgAAAAAAAAAAQCAAAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.ConfigSettings">
     <Position X="0.5" Y="1.75" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AEAAAAQCAAAAAAAAAAAQAAgAAAAAAQAEAAAAAABAAAA=</HashCode>
+      <HashCode>AEAAAAQCAAAAAAAAAAAQgAgAAAAAAQAEAAAAAABAAAA=</HashCode>
       <FileName>ConfigSettings.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneSet">
-    <Position X="8.75" Y="3.5" Width="1.75" />
+    <Position X="7.25" Y="0.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAJAAAABAAIIAQALAIgQgIgkApQARIgMDCDAACYGEAE=</HashCode>
+      <HashCode>AANAAAABEAIoAQEPAIgQkIokApQARIgMDCDAACYGEAE=</HashCode>
       <FileName>GeneSet.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -87,12 +104,33 @@
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.IndividualComparer">
-    <Position X="0.5" Y="7" Width="1.75" />
+    <Position X="10" Y="3.75" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
+  <Class Name="GEM.GEMLogLayout" Collapsed="true">
+    <Position X="0.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAgAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>GEMLogLayout.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GEM.GeneConstants">
+    <Position X="10" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAQAAAAAAAAACAAAAABIAAQAACAQAAAAYBAAAAQ=</HashCode>
+      <FileName>GeneConstants.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="GEM.LearnerType" Collapsed="true">
+    <Position X="0.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgACIAgAAAQAAAgAAAAAAAAAAAEAAAAAg=</HashCode>
+      <FileName>Learner.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
   <Font Name="Tahoma" Size="8.25" />
 </ClassDiagram>

@@ -142,7 +142,7 @@ namespace GEM
                 return 0;
             }
 
-            double ret = eval.pctCorrect();
+            double ret = eval.fMeasure(0);
 
             //stopWatch.Stop();
             
