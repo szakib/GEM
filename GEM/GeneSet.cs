@@ -485,14 +485,16 @@ namespace GEM
         /// <summary>
         /// Mutates the gene set according to the given mutation coefficient
         /// </summary>
-        /// <param name="mutationCoefficient">The mutation coefficient</param>
+        /// <param name="chance">The mutation coefficient</param>
         /// <returns>true if mutation happened</returns>
-        public void Mutate(double mutationCoefficient)
+        public void Mutate(double chance)
         {
             mutated = false;
             Random rnd = new Random();
 
-            double chance = mutationCoefficient * GeneConstants.baseMutationChance;
+            int oldNumNom = NumNominalAttribs;
+            int oldNumDisc = NumDiscreteAttribs;
+            int oldNumCont = NumContinuousAttribs;
 
             //dataSetSize
             if (GetsMutated(rnd, chance))
@@ -586,7 +588,9 @@ namespace GEM
                     else
                         newStdDevMatrixNominal[row, 0] = stdDevMatrixNominal[row, 0];
 
-                    if (GetsMutated(rnd, chance))
+                    if (GetsMutated(rnd, chance)
+                        //it might be that the old value is above the current maximum
+                        || meanMatrixNominal[row, 0] > nominalClassesMatrix[row, 0] - 1)
                     {
                         newMeanMatrixNominal[row, 0]
                             = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
@@ -659,54 +663,39 @@ namespace GEM
                 child1.dataSetSize = other.dataSetSize;
             }
 
-            int[] numNom = new int[2];
-            int[] numDisc = new int[2];
-            int[] numCont = new int[2];
-
             //NumNominalAttribs is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
-                numNom[0] = this.NumNominalAttribs;
-                numNom[1] = other.NumNominalAttribs;
+                child1.NumNominalAttribs = this.NumNominalAttribs;
+                child2.NumNominalAttribs = other.NumNominalAttribs;
             }
             else
             {
-                numNom[1] = this.NumNominalAttribs;
-                numNom[0] = other.NumNominalAttribs;
+                child2.NumNominalAttribs = this.NumNominalAttribs;
+                child1.NumNominalAttribs = other.NumNominalAttribs;
             }
             //NumDiscreteAttribs is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
-                numDisc[0] = this.NumDiscreteAttribs;
-                numDisc[1] = other.NumDiscreteAttribs;
+                child1.NumDiscreteAttribs = this.NumDiscreteAttribs;
+                child2.NumDiscreteAttribs = other.NumDiscreteAttribs;
             }
             else
             {
-                numDisc[1] = this.NumDiscreteAttribs;
-                numDisc[0] = other.NumDiscreteAttribs;
+                child2.NumDiscreteAttribs = this.NumDiscreteAttribs;
+                child1.NumDiscreteAttribs = other.NumDiscreteAttribs;
             }
             //NumContinuousAttribs is inherited from one of the parents
             if (rnd.NextDouble() > 0.5)
             {
-                numCont[0] = this.NumContinuousAttribs;
-                numCont[1] = other.NumContinuousAttribs;
+                child1.NumContinuousAttribs = this.NumContinuousAttribs;
+                child2.NumContinuousAttribs = other.NumContinuousAttribs;
             }
             else
             {
-                numCont[1] = this.NumContinuousAttribs;
-                numCont[0] = other.NumContinuousAttribs;
+                child2.NumContinuousAttribs = this.NumContinuousAttribs;
+                child1.NumContinuousAttribs = other.NumContinuousAttribs;
             }
-
-            //Set the actual values. Remember, we are actually setting the ratios. ;)
-            child1.numAttribs = numNom[0] + numDisc[0] + numCont[0] + 1;
-            child2.numAttribs = numNom[1] + numDisc[1] + numCont[1] + 1;
-            child1.NumNominalAttribs    = numNom[0];
-            child1.NumDiscreteAttribs   = numDisc[0];
-            child1.NumContinuousAttribs = numCont[0];
-            child2.NumNominalAttribs    = numNom[1];
-            child2.NumDiscreteAttribs   = numDisc[1];
-            child2.NumContinuousAttribs = numCont[1];
-
 
             //helper lists to know which attrib of the children is which parent's which attrib
             List<GeneSet> child1AttribParents = new List<GeneSet>(child1.numAttribs);

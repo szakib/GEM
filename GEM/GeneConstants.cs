@@ -77,10 +77,10 @@ namespace GEM
         /// </summary>
         public const double maxMissing = 0.5;
 
-        /// <summary>
+        /*/// <summary>
         /// The base chance of mutation
         /// The effective chance is this * the coefficient
         /// </summary>
-        public const double baseMutationChance = 0.001;
+        public const double baseMutationChance = 0.001;*/
     }
 }

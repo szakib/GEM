@@ -16,6 +16,10 @@
   </Class>
   <Class Name="GEM.GeneticAlgo">
     <Position X="4.75" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
     <NestedTypes>
       <Delegate Name="GEM.GeneticAlgo.SetGoodFitnessLabelCallback" Collapsed="true">
         <TypeIdentifier>
@@ -121,7 +125,7 @@
   <Class Name="GEM.GeneConstants">
     <Position X="10" Y="5.25" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAEAAQAAAAAAAAACAAAAABIAAQAACAQAAAAYBAAAAQ=</HashCode>
+      <HashCode>AAAAAAQAAAAAAAAACAAAAABIAAQAACgQAAAAaBAAAAQ=</HashCode>
       <FileName>GeneConstants.cs</FileName>
     </TypeIdentifier>
   </Class>

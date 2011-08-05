@@ -136,6 +136,11 @@ namespace GEM
                 minOfCurrentAttrib = geneSet.MinOfAttrib(colRet);
                 maxOfCurrentAttrib = geneSet.MaxOfAttrib(colRet);
                 meanOfCurrentAttrib = meanMatrix[colRet, 0];
+                if (meanOfCurrentAttrib < minOfCurrentAttrib
+                    || meanOfCurrentAttrib > maxOfCurrentAttrib)
+                    throw new Exception(
+                        "The mean of attributes needs to be between the min and max.");
+
                 stdDevOfCurrentAttrib = stdDevMatrix[colRet, 0];
                 //each row is a sample
                 for (int rowRet = 0; rowRet < ret.NoRows; rowRet++)

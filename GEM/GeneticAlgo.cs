@@ -57,9 +57,9 @@ namespace GEM
         private double                  overallFitness      = 0;
 
         /// <summary>
-        /// between 0 and 100; 100 means very many mutations
+        /// between 0 and 1, ration of mutations
         /// </summary>
-        private int                     mutationSeverity;
+        private double                  mutationSeverity;
 
         private List<double>            pastFitness         = new List<double>();
         private double                  pastFitnessCount;
@@ -222,9 +222,9 @@ namespace GEM
             savePath = ConfigSettings.ReadString("SavePath");
             experimentID = ConfigSettings.ReadInt("ExperimentID");
             currentGeneration = ConfigSettings.ReadInt("CurrentGeneration");
-            mutationSeverity = ConfigSettings.ReadInt("MutationSeverity");
-            if (0 > mutationSeverity || 100 < mutationSeverity)
-                throw new Exception("MutationSeverity has to be between 0 and 100.");
+            mutationSeverity = ConfigSettings.ReadDouble("MutationSeverity");
+            if (0 > mutationSeverity || 1 < mutationSeverity)
+                throw new Exception("MutationSeverity has to be between 0 and 1.");
             numCrossValids = ConfigSettings.ReadInt("NumCrossValids");
             eliteRatio = ConfigSettings.ReadDouble("EliteRatio");
             pastFitnessCount = ConfigSettings.ReadInt("PastFitnessCount");
@@ -492,11 +492,10 @@ namespace GEM
             badPopulation = newBadPop;
 
             //Mutate (or not) each individual
-            double mutationCoefficient = mutationSeverity / 100;
             foreach (Individual i in goodPopulation)
-                i.Mutate(mutationCoefficient);
+                i.Mutate(mutationSeverity);
             foreach (Individual j in badPopulation)
-                j.Mutate(mutationCoefficient);
+                j.Mutate(mutationSeverity);
         } //non-surviving individuals of old populations get garbage collected here
 
         /// <summary>
@@ -868,9 +867,9 @@ namespace GEM
         {
             SetGenerationLabel(currentGeneration.ToString());
             SetFitnessLabel(overallFitness.ToString());
-            if (null != bestGood)
+            if (null != bestGood && null != bestGood.DataSet)
                 SetGoodFitnessLabel(bestGood.Fitness.ToString());
-            if (null != bestBad)
+            if (null != bestBad && null != bestBad.DataSet)
                 SetBadFitnessLabel(bestBad.Fitness.ToString());
         }
 
