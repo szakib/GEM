@@ -1020,10 +1020,14 @@ namespace GEM
             return DeCholesky(m);
         } //private Matrix RandomCorrelMatrix(Random rnd)
 
+        /// <summary>
+        /// Calculates m * m^T and rounds it so that the main diagonal values are really 1
+        /// </summary>
+        /// <param name="m">The input matrix</param>
+        /// <returns>m * m^T result matrix</returns>
         private Matrix DeCholesky(Matrix m)
         {
             NormaliseRows(m);
-            RoundMatrixValues(m, 15);
             Matrix ret = m * Matrix.Transpose(m);
             return RoundMatrixValues(ret, 14);
         }
@@ -1378,7 +1382,7 @@ namespace GEM
                 for (int row = 0; row < newRows; row++)
                     //there is potentially a value to be copied
                     if (row < target.NoRows)
-                        for (int col = 0; col < newRows; col++)
+                        for (int col = 0; col < newCols; col++)
                             //there is a value to be copied
                             if (col < target.NoCols)
                                 ret[row, col] = target[row, col];

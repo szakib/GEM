@@ -5,6 +5,7 @@ using System.Text;
 using weka.core;
 using weka.core.converters;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace GEM
 {
@@ -12,7 +13,7 @@ namespace GEM
     /// <summary>
     /// A dataset
     /// </summary>
-    public class DataSet
+    public class DataSet //: ISerializable
     {
         #region fields & properties
 
@@ -24,6 +25,7 @@ namespace GEM
         /// <summary>
         /// Data structure for Weka
         /// </summary>
+        //[NonSerialized()]
         public Instances data;
 
         /// <summary>
@@ -75,6 +77,14 @@ namespace GEM
         {
             this.geneSet = geneSet;
 
+            InitData();
+        }
+
+        /// <summary>
+        /// Initialises the data instances
+        /// </summary>
+        private void InitData()
+        {
             // 1. set up attributes
             FastVector attribs = SetupAttribs();
 
@@ -258,17 +268,25 @@ namespace GEM
             }
         }
 
+        #region ISerializable Members
+        /*
         //constructor to load dataset from file
-/*        /// <summary>
+        /// <summary>
         /// Initializes a new instance of the <see cref="DataSet"/> class
         /// NOT from an ARFF file, just the class without the data itself
         /// </summary>
         public DataSet()
         {
             throw new System.NotImplementedException();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("
         }*/
 
-        #endregion //methods
+        #endregion
 
+        #endregion //methods
     }
 }

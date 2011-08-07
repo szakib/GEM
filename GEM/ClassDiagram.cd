@@ -16,10 +16,6 @@
   </Class>
   <Class Name="GEM.GeneticAlgo">
     <Position X="4.75" Y="0.5" Width="2.25" />
-    <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
-      <Compartment Name="Properties" Collapsed="true" />
-    </Compartments>
     <NestedTypes>
       <Delegate Name="GEM.GeneticAlgo.SetGoodFitnessLabelCallback" Collapsed="true">
         <TypeIdentifier>
@@ -68,14 +64,14 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAgAQICDAABACJAhoAyAIoGgkhABAwJAQgMAGgNCA=</HashCode>
+      <HashCode>CDCAgAQISDAABACJAhoAyAIoGgkhABAwJAQgMAGgNCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.DataSet">
     <Position X="12.25" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAgBAAAIAAAAAAQAAAAAAACAAAAAAAQAEAQAAAAAIA=</HashCode>
+      <HashCode>AAAgBAAAIAAAAAAQAEAAAAACAAAAAAAQAEAQAAAAAIA=</HashCode>
       <FileName>DataSet.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -115,8 +111,8 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GEM.GEMLogLayout" Collapsed="true">
-    <Position X="0.5" Y="7" Width="1.5" />
+  <Class Name="GEM.GEMLogLayout">
+    <Position X="0.5" Y="8.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAgAAAAAAAAAAAACAAA=</HashCode>
       <FileName>GEMLogLayout.cs</FileName>
@@ -129,7 +125,7 @@
       <FileName>GeneConstants.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Enum Name="GEM.LearnerType" Collapsed="true">
+  <Enum Name="GEM.LearnerType">
     <Position X="0.5" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAgACIAgAAAQAAAgAAAAAAAAAAAEAAAAAg=</HashCode>

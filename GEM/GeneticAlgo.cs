@@ -50,6 +50,8 @@ namespace GEM
         /// </summary>
         private bool                    stop                = false;
 
+        private bool                    done                = false;
+
         private MainForm                mainForm;
         private string                  savePath;
         private int                     experimentID;
@@ -256,6 +258,7 @@ namespace GEM
         public void Start()
         {
             stop = false;
+            done = false;
             mainForm.StateLabel.Text = "Starting";
             mainForm.StateLabel.ForeColor = Color.Green;
 
@@ -358,7 +361,6 @@ namespace GEM
                                 + currentGeneration.ToString()
                                 + ".save";
             BinaryFormatter bFormatter = new BinaryFormatter();
-            //might want to use XmlSerializer instead
             
             //check if save dir exists, create it if needed
             if (!Directory.Exists(savePath))
@@ -366,16 +368,17 @@ namespace GEM
 
             //Save good population
             string path = Path.Combine(savePath, filename + "_good");
-            Stream stream = File.Open(path, FileMode.Create);
-            bFormatter.Serialize(stream, goodPopulation);
-            stream.Close();
+            Stream stream1 = File.Open(path, FileMode.Create);
+            bFormatter.Serialize(stream1, goodPopulation);
+            stream1.Close();
+            stream1.Dispose();
 
             //Save bad population
             path = Path.Combine(savePath, filename + "_bad");
-            stream = File.Open(path, FileMode.Create);
-            bFormatter.Serialize(stream, badPopulation);
-            stream.Close();
-            stream.Dispose();
+            Stream stream2 = File.Open(path, FileMode.Create);
+            bFormatter.Serialize(stream2, badPopulation);
+            stream2.Close();
+            stream2.Dispose();
             resume = true;
 
             SetLabel2("");
@@ -441,10 +444,9 @@ namespace GEM
         {
             CalculateFitness();
 
-            //save in the beginning, and every few minutes
-            if (currentGeneration == 1 || stop)
-                SavePopulations();
-            if (t.Elapsed.Minutes >= saveFrequency)
+            //save in the beginning, at stopping for resume and every few minutes
+            if (currentGeneration == 1 || (stop && !done)
+                || t.Elapsed.Minutes >= saveFrequency)
             {
                 SavePopulations();
                 t.Restart();
@@ -478,9 +480,11 @@ namespace GEM
             log.Info("Best individual in good population:");
             logIndividual(bestGood);
             bestGood.SaveArff(savePath);
+            bestGood.ImmuniseAgainstMutations();
             log.Info("Best individual in bad population:");
             logIndividual(bestBad);
             bestBad.SaveArff(savePath);
+            bestBad.ImmuniseAgainstMutations();
 
             //Breeding to fill the rest of the places
             Random rnd = new Random();
@@ -655,6 +659,7 @@ namespace GEM
             //this here is the stop criterion for the entire genetic algorithm!
             if (StopCrit())
             {
+                done = true;
                 stop = true;
                 string happyMessage = "Stop criterion reached.";
                 resume = false;

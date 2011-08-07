@@ -17,6 +17,11 @@ namespace GEM
         #region fields & properties
 
         /// <summary>
+        /// True if this individual is immune to mutation
+        /// </summary>
+        private bool immuneToMutation = false;
+
+        /// <summary>
         /// Accumulated fitness value for selection
         /// </summary>
         public double AccumFitness = 0;
@@ -26,8 +31,6 @@ namespace GEM
         /// </summary>
         private GeneSet genes;
 
-        //The dataset does not get fully serialised into the save file,
-        //because it is saved in a separate ARFF file for use with weka.
         //Only the fitness value is saved.
         //[NonSerialized]
         /// <summary>
@@ -145,13 +148,19 @@ namespace GEM
             Fitness = (double)info.GetValue("Fitness", typeof(double));
         }*/
 
+        public void ImmuniseAgainstMutations()
+        {
+            immuneToMutation = true;
+        }
+
         /// <summary>
         /// Mutates the gene set according to the specified mutation coefficient
         /// </summary>
         /// <param name="mutationCoefficient">The mutation coefficient</param>
         public void Mutate(double mutationCoefficient)
         {
-            genes.Mutate(mutationCoefficient);
+            if (!immuneToMutation)
+                genes.Mutate(mutationCoefficient);
             //if there was a mutation, the DS is invalid
             if (genes.Mutated)
                 dataSet = null;

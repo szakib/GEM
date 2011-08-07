@@ -17,7 +17,9 @@ namespace GEM
         /// <summary>
         /// Prevents a default instance of the <see cref="ConfigSettings"/> class from being created
         /// </summary>
-        private ConfigSettings() { }
+        private ConfigSettings()
+        {
+        }
 
         /// <summary>
         /// Reads the setting.
@@ -207,6 +209,11 @@ namespace GEM
             }
         }
 
+        /// <summary>
+        /// Reada bool value
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>The value</returns>
         public static bool ReadBool(string key)
         {
             try
