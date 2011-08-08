@@ -446,7 +446,7 @@ namespace GEM
 
             //save in the beginning, at stopping for resume and every few minutes
             if (currentGeneration == 1 || (stop && !done)
-                || t.Elapsed.Minutes >= saveFrequency)
+                || t.Elapsed.TotalMinutes >= saveFrequency)
             {
                 SavePopulations();
                 t.Restart();
