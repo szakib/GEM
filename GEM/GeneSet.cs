@@ -1517,8 +1517,14 @@ namespace GEM
         private string IndentMultilineString(string str, string indentString)
         {
             string[] strs = str.Split(Environment.NewLine.ToCharArray());
+            string current;
             for (int i = 0; i < strs.GetLength(0); i++)
-                strs[i] = indentString + strs[i];
+            {
+                current = strs[i].TrimStart(" ".ToCharArray());
+                if (!current.StartsWith("-"))
+                    current = " " + current;
+                strs[i] = indentString + current;
+            }
             return string.Join(Environment.NewLine, strs);
         }
 
@@ -1530,7 +1536,7 @@ namespace GEM
         /// </returns>
         public override string ToString()
         {
-            string leadingSpaces = new String(' ', GEMLogLayout.padding);
+            string leadingSpaces = new String(' ', 20); //length of date +1 in the log
 
             return "guid: " + guid.ToString() + Environment.NewLine
                 + leadingSpaces + "dataSetSize: " + dataSetSize.ToString() + Environment.NewLine

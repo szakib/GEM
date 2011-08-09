@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net.Layout;
+//using log4net.Layout;
 using System.IO;
-using log4net.Core;
+//using log4net.Core;
 
 namespace GEM
 {
-    class GEMLogLayout : LayoutSkeleton
+/*    class GEMLogLayout : LayoutSkeleton
     {
         /// <summary>
         /// Length of the non-message part of the formatting
@@ -81,5 +81,5 @@ namespace GEM
 		}
 
 		#endregion
-    }
+    }*/
 }

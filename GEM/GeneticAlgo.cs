@@ -7,12 +7,15 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using log4net;
+/*using log4net;
 using log4net.Config;
 using log4net.Appender;
-using log4net.Layout;
+using log4net.Layout;*/
 using System.Diagnostics;
 using System.Threading;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 
 namespace GEM
 {
@@ -46,7 +49,7 @@ namespace GEM
         /// <summary>
         /// Logger
         /// </summary>
-        private ILog                    log;
+        private Logger                  log;
 
         /// <summary>
         /// flag signalling that Stop has been pressed on the UI
@@ -265,17 +268,28 @@ namespace GEM
         /// </summary>
         private void InitLog()
         {
-            log = LogManager.GetLogger(
-                System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-            //even though this is supposed to be deprecated, it works,
-            //while the official method doesn't
-            FileAppender fa = new FileAppender(
-            /*fa.Layout =*/         new GEMLogLayout(),
-            /*fa.File =*/           Path.Combine(savePath, "GEM_log.txt"),
-            /*fa.AppendToFile =*/   true);
-            fa.Encoding = Encoding.UTF8;
-            fa.ImmediateFlush = true;
-            BasicConfigurator.Configure(fa);
+            // Step 1. Create configuration object 
+            LoggingConfiguration config = new LoggingConfiguration();
+
+            // Step 2. Create targets and add them to the configuration 
+            FileTarget fileTarget = new FileTarget();
+            config.AddTarget("file", fileTarget);
+
+            // Step 3. Set target properties 
+            fileTarget.FileName = Path.Combine(savePath, "GEM_log.txt");
+            fileTarget.Layout = "${date:format=dd/MM/yyyy HH.mm.ss} ${message}";
+
+            // Step 4. Define rules
+            LoggingRule rule1 = new LoggingRule("*", LogLevel.Info, fileTarget);
+            config.LoggingRules.Add(rule1);
+
+            /*LoggingRule rule2 = new LoggingRule("*", LogLevel.Debug, fileTarget);
+            config.LoggingRules.Add(rule2);*/
+
+            // Step 5. Activate the configuration
+            LogManager.Configuration = config;
+
+            log = LogManager.GetLogger("GeneticAlgo");
             log.Info("*****************************");
             log.Info("GEM started, init successful.");
         }
@@ -569,12 +583,18 @@ namespace GEM
 
             log.Info("Best individual in good population:");
             logIndividual(bestGood);
-            bestGood.SaveArff(savePath);
-            bestGood.ImmuniseAgainstMutations();
+            if (null != bestGood)
+            {
+                bestGood.SaveArff(savePath);
+                bestGood.ImmuniseAgainstMutations();
+            }
             log.Info("Best individual in bad population:");
             logIndividual(bestBad);
-            bestBad.SaveArff(savePath);
-            bestBad.ImmuniseAgainstMutations();
+            if (null != bestBad)
+            {
+                bestBad.SaveArff(savePath);
+                bestBad.ImmuniseAgainstMutations();
+            }
 
             //Breeding to fill the rest of the places
             Random rnd = new Random();
