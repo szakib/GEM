@@ -1197,7 +1197,7 @@ namespace GEM
             return DeCholesky(ret);
         }
         
-        /// <summary>
+/*        /// <summary>
         /// Expands a correlation matrix.
         /// Simulates the adding of new, randomly correlated attribs
         /// </summary>
@@ -1242,7 +1242,7 @@ namespace GEM
                         l2[row, col] = 0;
 
             return DeCholesky(l2);
-        }
+        }*/
 
         /// <summary>
         /// Returns the Cholesky decomposition of a correlation matrix

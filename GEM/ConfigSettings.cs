@@ -210,7 +210,7 @@ namespace GEM
         }
 
         /// <summary>
-        /// Reada bool value
+        /// Reads a bool value
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>The value</returns>
@@ -224,6 +224,30 @@ namespace GEM
             {
                 throw new Exception(key
                     + " value specified in the config file is not a proper boolean value.");
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Unknown error while reading "
+                    + key + " from config file. Exception text:" + e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Reads an enum value into an object
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="enumType">Type of the enum</param>
+        /// <returns>The value</returns>
+        public static object ReadEnum(string key, Type enumType)
+        {
+            try
+            {
+                return Enum.Parse(enumType, ConfigurationManager.AppSettings[key], true);
+            }
+            catch (FormatException)
+            {
+                throw new Exception(key
+                    + " value specified in the config file is not a proper enum value.");
             }
             catch (Exception e)
             {

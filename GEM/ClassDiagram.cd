@@ -64,7 +64,7 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAgAQISDAABACJAhoAyAIoGgkhABAwJAQgMAGgNCA=</HashCode>
+      <HashCode>CDCAgAQISDAABACZAhoAyAKoCgkhABAwIAQgEAGgNCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -78,33 +78,33 @@
   <Class Name="GEM.Individual">
     <Position X="10" Y="0.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>QAAgAAAAAAAAAAAAAAAAgAAAAAAAAAAQCAAAAkAAAAI=</HashCode>
+      <HashCode>QAAgAAAAAAAAAAAEAAAAgAAAAAAAAAAQCABAAkAAAAI=</HashCode>
       <FileName>Individual.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.ConfigSettings">
     <Position X="0.5" Y="1.75" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AEAAAAQCAAAAAAAAAAAQgAgAAAAAAQAEAAAAAABAAAA=</HashCode>
+      <HashCode>AEAAAAQCBAAAAAAAAAAQgAgAAAAAAQAEAAAAAABAAAA=</HashCode>
       <FileName>ConfigSettings.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneSet">
     <Position X="7.25" Y="0.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AANAAAABEAIoAQEPAIgQkIokApQARIgMDCDAACYGEAE=</HashCode>
+      <HashCode>AANAAAABEAIoAQEPAIgQgIokApQARIgMDCDAACYGEAE=</HashCode>
       <FileName>GeneSet.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.Learner">
-    <Position X="0.5" Y="4.25" Width="1.75" />
+    <Position X="2.5" Y="9" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAQgAAAAAA=</HashCode>
       <FileName>Learner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.IndividualComparer">
-    <Position X="10" Y="3.75" Width="1.75" />
+    <Position X="10" Y="4.25" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
       <FileName>Individual.cs</FileName>
@@ -119,7 +119,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="GEM.GeneConstants">
-    <Position X="10" Y="5.25" Width="1.75" />
+    <Position X="10" Y="5.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAQAAAAAAAAACAAAAABIAAQAACgQAAAAaBAAAAQ=</HashCode>
       <FileName>GeneConstants.cs</FileName>

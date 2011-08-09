@@ -23,6 +23,9 @@ namespace GEM
     {
         #region fields & properties
 
+        /// <summary>
+        /// Size of each of the populations
+        /// </summary>
         private int                     populationSize;
         
         /// <summary>
@@ -50,21 +53,54 @@ namespace GEM
         /// </summary>
         private bool                    stop                = false;
 
+        /// <summary>
+        /// Flag signalling that the stop criterion has been met
+        /// </summary>
         private bool                    done                = false;
 
+        /// <summary>
+        /// Pointer to UI
+        /// </summary>
         private MainForm                mainForm;
+
+        /// <summary>
+        /// Path for save files and log
+        /// </summary>
         private string                  savePath;
+
+        /// <summary>
+        /// Experiment ID
+        /// </summary>
         private int                     experimentID;
+
+        /// <summary>
+        /// Number of current generation
+        /// </summary>
         private int                     currentGeneration;
+
+        /// <summary>
+        /// Sum of the fitness values of the best of the two populations
+        /// </summary>
         private double                  overallFitness      = 0;
 
         /// <summary>
-        /// between 0 and 1, ration of mutations
+        /// between 0 and 1, ratio of mutations
         /// </summary>
         private double                  mutationSeverity;
 
+        /// <summary>
+        /// List of fitness values of past generations, used in StopCrit()
+        /// </summary>
         private List<double>            pastFitness         = new List<double>();
+
+        /// <summary>
+        /// Number of past fitness values to use in StopCrit()
+        /// </summary>
         private double                  pastFitnessCount;
+        
+        /// <summary>
+        /// Fitness derivative threshold for StopCrit()
+        /// </summary>
         private double                  minFitnessDerivative;
 
         /// <summary>
@@ -77,15 +113,47 @@ namespace GEM
         /// </summary>
         private Stopwatch               t                   = new Stopwatch();
 
-        //fields for properties below
-        private Learner                 targetLearner;
-        private List<Learner>           controlGroup        = new List<Learner>();
-        private List<Individual>        goodPopulation      = new List<Individual>();
-        private List<Individual>        badPopulation       = new List<Individual>();
-        private Individual              bestGood            = null;
-        private Individual              bestBad             = null;
+        /// <summary>
+        /// Type of the target learner
+        /// </summary>
+        private LearnerType             targetLearnerType;
 
         /// <summary>
+        /// Types of control group learners
+        /// </summary>
+        private List<LearnerType>       controlLearnerTypes;
+
+        /// <summary>
+        /// Target learner
+        /// </summary>
+        private Learner                 targetLearner;
+
+        /// <summary>
+        /// Control group of other learners
+        /// </summary>
+        private List<Learner>           controlGroup        = new List<Learner>();
+
+        /// <summary>
+        /// The population aiming to maximise bias for the target algorithm
+        /// </summary>
+        private List<Individual>        goodPopulation      = new List<Individual>();
+
+        /// <summary>
+        /// The population aiming to maximise bias against the target algorithm
+        /// </summary>
+        private List<Individual> badPopulation = new List<Individual>();
+
+        /// <summary>
+        /// Best individual in the good population
+        /// </summary>
+        private Individual              bestGood            = null;
+
+        /// <summary>
+        /// Best individual in the bad population
+        /// </summary>
+        private Individual              bestBad             = null;
+
+        /*/// <summary>
         /// Gets or sets the target learner
         /// </summary>
         /// <value>
@@ -160,7 +228,7 @@ namespace GEM
             {
                 badPopulation = value;
             }
-        }
+        }*/
 
         #endregion
 
@@ -183,11 +251,9 @@ namespace GEM
         {
             mainForm = main;
             ReadConfig();
-            targetLearner = new Learner(LearnerType.J48, null);
-            controlGroup.Add(new Learner(LearnerType.NaiveBayes, null));
-            //controlGroup.Add(new Learner(LearnerType.SimpleLogistic, null));
-            //controlGroup.Add(new Learner(LearnerType.SMO, null));
-            //controlGroup.Add(new Learner(LearnerType.Logistic, null));
+            targetLearner = new Learner(targetLearnerType, null);
+            foreach (LearnerType lt in controlLearnerTypes)
+                controlGroup.Add(new Learner(lt, null));
 
             t.Start();
 
@@ -232,6 +298,28 @@ namespace GEM
             pastFitnessCount = ConfigSettings.ReadInt("PastFitnessCount");
             minFitnessDerivative = ConfigSettings.ReadDouble("MinFitnessDerivative");
             saveFrequency = ConfigSettings.ReadInt("SaveFrequency");
+            targetLearnerType
+                = (LearnerType)ConfigSettings.ReadEnum(
+                    "TargetLearner", typeof(LearnerType));
+            controlLearnerTypes = new List<LearnerType>();
+            string controlTypes = ConfigSettings.ReadString("ControlGroupMembers");
+            string[] typesArray
+                = controlTypes.Split(" ,;.'/?:|".ToCharArray(),
+                    StringSplitOptions.RemoveEmptyEntries);
+            foreach (string s in typesArray)
+            {
+                try
+                {
+                    LearnerType ltype = (LearnerType)Enum.Parse(typeof(LearnerType), s);
+                    controlLearnerTypes.Add(ltype);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(
+                        "Error while reading ControlGroupMembers from config file. Exception text:"
+                        + e.Message);
+                }
+            }
         }
 
         /// <summary>
@@ -250,6 +338,8 @@ namespace GEM
             ConfigSettings.WriteSetting("PastFitnessCount", pastFitnessCount.ToString());
             ConfigSettings.WriteSetting("MinFitnessDerivative", minFitnessDerivative.ToString());
             ConfigSettings.WriteSetting("SaveFrequency", saveFrequency.ToString());
+            //since the learners cannot be modified while the program is running,
+            //they are not saved here
         }
 
         /// <summary>
