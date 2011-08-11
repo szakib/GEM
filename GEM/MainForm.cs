@@ -123,33 +123,6 @@ namespace GEM
         }
 
         /// <summary>
-        /// Handles the Click event of the progressBar1 control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void progressBar1_Click(object sender, EventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Handles the Click event of the stateLabel2 control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void stateLabel2_Click(object sender, EventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Handles the Click event of the stateLabel control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void stateLabel_Click(object sender, EventArgs e)
-        {
-        }
-
-        /// <summary>
         /// Handles the Click event of the stop button
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -174,8 +147,6 @@ namespace GEM
             ga.Start();
         }
 
-        #endregion //methods
-
         private void resetButton_Click(object sender, EventArgs e)
         {
             stopButton.Enabled = false;
@@ -183,14 +154,6 @@ namespace GEM
             ga.Reset();
         }
 
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label6_Click(object sender, EventArgs e)
-        {
-
-        }
+        #endregion //methods
     }
 }

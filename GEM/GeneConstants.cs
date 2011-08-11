@@ -76,11 +76,5 @@ namespace GEM
         /// Maximum of missingValueRatio
         /// </summary>
         public const double maxMissing = 0.5;
-
-        /*/// <summary>
-        /// The base chance of mutation
-        /// The effective chance is this * the coefficient
-        /// </summary>
-        public const double baseMutationChance = 0.001;*/
     }
 }

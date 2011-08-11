@@ -49,7 +49,8 @@ namespace GEM
         /// <summary>
         /// Logger
         /// </summary>
-        private Logger                  log;
+        private static Logger           log                 = LogManager.GetLogger("GeneticAlgo");
+
 
         /// <summary>
         /// flag signalling that Stop has been pressed on the UI
@@ -156,6 +157,7 @@ namespace GEM
         /// </summary>
         private Individual              bestBad             = null;
 
+        //these might be useful at a certain point
         /*/// <summary>
         /// Gets or sets the target learner
         /// </summary>
@@ -243,7 +245,8 @@ namespace GEM
         /// </summary>
         public GeneticAlgo()
         {
-            throw new Exception("Please use the GeneticAlgo(MainForm main) constructor instead.");
+            throw new Exception(
+                "Please use the GeneticAlgo(MainForm main) constructor instead.");
         }
 
         /// <summary>
@@ -283,13 +286,9 @@ namespace GEM
             LoggingRule rule1 = new LoggingRule("*", LogLevel.Info, fileTarget);
             config.LoggingRules.Add(rule1);
 
-            /*LoggingRule rule2 = new LoggingRule("*", LogLevel.Debug, fileTarget);
-            config.LoggingRules.Add(rule2);*/
-
             // Step 5. Activate the configuration
             LogManager.Configuration = config;
 
-            log = LogManager.GetLogger("GeneticAlgo");
             log.Info("*****************************");
             log.Info("GEM started, init successful.");
         }
@@ -641,7 +640,8 @@ namespace GEM
 
             while (toFill.Count < populationSize)
             {
-                SetProgressBarValue((int)Math.Round((double)(toFill.Count / populationSize) * 100));
+                SetProgressBarValue(
+                    (int)Math.Round((double)(toFill.Count / populationSize) * 100));
 
                 Individual parent1 = null;
                 Individual parent2 = null;
@@ -686,7 +686,10 @@ namespace GEM
         /// <param name="totalAccFit">The total accumulated fitness of the parents</param>
         /// <param name="rnd">The Random object to use for selection</param>
         /// <returns>Prospective parent</returns>
-        private Individual SelectParent(List<Individual> fillFrom, double totalAccFit, Random rnd)
+        private Individual SelectParent(
+            List<Individual> fillFrom,
+            double totalAccFit,
+            Random rnd)
         {
             //selection of parents is based on this value
             double currTotFit = rnd.NextDouble() * totalAccFit;
@@ -780,6 +783,7 @@ namespace GEM
                 SetLabel2("");
 
             overallFitness = newOverallFitness;
+            log.Info("Overall fitness: " + overallFitness.ToString());
         }
 
         /// <summary>
@@ -1085,7 +1089,8 @@ namespace GEM
             // If these threads are different, it returns true.
             if (mainForm.BadFitnessLabel.InvokeRequired)
             {
-                SetBadFitnessLabelCallback d = new SetBadFitnessLabelCallback(SetBadFitnessLabel);
+                SetBadFitnessLabelCallback d
+                    = new SetBadFitnessLabelCallback(SetBadFitnessLabel);
                 mainForm.BadFitnessLabel.Invoke(d, new object[] { text });
             }
             else

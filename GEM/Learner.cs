@@ -12,27 +12,16 @@ using System.Diagnostics;
 namespace GEM
 {
     /// <summary>
-    /// Types of learners currently acceptable
-    /// </summary>
-    public enum LearnerType
-    {
-        NaiveBayes,
-        J48,
-        SimpleLinearRegression,
-        LinearRegression,
-        MultilayerPerceptron,
-        Logistic,
-        SimpleLogistic,
-        SMO
-    };
-
-    /// <summary>
     /// A learning algorithm
     /// </summary>
     public class Learner
     {
         #region fields & properties
 
+        /// <summary>
+        /// Timer for timing how much time is spent with this learner,
+        /// switch on for debug if needed
+        /// </summary>
         //public Stopwatch stopWatch = new Stopwatch();
         
         /// <summary>
@@ -50,11 +39,6 @@ namespace GEM
         /// </summary>
         public string[] options;
         
-        /*/// <summary>
-        /// Ratio of test set / all data
-        /// </summary>
-        private double testSetRatio = 0.3;*/
-
         #endregion
 
         #region methods
@@ -87,15 +71,6 @@ namespace GEM
         public double Learn(Instances data, int numCrossValids)
         {
             //stopWatch.Start();
-            /*//split data into training / test set
-            Instances train = new Instances(data, 0);
-            Instances test = new Instances(data, 0);
-            Random rnd = new Random();
-            for (int i = 0; i < data.numInstances(); i++)
-                if (rnd.NextDouble() > testSetRatio)
-                    train.add(data.instance(i));
-                else
-                    test.add(data.instance(i));*/
 
             //Weka
             switch (toolType)
@@ -106,7 +81,8 @@ namespace GEM
                 case LearnerType.J48:
                     tool = new J48();
                     break;
-                case LearnerType.SimpleLinearRegression:
+                //later, when the task can be regression as well
+                /*case LearnerType.SimpleLinearRegression:
                     tool = new SimpleLinearRegression();
                     break;
                 case LearnerType.LinearRegression:
@@ -114,7 +90,7 @@ namespace GEM
                     break;
                 case LearnerType.MultilayerPerceptron:
                     tool = new MultilayerPerceptron();
-                    break;
+                    break;*/
                 case LearnerType.Logistic:
                     tool = new Logistic();
                     break;

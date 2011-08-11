@@ -139,12 +139,6 @@ namespace GEM
             }
         }
 
-        //The behaviour (which one is a function of which)
-        //of the ratios / counts might need to be swapped.
-        //This way it is _theoretically_ possible that
-        //the rounding of the attribs produces a mismatch in the counts
-        //i.e. the nom+cont+discr don't add up to the total.
-        
         /// <summary>
         /// number of nominal attributes
         /// </summary>
@@ -291,14 +285,18 @@ namespace GEM
             {
                 Random rnd = new Random();
 
-                dataSetSize = RandomInt(rnd, GeneConstants.minDSSize, GeneConstants.maxDSSize);
-                numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
-                numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
+                dataSetSize = RandomInt(rnd,
+                    GeneConstants.minDSSize, GeneConstants.maxDSSize);
+                numAttribs = RandomInt(rnd,
+                    GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
+                numClasses = RandomInt(rnd,
+                    GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
 
                 //without the explicit casts, the 1st part is 0 because it's an int.
                 double maxNAR = ((double)numAttribs - 1) / (double)numAttribs;
                 nominalAttribRatio = RandomDouble(rnd, 0, maxNAR);
-                discreteAttribRatio = RandomDouble(rnd, 0, maxNAR - nominalAttribRatio);
+                discreteAttribRatio = RandomDouble(
+                    rnd, 0, maxNAR - nominalAttribRatio);
                 missingValueRatio = RandomDouble(
                     rnd, GeneConstants.minMissing, GeneConstants.maxMissing);
 
@@ -347,12 +345,15 @@ namespace GEM
             {
                 //has to be between min and max, needs to be an int stored as double
                 nominalClassesMatrix[row, 0]
-                    = Math.Round(RandomDouble(rnd, GeneConstants.minNominal, GeneConstants.maxNominal));
+                    = Math.Round(RandomDouble(rnd,
+                    GeneConstants.minNominal, GeneConstants.maxNominal));
 
                 //has to be between 0 and max class
-                meanMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                meanMatrixNominal[row, 0]
+                    = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
                 //has to be between 0 and max class
-                stdDevMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                stdDevMatrixNominal[row, 0]
+                    = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
             }
 
             //discrete
@@ -360,9 +361,11 @@ namespace GEM
             {
                 //has to be between min and max
                 meanMatrixDiscrete[row, 0]
-                    = RandomDouble(rnd, GeneConstants.minDiscrete, GeneConstants.maxDiscrete);
+                    = RandomDouble(rnd,
+                    GeneConstants.minDiscrete, GeneConstants.maxDiscrete);
                 //has to be between 0 and max
-                stdDevMatrixDiscrete[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxDiscrete);
+                stdDevMatrixDiscrete[row, 0]
+                    = RandomDouble(rnd, 0, GeneConstants.maxDiscrete);
             }
 
             //continuous
@@ -370,9 +373,11 @@ namespace GEM
             {
                 //has to be between min and max
                 meanMatrixContinuous[row, 0]
-                    = RandomDouble(rnd, GeneConstants.minContinuous, GeneConstants.maxContinuous);
+                    = RandomDouble(rnd,
+                    GeneConstants.minContinuous, GeneConstants.maxContinuous);
                 //has to be between 0 and max
-                stdDevMatrixContinuous[row, 0] = RandomDouble(rnd, 0, GeneConstants.maxContinuous);
+                stdDevMatrixContinuous[row, 0]
+                    = RandomDouble(rnd, 0, GeneConstants.maxContinuous);
             }
 
             //Correlation matrix
@@ -412,7 +417,7 @@ namespace GEM
         }
 
         /// <summary>
-        /// Random double between min and max
+        /// Random double between min and max, _including_ both the bounds
         /// </summary>
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
         /// <param name="min">The minimum</param>
@@ -427,7 +432,7 @@ namespace GEM
         }
 
         /// <summary>
-        /// Random float between min and max
+        /// Random float between min and max, _including_ both the bounds
         /// </summary>
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
         /// <param name="min">The minimum</param>
@@ -499,17 +504,20 @@ namespace GEM
             //dataSetSize
             if (GetsMutated(rnd, chance))
             {
-                dataSetSize = RandomInt(rnd, GeneConstants.minDSSize, GeneConstants.maxDSSize);
+                dataSetSize = RandomInt(rnd,
+                    GeneConstants.minDSSize, GeneConstants.maxDSSize);
             }
             //numAttribs
             if (GetsMutated(rnd, chance))
             {
-                numAttribs = RandomInt(rnd, GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
+                numAttribs = RandomInt(rnd,
+                    GeneConstants.minNumAttribs, GeneConstants.maxNumAttribs);
             }
             //numClasses
             if (GetsMutated(rnd, chance))
             {
-                numClasses = RandomInt(rnd, GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
+                numClasses = RandomInt(rnd,
+                    GeneConstants.minNumClasses, GeneConstants.maxNumClasses);
             }
             //nominalAttribRatio
             if (GetsMutated(rnd, chance))
@@ -519,7 +527,8 @@ namespace GEM
             //discreteAttribRatio
             if (GetsMutated(rnd, chance))
             {
-                double maxDAR = ((numAttribs - 1) / numAttribs) - nominalAttribRatio;
+                double maxDAR =
+                    ((numAttribs - 1) / numAttribs) - nominalAttribRatio;
                 discreteAttribRatio = RandomDouble(rnd, 0, maxDAR);
             }
             //missingValueRatio
@@ -548,8 +557,10 @@ namespace GEM
             //resize
             if (correlationMatrix.NoRows < numAttribs)
             {
-                Matrix newPart = RandomCorrelMatrix(rnd, numAttribs - correlationMatrix.NoRows);
-                correlationMatrix = CombineCorrelMatrices(correlationMatrix, newPart, rnd);
+                Matrix newPart = RandomCorrelMatrix(rnd,
+                    numAttribs - correlationMatrix.NoRows);
+                correlationMatrix
+                    = CombineCorrelMatrices(correlationMatrix, newPart, rnd);
             }
             else if (correlationMatrix.NoRows > numAttribs)
             {
@@ -564,9 +575,11 @@ namespace GEM
             }
 
             //nominalClassesMatrix
-            nominalClassesMatrix = MutateMatrix(nominalClassesMatrix, rnd, chance,
+            nominalClassesMatrix
+                = MutateMatrix(nominalClassesMatrix, rnd, chance,
                 GeneConstants.minNominal, GeneConstants.maxNominal);
-            nominalClassesMatrix = AdjustMatrixSize(nominalClassesMatrix, NumNominalAttribs, 1,
+            nominalClassesMatrix
+                = AdjustMatrixSize(nominalClassesMatrix, NumNominalAttribs, 1,
                 GeneConstants.minNominal, GeneConstants.maxNominal, rnd);
             nominalClassesMatrix = RoundMatrixValues(nominalClassesMatrix);
 
@@ -601,8 +614,10 @@ namespace GEM
                 //beyond the original matrix, value has to be a new random number
                 else
                 {
-                    newStdDevMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
-                    newMeanMatrixNominal[row, 0] = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    newStdDevMatrixNominal[row, 0]
+                        = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
+                    newMeanMatrixNominal[row, 0]
+                        = RandomDouble(rnd, 0, nominalClassesMatrix[row, 0] - 1);
                 }
             }
 
@@ -614,21 +629,25 @@ namespace GEM
             //discrete mean&stdDev
             stdDevMatrixDiscrete = MutateMatrix(stdDevMatrixDiscrete, rnd, chance,
                 0, GeneConstants.maxDiscrete);
-            stdDevMatrixDiscrete = AdjustMatrixSize(stdDevMatrixDiscrete, NumDiscreteAttribs, 1,
+            stdDevMatrixDiscrete
+                = AdjustMatrixSize(stdDevMatrixDiscrete, NumDiscreteAttribs, 1,
                 0, GeneConstants.maxDiscrete, rnd);
             meanMatrixDiscrete = MutateMatrix(meanMatrixDiscrete, rnd, chance,
                 GeneConstants.minDiscrete, GeneConstants.maxDiscrete);
-            meanMatrixDiscrete = AdjustMatrixSize(meanMatrixDiscrete, NumDiscreteAttribs, 1,
+            meanMatrixDiscrete
+                = AdjustMatrixSize(meanMatrixDiscrete, NumDiscreteAttribs, 1,
                 GeneConstants.minDiscrete, GeneConstants.maxDiscrete, rnd);
 
             //continuous mean&stdDev
             stdDevMatrixContinuous = MutateMatrix(stdDevMatrixContinuous, rnd, chance,
                 0, GeneConstants.maxContinuous);
-            stdDevMatrixContinuous = AdjustMatrixSize(stdDevMatrixContinuous, NumContinuousAttribs, 1,
+            stdDevMatrixContinuous
+                = AdjustMatrixSize(stdDevMatrixContinuous, NumContinuousAttribs, 1,
                 0, GeneConstants.maxContinuous, rnd);
             meanMatrixContinuous = MutateMatrix(meanMatrixContinuous, rnd, chance,
                 GeneConstants.minContinuous, GeneConstants.maxContinuous);
-            meanMatrixContinuous = AdjustMatrixSize(meanMatrixContinuous, NumContinuousAttribs, 1,
+            meanMatrixContinuous
+                = AdjustMatrixSize(meanMatrixContinuous, NumContinuousAttribs, 1,
                 GeneConstants.minContinuous, GeneConstants.maxContinuous, rnd);
         } //public bool Mutate(double mutationCoefficient)
 
@@ -779,9 +798,12 @@ namespace GEM
                 if (!takenAttribsNom.Contains(indexCombined))
                 {
                     takenAttribsNom.Add(indexCombined);
-                    child1.meanMatrixNominal[indexChild, 0] = meanNomCombined[indexCombined, 0];
-                    child1.stdDevMatrixNominal[indexChild, 0] = sdNomCombined[indexCombined, 0];
-                    child1.nominalClassesMatrix[indexChild, 0] = nomClassCombined[indexCombined, 0];
+                    child1.meanMatrixNominal[indexChild, 0]
+                        = meanNomCombined[indexCombined, 0];
+                    child1.stdDevMatrixNominal[indexChild, 0]
+                        = sdNomCombined[indexCombined, 0];
+                    child1.nominalClassesMatrix[indexChild, 0]
+                        = nomClassCombined[indexCombined, 0];
 
                     //store where the attrib came from
                     //attrib came from this parent
@@ -805,9 +827,12 @@ namespace GEM
             for (indexCombined = 0; indexCombined < meanNomCombined.NoRows; indexCombined++)
                 if (!takenAttribsNom.Contains(indexCombined))
                 {
-                    child2.meanMatrixNominal[indexChild, 0] = meanNomCombined[indexCombined, 0];
-                    child2.stdDevMatrixNominal[indexChild, 0] = sdNomCombined[indexCombined, 0];
-                    child2.nominalClassesMatrix[indexChild, 0] = nomClassCombined[indexCombined, 0];
+                    child2.meanMatrixNominal[indexChild, 0]
+                        = meanNomCombined[indexCombined, 0];
+                    child2.stdDevMatrixNominal[indexChild, 0]
+                        = sdNomCombined[indexCombined, 0];
+                    child2.nominalClassesMatrix[indexChild, 0]
+                        = nomClassCombined[indexCombined, 0];
 
                     //store where the attrib came from
                     //attrib came from this parent
@@ -836,8 +861,10 @@ namespace GEM
                 if (!takenAttribsDis.Contains(indexCombined))
                 {
                     takenAttribsDis.Add(indexCombined);
-                    child1.meanMatrixDiscrete[indexChild, 0] = meanDisCombined[indexCombined, 0];
-                    child1.stdDevMatrixDiscrete[indexChild, 0] = sdDisCombined[indexCombined, 0];
+                    child1.meanMatrixDiscrete[indexChild, 0]
+                        = meanDisCombined[indexCombined, 0];
+                    child1.stdDevMatrixDiscrete[indexChild, 0]
+                        = sdDisCombined[indexCombined, 0];
 
                     //store where the attrib came from
                     //attrib came from this parent
@@ -862,8 +889,10 @@ namespace GEM
             for (indexCombined = 0; indexCombined < meanDisCombined.NoRows; indexCombined++)
                 if (!takenAttribsDis.Contains(indexCombined))
                 {
-                    child2.meanMatrixDiscrete[indexChild, 0] = meanDisCombined[indexCombined, 0];
-                    child2.stdDevMatrixDiscrete[indexChild, 0] = sdDisCombined[indexCombined, 0];
+                    child2.meanMatrixDiscrete[indexChild, 0]
+                        = meanDisCombined[indexCombined, 0];
+                    child2.stdDevMatrixDiscrete[indexChild, 0]
+                        = sdDisCombined[indexCombined, 0];
 
                     //store where the attrib came from
                     //attrib came from this parent
@@ -893,22 +922,25 @@ namespace GEM
                 if (!takenAttribsCon.Contains(indexCombined))
                 {
                     takenAttribsCon.Add(indexCombined);
-                    child1.meanMatrixContinuous[indexChild, 0] = meanConCombined[indexCombined, 0];
-                    child1.stdDevMatrixContinuous[indexChild, 0] = sdConCombined[indexCombined, 0];
+                    child1.meanMatrixContinuous[indexChild, 0]
+                        = meanConCombined[indexCombined, 0];
+                    child1.stdDevMatrixContinuous[indexChild, 0]
+                        = sdConCombined[indexCombined, 0];
 
                     //store where the attrib came from
                     //attrib came from this parent
                     if (indexCombined < this.NumContinuousAttribs)
                     {
                         child1AttribParents.Add(this);
-                        child1AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
-                            + indexCombined);
+                        child1AttribIndices.Add(1 + this.NumNominalAttribs
+                            + this.NumDiscreteAttribs + indexCombined);
                     }
                     //attrib came from other parent
                     else
                     {
                         child1AttribParents.Add(other);
-                        child1AttribIndices.Add(1 + other.NumNominalAttribs + other.NumDiscreteAttribs
+                        child1AttribIndices.Add(
+                            1 + other.NumNominalAttribs + other.NumDiscreteAttribs
                             + indexCombined - this.NumContinuousAttribs);
                     }
 
@@ -920,22 +952,25 @@ namespace GEM
             for (indexCombined = 0; indexCombined < meanConCombined.NoRows; indexCombined++)
                 if (!takenAttribsCon.Contains(indexCombined))
                 {
-                    child2.meanMatrixContinuous[indexChild, 0] = meanConCombined[indexCombined, 0];
-                    child2.stdDevMatrixContinuous[indexChild, 0] = sdConCombined[indexCombined, 0];
+                    child2.meanMatrixContinuous[indexChild, 0]
+                        = meanConCombined[indexCombined, 0];
+                    child2.stdDevMatrixContinuous[indexChild, 0]
+                        = sdConCombined[indexCombined, 0];
 
                     //store where the attrib came from
                     //attrib came from this parent
                     if (indexCombined < this.NumContinuousAttribs)
                     {
                         child2AttribParents.Add(this);
-                        child2AttribIndices.Add(1 + this.NumNominalAttribs + this.NumDiscreteAttribs
-                            + indexCombined);
+                        child2AttribIndices.Add(1 + this.NumNominalAttribs
+                            + this.NumDiscreteAttribs + indexCombined);
                     }
                     //attrib came from other parent
                     else
                     {
                         child2AttribParents.Add(other);
-                        child2AttribIndices.Add(1 + other.NumNominalAttribs + other.NumDiscreteAttribs
+                        child2AttribIndices.Add(
+                            1 + other.NumNominalAttribs + other.NumDiscreteAttribs
                             + indexCombined - this.NumContinuousAttribs);
                     }
 
@@ -943,9 +978,11 @@ namespace GEM
                 }
 
             //Correlation matrix for child1
-            FillChildCorrelationMatrix(child1, child1AttribParents, child1AttribIndices, rnd);
+            FillChildCorrelationMatrix(
+                child1, child1AttribParents, child1AttribIndices, rnd);
             //Correlation matrix for child2
-            FillChildCorrelationMatrix(child2, child2AttribParents, child2AttribIndices, rnd);
+            FillChildCorrelationMatrix(
+                child2, child2AttribParents, child2AttribIndices, rnd);
 
             #endregion //pass attributes on to children randomly
 
@@ -963,9 +1000,13 @@ namespace GEM
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
         /// <param name="chance">The mutation chance</param>
         /// <returns>The mutated matrix</returns>
-        private Matrix MutateCorrelMatrix(Matrix correlationMatrix, Random rnd, double chance)
+        private Matrix MutateCorrelMatrix(
+            Matrix correlationMatrix,
+            Random rnd,
+            double chance)
         {
-            Matrix ret = ManetToMatrixLib(CholeskyOfCorrelations(correlationMatrix));
+            Matrix ret
+                = ManetToMatrixLib(CholeskyOfCorrelations(correlationMatrix));
 
             for (int i = 0; i < correlationMatrix.NoRows; i++)
                 for (int j = 0; j < i + 1; j++)
@@ -1070,14 +1111,17 @@ namespace GEM
             Matrix fatherCorrel = null;
             if (mother != null)
             {
-                motherCorrel = PartialCorrelationMatrix(mother.correlationMatrix, motherIndices);
+                motherCorrel
+                    = PartialCorrelationMatrix(mother.correlationMatrix, motherIndices);
 
                 if (father != null)
                 {
-                    fatherCorrel = PartialCorrelationMatrix(father.correlationMatrix, fatherIndices);
+                    fatherCorrel
+                        = PartialCorrelationMatrix(father.correlationMatrix, fatherIndices);
 
                     //Step 3: Combine mother and father
-                    child.correlationMatrix = CombineCorrelMatrices(motherCorrel, fatherCorrel, rnd);
+                    child.correlationMatrix
+                        = CombineCorrelMatrices(motherCorrel, fatherCorrel, rnd);
 
                     //Step 4: Rearrange to original order of attribs
                     for (int a = 0; a < fatherAttribsInFinal.Count; a++)
@@ -1091,7 +1135,8 @@ namespace GEM
                     child.correlationMatrix = motherCorrel;
             } //if (mother != null)
             else
-                child.correlationMatrix = new Matrix(Matrix.Identity(attribIndices.Count));
+                child.correlationMatrix
+                    = new Matrix(Matrix.Identity(attribIndices.Count));
         }
 
         /// <summary>
@@ -1101,7 +1146,10 @@ namespace GEM
         /// <param name="fatherCorrel">The father correlation matrix</param>
         /// <param name="rnd">The <see cref="Random"/> object to use</param>
         /// <returns>Combined matrix, mother first</returns>
-        private Matrix CombineCorrelMatrices(Matrix motherCorrel, Matrix fatherCorrel, Random rnd)
+        private Matrix CombineCorrelMatrices(
+            Matrix motherCorrel,
+            Matrix fatherCorrel,
+            Random rnd)
         {
             int n = motherCorrel.NoRows + fatherCorrel.NoRows;
             Matrix ret = new Matrix(n, n);
@@ -1136,7 +1184,8 @@ namespace GEM
                                         * xVector[col, 0];
                             //we have a value
                             else
-                                ret[row, col] = fatherR.Get(row - motherCorrel.NoRows - 1,
+                                ret[row, col] = fatherR.Get(
+                                    row - motherCorrel.NoRows - 1,
                                     col - motherCorrel.NoRows - 1);
 
             return DeCholesky(ret);
@@ -1197,53 +1246,6 @@ namespace GEM
             return DeCholesky(ret);
         }
         
-/*        /// <summary>
-        /// Expands a correlation matrix.
-        /// Simulates the adding of new, randomly correlated attribs
-        /// </summary>
-        /// <param name="c">The input correlation matrix.</param>
-        /// <param name="newNumAttribs">The new number of attributes</param>
-        /// <param name="rnd">The <see cref="Random"/> object to use</param>
-        /// <returns>
-        /// The expanded correlation matrix
-        /// </returns>
-        private Matrix ExpandCorrelMatrix(Matrix c, int newNumAttribs, Random rnd)
-        {
-            Matrix l2 = new Matrix(c.NoRows + newNumAttribs, c.NoRows + newNumAttribs);
-
-            //Cholesky gives C -> L
-            MaNet.Matrix l1 = CholeskyOfCorrelations(c);
-
-            double min = double.PositiveInfinity;
-            double max = double.NegativeInfinity;
-            for (int row1 = 0; row1 < c.NoRows; row1++)
-                for (int col1 = 0; col1 < c.NoRows; col1++)
-                {
-                    if (l1.Get(row1, col1) < min)
-                        min =  l1.Get(row1, col1);
-                    if (l1.Get(row1, col1) > max)
-                        max = l1.Get(row1, col1);
-                }
-
-            //Add numbers
-            for (int row = 0; row < l2.NoRows; row++)
-                for (int col = 0; col < l2.NoRows; col++)
-                    //existing values copied
-                    if (row < c.NoRows && col < c.NoRows)
-                        l2[row, col] = l1.Get(row, col);
-                    //diagonal random > 0
-                    else if (row == col)
-                        l2[row, col] = RandomDouble(rnd, 0, max);
-                    //bottom side random values
-                    else if (row > col)
-                        l2[row, col] = RandomDouble(rnd, min, max);
-                    //right side: zeroes
-                    else
-                        l2[row, col] = 0;
-
-            return DeCholesky(l2);
-        }*/
-
         /// <summary>
         /// Returns the Cholesky decomposition of a correlation matrix
         /// </summary>
@@ -1542,19 +1544,25 @@ namespace GEM
                 + leadingSpaces + "dataSetSize: " + dataSetSize.ToString() + Environment.NewLine
                 + leadingSpaces + "numAttribs: " + numAttribs.ToString() + Environment.NewLine
                 + leadingSpaces + "numClasses: " + numClasses.ToString() + Environment.NewLine
-                + leadingSpaces + "nominalAttribRatio: " + nominalAttribRatio.ToString() + Environment.NewLine
-                + leadingSpaces + "discreteAttribRatio: " + discreteAttribRatio.ToString() + Environment.NewLine
-                + leadingSpaces + "missingValueRatio: " + missingValueRatio.ToString() + Environment.NewLine
+                + leadingSpaces + "nominalAttribRatio: "
+                    + nominalAttribRatio.ToString() + Environment.NewLine
+                + leadingSpaces + "discreteAttribRatio: "
+                    + discreteAttribRatio.ToString() + Environment.NewLine
+                + leadingSpaces + "missingValueRatio: "
+                    + missingValueRatio.ToString() + Environment.NewLine
                 + leadingSpaces + "meanClass: " + meanClass.ToString() + Environment.NewLine
                 + leadingSpaces + "stdDevClass: " + stdDevClass.ToString() + Environment.NewLine
                 + leadingSpaces + "meanMatrix: " + Environment.NewLine
                 + IndentMultilineString(meanMatrix.ToString(), leadingSpaces) + Environment.NewLine
                 + leadingSpaces + "stdDevMatrix: " + Environment.NewLine
-                + IndentMultilineString(stdDevMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                + IndentMultilineString(stdDevMatrix.ToString(), leadingSpaces)
+                    + Environment.NewLine
                 + leadingSpaces + "nominalClassesMatrix: " + Environment.NewLine
-                + IndentMultilineString(nominalClassesMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                + IndentMultilineString(nominalClassesMatrix.ToString(), leadingSpaces)
+                    + Environment.NewLine
                 + leadingSpaces + "correlationMatrix: " + Environment.NewLine
-                + IndentMultilineString(correlationMatrix.ToString(), leadingSpaces) + Environment.NewLine
+                + IndentMultilineString(correlationMatrix.ToString(), leadingSpaces)
+                    + Environment.NewLine
                 ;
         }
 

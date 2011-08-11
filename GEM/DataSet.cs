@@ -111,7 +111,7 @@ namespace GEM
             //MaNet matrices instead of MatrixLibrary ones.
             //Would be better not to convert,
             //but the MaNet.Matrix is generally not so good as MatrixLibrary.Matrix
-            //(It's idiotic to use a jagged array to represent a matrix
+            //(It's not a good idea to use a jagged array to represent a matrix
             //which has to have rows of the same size.)
 
             if (geneSet.correlationMatrix.NoRows != geneSet.correlationMatrix.NoCols)
@@ -267,25 +267,6 @@ namespace GEM
                 saver.writeBatch();
             }
         }
-
-        #region ISerializable Members
-        /*
-        //constructor to load dataset from file
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataSet"/> class
-        /// NOT from an ARFF file, just the class without the data itself
-        /// </summary>
-        public DataSet()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("
-        }*/
-
-        #endregion
 
         #endregion //methods
     }

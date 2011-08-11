@@ -77,7 +77,6 @@
             this.stateLabel.Size = new System.Drawing.Size(21, 13);
             this.stateLabel.TabIndex = 2;
             this.stateLabel.Text = "Init";
-            this.stateLabel.Click += new System.EventHandler(this.stateLabel_Click);
             // 
             // stateLabel2
             // 
@@ -86,7 +85,6 @@
             this.stateLabel2.Name = "stateLabel2";
             this.stateLabel2.Size = new System.Drawing.Size(0, 13);
             this.stateLabel2.TabIndex = 3;
-            this.stateLabel2.Click += new System.EventHandler(this.stateLabel2_Click);
             // 
             // label1
             // 
@@ -162,7 +160,6 @@
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(203, 23);
             this.progressBar.TabIndex = 12;
-            this.progressBar.Click += new System.EventHandler(this.progressBar1_Click);
             // 
             // resetButton
             // 
@@ -182,7 +179,6 @@
             this.label5.Size = new System.Drawing.Size(97, 13);
             this.label5.TabIndex = 14;
             this.label5.Text = "Good Pop. Fitness:";
-            this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
             // goodPopFitnessLabel
             // 
@@ -191,7 +187,6 @@
             this.goodPopFitnessLabel.Name = "goodPopFitnessLabel";
             this.goodPopFitnessLabel.Size = new System.Drawing.Size(0, 13);
             this.goodPopFitnessLabel.TabIndex = 15;
-            this.goodPopFitnessLabel.Click += new System.EventHandler(this.label6_Click);
             // 
             // label7
             // 

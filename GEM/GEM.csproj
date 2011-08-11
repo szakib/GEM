@@ -108,12 +108,12 @@
   <ItemGroup>
     <Compile Include="ConfigSettings.cs" />
     <Compile Include="DataSet.cs" />
-    <Compile Include="GEMLogLayout.cs" />
     <Compile Include="GeneConstants.cs" />
     <Compile Include="GeneSet.cs" />
     <Compile Include="GeneticAlgo.cs" />
     <Compile Include="Individual.cs" />
     <Compile Include="Learner.cs" />
+    <Compile Include="LearnerType.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

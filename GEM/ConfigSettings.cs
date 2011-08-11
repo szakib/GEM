@@ -15,7 +15,8 @@ namespace GEM
     public class ConfigSettings
     {
         /// <summary>
-        /// Prevents a default instance of the <see cref="ConfigSettings"/> class from being created
+        /// Prevents a default instance of the <see cref="ConfigSettings"/>
+        /// class from being created
         /// </summary>
         private ConfigSettings()
         {
@@ -103,7 +104,8 @@ namespace GEM
             }
             catch (NullReferenceException e)
             {
-                throw new Exception(string.Format("The key {0} does not exist.", key), e);
+                throw new Exception(string.Format(
+                    "The key {0} does not exist.", key), e);
             }
         }
 
