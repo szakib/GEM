@@ -100,6 +100,15 @@ namespace GEM
                 case LearnerType.SMO:
                     tool = new SMO();
                     break;
+                case LearnerType.NBTree:
+                    tool = new NBTree();
+                    break;
+                case LearnerType.REPTree:
+                    tool = new REPTree();
+                    break;
+                case LearnerType.Id3:
+                    tool = new Id3();
+                    break;
                 default:
                     throw new Exception("LearnerType invalid");
             }

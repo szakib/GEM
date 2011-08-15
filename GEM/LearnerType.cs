@@ -15,6 +15,9 @@ namespace GEM
         //MultilayerPerceptron,
         Logistic,
         SimpleLogistic,
-        SMO
+        SMO,
+        NBTree,
+        REPTree,
+        Id3
     };
 }

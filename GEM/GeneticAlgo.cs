@@ -391,20 +391,31 @@ namespace GEM
         {
             SetLabel2("Initialising populations");
 
-            goodPopulation = new List<Individual>();
-            badPopulation = new List<Individual>();
-
-            for (int i = 0; i < populationSize; i++)
-            {
-                //the 2 initial populations will not be the same, this is by design
-                goodPopulation.Add(new Individual());
-                badPopulation.Add(new Individual());
-            }
+            //the 2 initial populations will not be the same, this is by design
+            goodPopulation = RandomPopulation(populationSize);
+            badPopulation = RandomPopulation(populationSize);
 
             experimentID++;
             currentGeneration = 0;
 
             SetLabel2("");
+        }
+
+        /// <summary>
+        /// Constructs a random population
+        /// </summary>
+        /// <param name="size">Number of individuals</param>
+        /// <returns>The random population</returns>
+        private List<Individual> RandomPopulation(int size)
+        {
+            List<Individual> ret = new List<Individual>();
+
+            for (int i = 0; i < size; i++)
+            {
+                ret.Add(new Individual());
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -559,41 +570,53 @@ namespace GEM
             goodPopulation.Sort(new IndividualComparer());
             badPopulation.Sort(new IndividualComparer());
 
-            //Create the next generation, which has two groups in it:
-            //1.: Elite from previous
-            //2.: Random children of current generation
-            List<Individual> newGoodPop = new List<Individual>();
-            List<Individual> newBadPop = new List<Individual>();
-
-            //Elite survives...
-            for (int i = 0; i < populationSize * eliteRatio; i++)
-            {
-                //... but only if it's not useless
-                if (badPopulation[i].Fitness > 0)
-                    newBadPop.Add(badPopulation[i]);
-                if (goodPopulation[i].Fitness > 0)
-                    newGoodPop.Add(goodPopulation[i]);
-            }
-
             //Breeding chance will depend on accumulated fitness
             //see http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29
             double totalFitGood = AccumulateFitness(goodPopulation, out bestGood);
             double totalFitBad = AccumulateFitness(badPopulation, out bestBad);
+            List<Individual> newGoodPop = new List<Individual>();
+            List<Individual> newBadPop = new List<Individual>();
 
             log.Info("Best individual in good population:");
             logIndividual(bestGood);
-            if (null != bestGood)
+            if (null != bestGood && bestGood.Fitness > 1)
             {
                 bestGood.SaveArff(savePath);
                 bestGood.ImmuniseAgainstMutations();
+                newGoodPop = new List<Individual>();
+                //Elite survives...
+                for (int i = 0; i < populationSize * eliteRatio; i++)
+                    //... but only if it's not useless
+                    if (goodPopulation[i].Fitness > 1)
+                        newGoodPop.Add(goodPopulation[i]);
+            }
+            else
+            {
+                log.Info("Re-initialising good population.");
+                newGoodPop = RandomPopulation(populationSize);
             }
             log.Info("Best individual in bad population:");
             logIndividual(bestBad);
-            if (null != bestBad)
+            if (null != bestBad && bestBad.Fitness > 1)
             {
                 bestBad.SaveArff(savePath);
                 bestBad.ImmuniseAgainstMutations();
+                newBadPop = new List<Individual>();
+                //Elite survives...
+                for (int i = 0; i < populationSize * eliteRatio; i++)
+                    //... but only if it's not useless
+                    if (badPopulation[i].Fitness > 1)
+                        newBadPop.Add(badPopulation[i]);
             }
+            else
+            {
+                log.Info("Re-initialising bad population.");
+                newBadPop = RandomPopulation(populationSize);
+            }
+
+            //Create the next generation, which has two groups in it:
+            //1.: Elite from previous
+            //2.: Random children of current generation
 
             //Breeding to fill the rest of the places
             Random rnd = new Random();
@@ -857,6 +880,8 @@ namespace GEM
             if (stop)
             {
                 SaveConfig();
+                if (!done)
+                    SavePopulations();
                 SetStateLabel("Stopped, safe to exit or continue by pressing Start.");
                 //mainForm.StateLabel.ForeColor = Color.Green;
                 EnableResetButton();
@@ -864,7 +889,6 @@ namespace GEM
             }
             else
             {
-                Thread.Sleep(10);
                 NextGeneration();
             }
         }
