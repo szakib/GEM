@@ -271,6 +271,9 @@ namespace GEM
 
         #region methods
 
+        /// <summary>
+        /// Do not use this
+        /// </summary>
         public GeneSet()
         {
             throw new Exception("Use GeneSet(bool fillRandom) constructor instead.");

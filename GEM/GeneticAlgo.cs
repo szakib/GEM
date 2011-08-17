@@ -157,6 +157,9 @@ namespace GEM
         /// </summary>
         private Individual              bestBad             = null;
 
+        /// <summary>
+        /// True if the application should run in a single thread
+        /// </summary>
         private bool singleThreadHack = false;
 
         //these might be useful at a certain point
@@ -577,8 +580,8 @@ namespace GEM
             }
 
             //Sort the populations by fitness (descending)
-            goodPopulation.Sort(new IndividualComparer());
-            badPopulation.Sort(new IndividualComparer());
+            goodPopulation.Sort(new IndividualDescendingComparer());
+            badPopulation.Sort(new IndividualDescendingComparer());
 
             //Breeding chance will depend on accumulated fitness
             //see http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29

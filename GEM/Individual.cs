@@ -172,7 +172,7 @@ namespace GEM
     /// <summary>
     /// Class for the (descending) sorting of Individuals by their fitness
     /// </summary>
-    public class IndividualComparer : IComparer<Individual>
+    public class IndividualDescendingComparer : IComparer<Individual>
     {
         #region IComparer<Individual> Members
 

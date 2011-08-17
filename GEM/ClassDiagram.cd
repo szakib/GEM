@@ -67,7 +67,7 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CDCAgAQISDAABACZAhoAyAKoCgkhABAwIAQgEAGgNCA=</HashCode>
+      <HashCode>CDCAgAQISDAABACZAhoAyAKoKgkhABAwIAQgEAGgNCA=</HashCode>
       <FileName>GeneticAlgo.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -106,8 +106,8 @@
       <FileName>Learner.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="GEM.IndividualComparer">
-    <Position X="10.75" Y="4" Width="1.75" />
+  <Class Name="GEM.IndividualDescendingComparer">
+    <Position X="10.75" Y="4" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
       <FileName>Individual.cs</FileName>
@@ -115,7 +115,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GEM.GeneConstants">
-    <Position X="13" Y="3.75" Width="1.75" />
+    <Position X="13.5" Y="3.75" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAQAAAAAAAAACAAAAABIAAQAACgQAAAAaBAAAAQ=</HashCode>
       <FileName>GeneConstants.cs</FileName>
@@ -124,7 +124,7 @@
   <Enum Name="GEM.LearnerType">
     <Position X="2.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAgACIAgAAAQAAAgAAAAAAAAAAAEAAAAAg=</HashCode>
+      <HashCode>AAACAAAAAAAAACAAgAAAQAAAAAAAAAAAAAAAMAEAAAg=</HashCode>
       <FileName>LearnerType.cs</FileName>
     </TypeIdentifier>
   </Enum>
