@@ -126,6 +126,10 @@ namespace GEM
             {
                 return mutated;
             }
+            set
+            {
+                mutated = value;
+            }
         }
 
         /// <summary>
@@ -497,10 +501,6 @@ namespace GEM
             mutated = false;
             Random rnd = new Random();
 
-            int oldNumNom = NumNominalAttribs;
-            int oldNumDisc = NumDiscreteAttribs;
-            int oldNumCont = NumContinuousAttribs;
-
             //dataSetSize
             if (GetsMutated(rnd, chance))
             {
@@ -522,13 +522,14 @@ namespace GEM
             //nominalAttribRatio
             if (GetsMutated(rnd, chance))
             {
-                nominalAttribRatio = rnd.NextDouble();
+                double maxNAR = ((double)numAttribs - 1) / (double)numAttribs;
+                nominalAttribRatio = RandomDouble(rnd, 0, maxNAR);
             }
             //discreteAttribRatio
             if (GetsMutated(rnd, chance))
             {
                 double maxDAR =
-                    ((numAttribs - 1) / numAttribs) - nominalAttribRatio;
+                    ((double)numAttribs - 1) / (double)numAttribs - nominalAttribRatio;
                 discreteAttribRatio = RandomDouble(rnd, 0, maxDAR);
             }
             //missingValueRatio
@@ -538,7 +539,7 @@ namespace GEM
                     rnd, GeneConstants.minMissing, GeneConstants.maxMissing);
             }
             //meanClass
-            if (GetsMutated(rnd, chance))
+            if (GetsMutated(rnd, chance) || meanClass > numClasses - 1)
             {
                 meanClass = RandomDouble(rnd, 0, numClasses - 1);
             }
@@ -1391,7 +1392,7 @@ namespace GEM
                             else
                                 ret[row, col] = RandomDouble(rnd, minValue, maxValue);
                     else
-                        for (int col = 0; col < newRows; col++)
+                        for (int col = 0; col < newCols; col++)
                             ret[row, col] = RandomDouble(rnd, minValue, maxValue);
 
                 return ret;

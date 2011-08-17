@@ -141,6 +141,7 @@ namespace GEM
         public void ImmuniseAgainstMutations()
         {
             immuneToMutation = true;
+            genes.Mutated = false;
         }
 
         /// <summary>
@@ -193,15 +194,17 @@ namespace GEM
         /// </returns>
         public int Compare(Individual x, Individual y)
         {
-            int ret = 1;
-
             if (null != x && null != y)
             {
                 //this results in a descending order
-                ret = y.Fitness.CompareTo(x.Fitness);
+                return y.Fitness.CompareTo(x.Fitness);
             }
-
-            return ret;
+            else if (null == x && null != y)
+                return 1;
+            else if (null == y && null != x)
+                return -1;
+            else //both are null
+                return 0;
         }
 
         #endregion

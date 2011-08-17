@@ -157,6 +157,8 @@ namespace GEM
         /// </summary>
         private Individual              bestBad             = null;
 
+        private bool singleThreadHack = false;
+
         //these might be useful at a certain point
         /*/// <summary>
         /// Gets or sets the target learner
@@ -298,6 +300,7 @@ namespace GEM
         /// </summary>
         private void ReadConfig()
         {
+            singleThreadHack = ConfigSettings.ReadBool("SingleThreadHack");
             populationSize = ConfigSettings.ReadInt("PopulationSize");
             resume = ConfigSettings.ReadBool("Resume");
             savePath = ConfigSettings.ReadString("SavePath");
@@ -539,10 +542,17 @@ namespace GEM
             mainForm.StateLabel.ForeColor = Color.Green;
             SetExperimentDetailLabels();
 
-            //start new generation by calling ProcessGeneration asynchronously
-            AsynchProcessGen caller = new AsynchProcessGen(this.ProcessGeneration);
-
-            caller.BeginInvoke(new AsyncCallback(NextGenCallBack), ""); 
+            if (singleThreadHack)
+            {
+                ProcessGeneration();
+                NextGenCallBack(null);
+            }
+            else
+            {
+                //start new generation by calling ProcessGeneration asynchronously
+                AsynchProcessGen caller = new AsynchProcessGen(this.ProcessGeneration);
+                caller.BeginInvoke(new AsyncCallback(NextGenCallBack), ""); 
+            }
         }
 
         /// <summary>
